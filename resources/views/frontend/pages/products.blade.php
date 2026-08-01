@@ -1,0 +1,48 @@
+@extends('frontend.layouts.master')
+
+@section('meta_title', $seo['meta_title'] ?? 'Products - AES Energy')
+@section('meta_description', $seo['meta_description'] ?? '')
+@section('meta_keyword', $seo['meta_keyword'] ?? '')
+
+@section('content')
+<div class="page-banner">
+      <div><span class="crumb">Home / Products</span><h1>Hardware we stand behind</h1><p>Tier-1 panels, hybrid inverters and smart monitoring — all under one warranty desk.</p></div>
+    </div>
+    <section class="section">
+      <div class="grid-3 reveal-stagger">
+        <div class="card">
+          <div class="img-wrap"><img src="{{ asset('images/product-panel.jpg') }}" alt="Solar panel"></div>
+          <div class="card-body"><h3>Mono PERC Panels</h3><p>Up to 21.8% module efficiency with 25-year linear output warranty. Built for Indian heat and dust conditions.</p><button class="card-link" onclick="window.location.href='{{ route('login') }}'">View specs <span>→</span></button></div>
+        </div>
+        <div class="card">
+          <div class="img-wrap"><img src="{{ asset('images/product-inverter.jpg') }}" alt="Solar inverter"></div>
+          <div class="card-body"><h3>Smart Hybrid Inverters</h3><p>App-based monitoring with automatic grid/battery switching and remote diagnostics.</p><button class="card-link" onclick="window.location.href='{{ route('login') }}'">View specs <span>→</span></button></div>
+        </div>
+        <div class="card">
+          <div class="img-wrap"><img src="{{ asset('images/product-battery.jpg') }}" alt="Battery storage"></div>
+          <div class="card-body"><h3>Lithium Battery Banks</h3><p>Modular storage that scales as your household load grows, with 10-year performance warranty.</p><button class="card-link" onclick="window.location.href='{{ route('login') }}'">View specs <span>→</span></button></div>
+        </div>
+      </div>
+    </section>
+    <section class="section section-alt">
+      <div class="section-head reveal"><span class="eyebrow">Specs at a glance</span><h2>Built to last, engineered to perform</h2></div>
+      <div class="compare-wrap reveal">
+        <table class="compare">
+          <tr><th>Component</th><th>Efficiency / Rating</th><th>Warranty</th><th>Ideal For</th></tr>
+          <tr><td>Mono PERC Panel</td><td>21.8% efficiency</td><td>25 years linear</td><td>All rooftop types</td></tr>
+          <tr><td>Hybrid Inverter</td><td>97.5% efficiency</td><td>10 years</td><td>Grid + battery setups</td></tr>
+          <tr><td>Lithium Battery</td><td>6000+ cycles</td><td>10 years</td><td>Backup &amp; off-grid</td></tr>
+          <tr><td>Mounting Structure</td><td>Hot-dip galvanized</td><td>15 years</td><td>All roof types</td></tr>
+        </table>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head reveal"><span class="eyebrow">Why Our Hardware</span><h2>Certified, tested, trusted</h2></div>
+      <div class="brand-strip reveal-stagger">
+        <span>✅ MNRE Approved Models</span>
+        <span>✅ BIS Certified Panels</span>
+        <span>✅ IEC 61215 &amp; 61730 Tested</span>
+        <span>✅ ALMM Listed Manufacturers</span>
+      </div>
+    </section>
+@endsection

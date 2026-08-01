@@ -1,0 +1,47 @@
+<div class="refer-hero">
+        <div>
+          <span class="eyebrow" style="color:var(--blue-600);font-weight:700;">Your unique code</span>
+          <div class="code-box" style="margin-top:10px;"><span id="refCode">AES-ROHAN482</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy</button></div>
+          <div class="share-row">
+            <a class="share-btn wa" href="#" onclick="shareVia('WhatsApp');return false;">🟢 WhatsApp</a>
+            <a class="share-btn sms" href="#" onclick="shareVia('SMS');return false;">💬 SMS</a>
+            <a class="share-btn link" href="#" onclick="shareVia('Link');return false;">🔗 Copy Link</a>
+          </div>
+        </div>
+        <div>
+          <div class="flow-row">
+            <div class="flow-step"><div class="ic">👥</div><span>You Refer</span><div class="flow-line"></div></div>
+            <div class="flow-step"><div class="ic">☀️</div><span>They Install</span><div class="flow-line"></div></div>
+            <div class="flow-step"><div class="ic">💰</div><span>You Earn</span></div>
+          </div>
+          <div class="reward-cta"><div><b>₹500–₹700</b><br><span>per successful referral installation</span></div><span>Terms apply</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Submit a Referral Manually</h3>
+        <form class="manual-form" onsubmit="return submitReferral(event)">
+          <div class="field"><label>Friend's Name</label><input type="text" placeholder="Full name" required></div>
+          <div class="field"><label>Mobile Number</label><input type="tel" placeholder="+91" required></div>
+          <div class="field"><label>City</label><input type="text" placeholder="City"></div>
+          <button class="btn btn-primary" type="submit">Submit Referral</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>Referral Status</h3>
+        <table>
+          <tr><th>Name</th><th>Date Referred</th><th>Stage</th><th>Reward</th></tr>
+          <tr><td>Priya Nair</td><td>02 Jul 2026</td><td><span class="badge success">Installed</span></td><td>₹500</td></tr>
+          <tr><td>Amit Verma</td><td>28 Jun 2026</td><td><span class="badge processing">Site Survey Done</span></td><td>₹200</td></tr>
+          <tr><td>Sneha Iyer</td><td>20 Jun 2026</td><td><span class="badge pending">Contacted</span></td><td>—</td></tr>
+          <tr><td>Karan Mehta</td><td>14 Jun 2026</td><td><span class="badge processing">Quotation Shared</span></td><td>—</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Reward History</h3>
+        <table>
+          <tr><th>Date</th><th>From</th><th>Reward Type</th><th>Amount</th></tr>
+          <tr><td>18 Jul 2026</td><td>Priya Nair</td><td>Installation Bonus</td><td>+₹500</td></tr>
+          <tr><td>02 Jul 2026</td><td>Amit Verma</td><td>Site Survey Bonus</td><td>+₹200</td></tr>
+          <tr><td>28 Jun 2026</td><td>Sneha Iyer</td><td>Signup Bonus</td><td>+₹100</td></tr>
+        </table>
+      </div>

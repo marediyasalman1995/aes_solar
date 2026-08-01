@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Login — AES Energy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/frontend.css">
+</head>
+<body>
+
+<div id="loginView" class="view">
+  <div class="login-card">
+    <a href="index.html" class="brand" style="justify-content:center;margin-bottom:18px;"><div class="brand-mark"></div>AES Energy</a>
+    <h2>Welcome back</h2>
+    <p class="sub">Log in to AES One — your solar dashboard</p>
+    <form onsubmit="return doLogin(event)">
+      <div class="field"><label>Registered Mobile Number</label><input type="tel" placeholder="+91 98765 43210" required></div>
+      <div class="field"><label>OTP</label><input type="text" placeholder="Enter 4-digit OTP" maxlength="4" required></div>
+      <button class="btn btn-primary" type="submit">Login to AES One</button>
+    </form>
+    <div class="divider">secure customer access</div>
+    <div class="otp-note">🔒 Referral rewards &amp; wallet are visible only to registered customers.</div>
+    <a class="back-link" href="index.html">← Back to website</a>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/frontend.js"></script>
+</body>
+</html>

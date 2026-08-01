@@ -1,0 +1,17 @@
+<div class="panel">
+        <h3>Raise a Service Request</h3>
+        <form class="manual-form" style="grid-template-columns:1fr 1fr;" onsubmit="return submitService(event)">
+          <div class="field"><label>Issue Type</label><select required><option value="">Select issue</option><option>Panel cleaning</option><option>Inverter fault</option><option>Low generation</option><option>Net-metering query</option><option>Other</option></select></div>
+          <div class="field"><label>Preferred Visit Date</label><input type="date"></div>
+          <div class="field" style="grid-column:1/-1;"><label>Describe the issue</label><textarea rows="3" placeholder="Tell us what's happening"></textarea></div>
+          <button class="btn btn-primary" type="submit" style="grid-column:1/-1;">Submit Request</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>My Requests</h3>
+        <table>
+          <tr><th>Ticket</th><th>Issue</th><th>Raised On</th><th>Status</th></tr>
+          <tr><td>#SR-2291</td><td>Panel cleaning</td><td>15 Jul 2026</td><td><span class="badge pending">Scheduled</span></td></tr>
+          <tr><td>#SR-2140</td><td>Low generation check</td><td>02 Jun 2026</td><td><span class="badge success">Resolved</span></td></tr>
+        </table>
+      </div>

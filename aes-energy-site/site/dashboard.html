@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AES One Dashboard — AES Energy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/frontend.css">
+</head>
+<body>
+
+<div id="dashboardView" class="view">
+  <aside class="sidebar" id="sidebar" data-include="dashboard-partials/sidebar.html"></aside>
+
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <button class="burger" id="dashBurger" onclick="toggleSidebar()" style="display:none;"><span></span><span></span><span></span></button>
+      <div>
+        <h1>Good afternoon, Rohan 👋</h1>
+        <div class="sub">Here's how your solar plant &amp; rewards are doing</div>
+      </div>
+      <div class="user-chip"><div class="avatar">RS</div>Rohan Sharma</div>
+    </div>
+
+    <main id="dash-content" class="dash-section">
+      <!-- dashboard-pages/home.html is loaded here by frontend.js on load -->
+    </main>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/frontend.js"></script>
+<script>
+  loadIncludes(function(){
+    loadDash('dash-home', document.querySelector('[data-target=dash-home]'));
+    syncDashBurger();
+  });
+</script>
+</body>
+</html>

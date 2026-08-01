@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AES Energy — Solar for Every Rooftop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/frontend.css">
+</head>
+<body>
+
+<div id="publicSite">
+  <div data-include="partials/header.html"></div>
+
+  <main id="page-content" class="page-fade">
+    <!-- pages/home.html is loaded here by frontend.js on load -->
+  </main>
+
+  <div data-include="partials/footer.html"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/frontend.js"></script>
+<script>
+  loadIncludes(function(){
+    loadPage('home');
+  });
+</script>
+</body>
+</html>
