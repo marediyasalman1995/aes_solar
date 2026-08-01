@@ -53,7 +53,7 @@
                         key: response.key,
                         amount: response.amount,
                         currency: response.currency,
-                        name: 'RamdevOils',
+                        name: 'AES Solar Energy',
                         description: 'Payment for your order',
                         order_id: response.order_id,
                         prefill: {
@@ -62,7 +62,7 @@
                             contact: contact
                         },
                         theme: {
-                            color: '#eea200'
+                            color: '#0f6aa8'
                         },
                         handler: function(response) {
                             // Verify payment

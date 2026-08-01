@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'RamdevOil'),
+    'name' => env('APP_NAME', 'AES Solar Energy'),
 
     /*
     |--------------------------------------------------------------------------

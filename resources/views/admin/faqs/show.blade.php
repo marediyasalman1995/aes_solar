@@ -1,7 +1,7 @@
 @extends('admin.layouts.master')
 
 @section('title')
-    View Faq - Gtalk
+    View Faq - AES Solar Energy
 @endsection
 
 @section('page_headers')
