@@ -1,63 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('admin.layouts.head')
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Login — AES Energy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('css/frontend.css') }}">
+<style>
+  /* Styling overrides for login validation alerts */
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 12px 18px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .alert-danger ul {
+    margin: 0;
+    padding-left: 15px;
+  }
+</style>
 </head>
-<body class="form">
+<body>
 
+<div id="loginView" class="view">
+  <div class="login-card">
+    <a href="{{ route('home') }}" class="brand" style="justify-content:center;margin-bottom:18px;"><div class="brand-mark"></div>AES Energy</a>
+    <h2>Welcome back</h2>
+    <p class="sub">Log in to AES One — your solar dashboard</p>
 
-<div class="container">
-    <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
-        <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
-            <div class="my-3 d-flex justify-content-center">
-                <a href="" class="" style="">
-                    <img style="height: 100px;" src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('image') }}">
-                </a>
-            </div>
-            <div class="card custom-card">
-                <div class="card-body p-4">
-                    <p class="h5 fw-semibold mb-2 text-center">Sign In</p>
-                    <p class="mb-4 text-muted op-7 fw-normal text-center">Sign in to continue to Ramdev Oil.</p>
-                    <form method="POST" action="{{ route('login') }}" data-toggle="validator">
-                        @csrf
-                    <div class="row gy-3">
-                        <div class="col-xl-12">
-                            <label for="signin-username" class="form-label text-default">Email</label>
-                            <input type="email" value="{{ old('email') }}" class="form-control " id="signin-username" name="email" placeholder="user name">
-                        </div>
-                        <div class="col-xl-12 mb-2">
-                            <label for="signin-password" class="form-label text-default d-block">Password<a href="{{ route('password.request') }}" class="float-end text-danger">Forget password ?</a></label>
-                            <div class="input-group">
-                                <input type="password" class="form-control " name="password" id="signin-password" placeholder="password">
-                                <button class="btn btn-light" type="button" onclick="createpassword('signin-password',this)" id="button-addon2"><i class="align-middle ri-eye-off-line"></i></button>
-                            </div>
-                            <div class="mt-2">
-                                <div class="form-check">
-                                    <input  {{ old('remember') ? 'checked' : '' }} class="form-check-input" type="checkbox" name="remember" value="" id="defaultCheck1">
-                                    <label class="form-check-label text-muted fw-normal" for="defaultCheck1">
-                                        Remember password ?
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-4  d-grid mt-3 mb-3" style="margin: auto;">
-                            <button type="submit" class="btn btn-primary">Sign In</button>
-                        </div>
-                        <br>
-                        <br>
-                    </div>
-                    </form>
-
-                </div>
-            </div>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
-    </div>
-</div>
-<x-auth-validation-errors/>
-<script src="{{ asset('asset_app/html/src/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="https://laravelui.spruko.com/ynex/build/assets/show-password.js"></script>
+    @endif
 
+    <form method="POST" action="{{ route('login') }}">
+      @csrf
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" name="email" value="{{ old('email') }}" placeholder="Enter your email" required autofocus>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password" required>
+      </div>
+      <div style="margin-bottom: 18px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+        <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+        <label for="remember" style="margin: 0; color: var(--muted); cursor: pointer; font-weight: 500;">Remember me</label>
+      </div>
+      <button class="btn btn-primary" style="width: 100%; justify-content: center;" type="submit">Login to AES One</button>
+    </form>
+    <div class="divider">secure customer access</div>
+    <div class="otp-note">🔒 Referral rewards &amp; wallet are visible only to registered customers.</div>
+    <a class="back-link" href="{{ route('home') }}">← Back to website</a>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="{{ asset('js/frontend.js') }}"></script>
 </body>
 </html>
