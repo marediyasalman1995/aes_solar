@@ -1,77 +1,10 @@
 /* ============================================================
    AES Energy — frontend.js
-   Shared JS: HTML partial loader, page/dashboard content loader,
-   scroll reveal, counters, and all interactive behaviours.
+   Shared JS: Scroll reveal, counters, JS toast notifications,
+   AJAX form submissions, copy referral code, and interactions.
    ============================================================ */
 
-/* ---------- generic partial include loader ----------
-   Any element with data-include="path/to/file.html" gets that
-   file fetched and injected as its innerHTML. Runs onIncludesReady()
-   after every include on the page has loaded.
-------------------------------------------------------------- */
-function loadIncludes(callback){
-  const nodes = document.querySelectorAll('[data-include]');
-  if(nodes.length === 0){ if(callback) callback(); return; }
-  let remaining = nodes.length;
-  nodes.forEach(el=>{
-    fetch(el.getAttribute('data-include'))
-      .then(r=>{ if(!r.ok) throw new Error('include failed: '+el.getAttribute('data-include')); return r.text(); })
-      .then(html=>{ el.innerHTML = html; })
-      .catch(err=>{ console.error(err); el.innerHTML = '<!-- include failed -->'; })
-      .finally(()=>{ remaining--; if(remaining===0 && callback) callback(); });
-  });
-}
-
-/* ---------- public site: page loader (index.html) ---------- */
-function loadPage(name){
-  const container = document.getElementById('page-content');
-  if(!container) return;
-  fetch('pages/'+name+'.html')
-    .then(r=>r.text())
-    .then(html=>{
-      container.innerHTML = html;
-      container.classList.remove('page-fade');
-      void container.offsetWidth; /* restart animation */
-      container.classList.add('page-fade');
-      document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active', a.dataset.page===name));
-      document.getElementById('navLinks') && document.getElementById('navLinks').classList.remove('open');
-      window.scrollTo(0,0);
-      initScrollEffects();
-      if(name==='home') animateCounters();
-    })
-    .catch(err=>console.error('page load failed', err));
-}
-
-/* ---------- dashboard: section loader (dashboard.html) ---------- */
-function loadDash(id, el){
-  const container = document.getElementById('dash-content');
-  if(!container) return;
-  fetch('dashboard-pages/'+id+'.html')
-    .then(r=>r.text())
-    .then(html=>{
-      container.innerHTML = html;
-      document.querySelectorAll('.side-link').forEach(s=>s.classList.remove('active'));
-      if(el) el.classList.add('active');
-      container.scrollTo(0,0);
-      initScrollEffects();
-      animateCounters();
-      if(window.innerWidth<=1000){ const sb=document.getElementById('sidebar'); sb && sb.classList.remove('open'); }
-    })
-    .catch(err=>console.error('dashboard section load failed', err));
-}
-
-/* ---------- mobile nav / sidebar toggles ---------- */
-function toggleNav(){ document.getElementById('navLinks').classList.toggle('open'); }
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
-function syncDashBurger(){
-  const b = document.getElementById('dashBurger');
-  if(b) b.style.display = window.innerWidth<=1000 ? 'flex' : 'none';
-}
-
-/* ---------- scroll reveal + counters + progress bars ----------
-   Re-initialised every time new content is injected, since freshly
-   added DOM nodes need fresh IntersectionObservers.
-------------------------------------------------------------- */
+/* ---------- scroll reveal + counters + progress bars ---------- */
 function initScrollEffects(){
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in-view'); io.unobserve(en.target); } });
@@ -81,7 +14,7 @@ function initScrollEffects(){
   const counterIO = new IntersectionObserver((entries)=>{
     entries.forEach(en=>{ if(en.isIntersecting){ animateCounters(); } });
   },{threshold:.4});
-  document.querySelectorAll('.hero-stats').forEach(el=>counterIO.observe(el));
+  document.querySelectorAll('.hero-stats, .stat-grid, .wallet-hero').forEach(el=>counterIO.observe(el));
 
   const progressIO = new IntersectionObserver((entries)=>{
     entries.forEach(en=>{ if(en.isIntersecting){ triggerSchemeProgress(en.target.id); progressIO.unobserve(en.target); } });
@@ -97,7 +30,7 @@ function initScrollEffects(){
 function animateCounters(){
   document.querySelectorAll('.counter').forEach(el=>{
     if(el.dataset.done) return;
-    const target = parseInt(el.dataset.target,10);
+    const target = parseInt(el.dataset.target,10) || 0;
     const dur = 1200; const start = performance.now();
     function tick(now){
       const p = Math.min((now-start)/dur,1);
@@ -109,8 +42,24 @@ function animateCounters(){
 }
 
 function triggerSchemeProgress(id){
-  const bar = document.getElementById(id || 'schemeProgress');
+  const bar = document.getElementById(id || 'schemeProgressHome');
   if(bar){ bar.style.width='0%'; requestAnimationFrame(()=>setTimeout(()=>{bar.style.width='92%';},50)); }
+}
+
+/* ---------- mobile nav / sidebar toggles ---------- */
+function toggleNav(){ 
+  const nl = document.getElementById('navLinks');
+  if(nl) nl.classList.toggle('open'); 
+}
+
+function toggleSidebar(){ 
+  const sb = document.getElementById('sidebar');
+  if(sb) sb.classList.toggle('open'); 
+}
+
+function syncDashBurger(){
+  const b = document.getElementById('dashBurger');
+  if(b) b.style.display = window.innerWidth<=1000 ? 'flex' : 'none';
 }
 
 /* ---------- navbar scroll shadow ---------- */
@@ -119,37 +68,49 @@ window.addEventListener('scroll', ()=>{
   if(nb) nb.classList.toggle('scrolled', window.scrollY>10);
 });
 
-/* ---------- toast ---------- */
+/* ---------- JS Toast Notifications ---------- */
 let toastTimer;
-function showToast(msg){
-  const t = document.getElementById('toast');
-  if(!t) return;
-  t.textContent = msg;
+function showToast(msg, type = 'info'){
+  let t = document.getElementById('toast');
+  if(!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    document.body.appendChild(t);
+  }
+
+  let icon = '⚡';
+  let bgColor = 'var(--blue-900)';
+  if (type === 'success') {
+    icon = '✅';
+    bgColor = '#0f766e';
+  } else if (type === 'error') {
+    icon = '⚠️';
+    bgColor = '#be123c';
+  } else if (type === 'info') {
+    icon = 'ℹ️';
+    bgColor = '#0369a1';
+  }
+
+  t.style.background = bgColor;
+  t.innerHTML = `<span style="font-size:1.1rem;">${icon}</span> <span>${msg}</span>`;
   t.classList.add('show');
+
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 3200);
 }
 
-/* ---------- refer & earn actions ---------- */
-function copyCode(){
-  const codeEl = document.getElementById('refCode');
-  if(!codeEl) return;
-  const code = codeEl.textContent;
-  navigator.clipboard && navigator.clipboard.writeText(code).catch(()=>{});
-  const btn = document.getElementById('copyBtn');
-  btn.textContent='Copied ✓'; btn.classList.add('copied');
-  showToast('Referral code copied: '+code);
-  setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); }, 1800);
-}
-function shareVia(channel){ showToast('Opening share via '+channel+'…'); }
-function submitReferral(e){ e.preventDefault(); showToast('Referral submitted successfully!'); e.target.reset(); return false; }
-function submitService(e){ e.preventDefault(); showToast('Service request raised — ticket #SR-2292'); e.target.reset(); return false; }
+/* ---------- public inquiry / contact form ---------- */
 function submitContact(e){
   e.preventDefault();
   const form = e.target;
   const formData = new FormData(form);
-  const token = document.querySelector('meta[name="_token"]')?.getAttribute('content') 
-             || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+  const btn = form.querySelector('button[type="submit"]');
+  if(btn) {
+    btn.disabled = true;
+    btn.innerText = 'Submitting Inquiry...';
+  }
 
   fetch('/save-inquiry', {
     method: 'POST',
@@ -166,27 +127,58 @@ function submitContact(e){
     return r.json();
   })
   .then(data => {
-    showToast(data.message || 'Thanks! Our team will call you shortly.');
+    if(btn) {
+      btn.disabled = false;
+      btn.innerText = 'Submit Inquiry';
+    }
+    showToast(data.message || 'Thank you! Our engineering team will contact you shortly.', 'success');
     form.reset();
   })
   .catch(err => {
+    if(btn) {
+      btn.disabled = false;
+      btn.innerText = 'Submit Inquiry';
+    }
     console.error('Inquiry error:', err);
     if (err.errors) {
       const firstErr = Object.values(err.errors)[0][0];
-      showToast(firstErr);
+      showToast(firstErr, 'error');
     } else {
-      showToast(err.message || 'Something went wrong. Please try again.');
+      showToast(err.message || 'Something went wrong. Please try again.', 'error');
     }
   });
   return false;
 }
 
-/* ---------- login ---------- */
-function doLogin(e){
+/* ---------- newsletter subscribe ---------- */
+function submitNewsletter(e){
   e.preventDefault();
-  window.location.href = 'dashboard.html';
+  const form = e.target;
+  const formData = new FormData(form);
+  const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+  fetch('/save-newsletter', {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': token,
+      'Accept': 'application/json'
+    },
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    showToast(data.message || 'Subscribed successfully!', 'success');
+    form.reset();
+  })
+  .catch(err => {
+    showToast('Failed to subscribe. Please try again.', 'error');
+  });
   return false;
 }
 
-/* ---------- init on every page ---------- */
+/* ---------- initialisation on load ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  initScrollEffects();
+  syncDashBurger();
+});
 window.addEventListener('resize', syncDashBurger);

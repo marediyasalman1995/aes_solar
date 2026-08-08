@@ -11,17 +11,21 @@ use Illuminate\Support\Facades\Auth;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Display the Admin login view.
      *
      * @return \Illuminate\View\View
      */
     public function create()
     {
-        return view('auth.login');
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('admin.auth.login');
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle an incoming admin authentication request.
      *
      * @param  \App\Http\Requests\Auth\LoginRequest  $request
      * @return \Illuminate\Http\RedirectResponse
@@ -32,11 +36,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        session()->flash('alert-type', 'success');
+        session()->flash('message', 'Welcome back, Admin!');
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
     /**
-     * Destroy an authenticated session.
+     * Destroy an authenticated admin session.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
@@ -45,10 +52,9 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
+        session()->flash('alert-type', 'info');
+        session()->flash('message', 'Admin logged out successfully.');
 
-        $request->session()->regenerateToken();
-
-        return redirect('/login');
+        return redirect()->route('admin.login');
     }
 }

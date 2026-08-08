@@ -94,8 +94,12 @@
 
         $('#description').on('input', function() {
             $('#meta_description').val($(this).val());  // Set the generated slug in the slug input field
-        })
+        });
+
+        // Initialize all Bootstrap tooltips automatically
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
-
-
 </script>

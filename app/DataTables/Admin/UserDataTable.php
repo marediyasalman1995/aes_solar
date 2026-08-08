@@ -50,7 +50,7 @@ class UserDataTable extends DataTable
      */
     public function query(User $model)
     {
-        return $model->newQuery();
+        return $model->newQuery()->where('user_type', 'admin');
     }
 
     /**

@@ -6,12 +6,21 @@
 
 @section('content')
 <div class="page-banner">
-      <div><span class="crumb">Home / About</span><h1>Engineers first, energy company second.</h1><p>Since 2015, AES Energy has been building rooftop solar systems that are engineered for Indian roofs, Indian weather, and Indian electricity bills.</p></div>
-    </div>
+  <div>
+    <span class="crumb">Home / About</span>
+    <h1>{{ isset($website_sections['About_Us']) ? $website_sections['About_Us']->heading : 'Engineers first, energy company second.' }}</h1>
+    <p>{{ isset($website_sections['About_Us']) ? $website_sections['About_Us']->sub_heading : 'Since 2015, AES Energy has been building rooftop solar systems that are engineered for Indian roofs, Indian weather, and Indian electricity bills.' }}</p>
+  </div>
+</div>
     <section class="section">
       <div class="about-grid">
         <div class="about-photo reveal">
-          <img src="{{ asset('images/about-main.jpg') }}" alt="Solar farm at sunrise">
+          @php
+            $aboutMainImg = (isset($website_sections['About_Us']) && $website_sections['About_Us']->hasMedia('avatar')) 
+              ? $website_sections['About_Us']->avatarUrl['250'] 
+              : asset('images/about-main.jpg');
+          @endphp
+          <img src="{{ $aboutMainImg }}" alt="Solar farm at sunrise">
           <div class="about-badge"><b>4,200+</b><div><span style="color:var(--blue-900);font-weight:600;display:block;">Rooftops</span><span style="font-size:.8rem;">powered across India</span></div></div>
         </div>
         <div class="reveal">
@@ -39,10 +48,34 @@
     <section class="section">
       <div class="section-head reveal"><span class="eyebrow">Leadership</span><h2>The team behind the install</h2></div>
       <div class="team-grid reveal-stagger">
-        <div class="team-card"><div class="team-photo icon-photo"><span>🔍</span></div><b>Design &amp; Engineering</b><span>Rooftop assessment team</span></div>
-        <div class="team-card"><div class="team-photo icon-photo"><span>🏗️</span></div><b>Installation Crew</b><span>Certified technicians</span></div>
-        <div class="team-card"><div class="team-photo icon-photo"><span>📞</span></div><b>Customer Support</b><span>24×7 service desk</span></div>
-        <div class="team-card"><div class="team-photo icon-photo"><span>📜</span></div><b>Subsidy Desk</b><span>Documentation specialists</span></div>
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="{{ asset('images/team-design.jpg') }}" alt="Design & Engineering Team">
+          </div>
+          <b>Design &amp; Engineering</b>
+          <span>Rooftop assessment team</span>
+        </div>
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="{{ asset('images/team-install.jpg') }}" alt="Installation Crew">
+          </div>
+          <b>Installation Crew</b>
+          <span>Certified technicians</span>
+        </div>
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="{{ asset('images/team-support.jpg') }}" alt="Customer Support">
+          </div>
+          <b>Customer Support</b>
+          <span>24×7 service desk</span>
+        </div>
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="{{ asset('images/team-subsidy.jpg') }}" alt="Subsidy Desk">
+          </div>
+          <b>Subsidy Desk</b>
+          <span>Documentation specialists</span>
+        </div>
       </div>
     </section>
     <section class="section section-alt">

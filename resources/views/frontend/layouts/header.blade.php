@@ -11,7 +11,13 @@
     <a href="{{ route('contact') }}" class="{{ Route::currentRouteName() == 'contact' ? 'active' : '' }}">Contact</a>
   </div>
   <div class="nav-actions">
-    <a class="btn btn-ghost" href="{{ route('login') }}">Customer Login</a>
+    @if(Auth::guard('customer')->check())
+      <a class="btn btn-primary" href="{{ route('customer.dashboard') }}" style="padding:8px 18px;">
+        ⚡ AES One Dashboard
+      </a>
+    @else
+      <a class="btn btn-ghost" href="{{ route('login') }}">Customer Login</a>
+    @endif
     <button class="burger" id="burger" onclick="toggleNav()"><span></span><span></span><span></span></button>
   </div>
 </nav>

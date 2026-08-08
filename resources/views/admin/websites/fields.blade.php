@@ -14,15 +14,25 @@
 
         <!-- Type Field -->
         <div class="form-group col-sm-4">
-            {!! Form::label('type', 'Type:') !!}
+            {!! Form::label('type', 'Website Section Type:') !!}
             {!! Form::select('type', [
-        '' => 'Select Type',
-        'Top_Banner' => 'Top Banner',
-        'About_Us' => 'About Us',
-        'Our_Vision' => 'Our Vision',
-        'Our_Mission' => 'Our Mission',
-        'Reviews' => 'Reviews',
-    ], null, ['class' => 'form-control custom-select']) !!}
+                '' => 'Select Section Type',
+                'Top_Banner' => 'Top Banner / Hero Section',
+                'About_Us' => 'About Us Story & Banner',
+                'Our_Vision' => 'Our Vision',
+                'Our_Mission' => 'Our Mission',
+                'Why_Choose_Us' => 'Why Choose Us / Values',
+                'Stats' => 'Milestones & Statistics',
+                'Solar_Plans' => 'Solar Plan Package (3kW, 5kW, 10kW)',
+                'Solar_Solutions' => 'Solar Solution (On-Grid, Off-Grid, Hybrid)',
+                'Products' => 'Solar Product / Hardware (Panels, Inverters, Battery)',
+                'Services' => 'Service Highlight Tile',
+                'AMC_Plans' => 'AMC Maintenance Plan (Basic, Standard, Premium)',
+                'Process_Steps' => 'How It Works Step (1, 2, 3, 4)',
+                'PM_Surya_Ghar' => 'PM Surya Ghar Scheme Banner',
+                'Subsidy_Slabs' => 'Subsidy Slab Tier',
+                'Reviews' => 'Customer Review / Testimonial',
+            ], null, ['class' => 'form-control custom-select', 'required']) !!}
         </div>
     </div>
 

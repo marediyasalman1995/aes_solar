@@ -19,6 +19,7 @@ use App\Models\RashifalDetailRashi;
 use App\Models\Tag;
 use App\Models\Video;
 use App\Models\Website;
+use App\Models\Setting;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -37,18 +38,21 @@ class HomeController extends AppBaseController
 
     public function index()
     {
-        $Our_Vision = Website::where('type', 'Our_Vision')->get();
+        $website_sections = Website::all()->keyBy('type');
+        $solar_plans = Website::where('type', 'Solar_Plans')->get();
+        $solutions = Website::where('type', 'Solar_Solutions')->get();
+        $products = Website::where('type', 'Products')->get();
+        $services = Website::where('type', 'Services')->get();
+        $reviews = Website::where('type', 'Reviews')->get();
+        $faqs = Faq::take(6)->get();
 
         $seo = array(
-            'meta_title' => GeneralHelperFunctions::getSetting('meta_title') ?? 'AES Energy — Solar for Every Rooftop',
-            'meta_description' => GeneralHelperFunctions::getSetting('meta_description') ?? '',
-            'meta_keyword' => GeneralHelperFunctions::getSetting('meta_keyword') ?? '',
+            'meta_title' => GeneralHelperFunctions::getSetting('meta_title') ?? 'AES Energy — Solar for Every Rooftop in India',
+            'meta_description' => GeneralHelperFunctions::getSetting('meta_description') ?? 'Turnkey rooftop solar solutions for homes, societies, and commercial buildings. Get up to ₹78,000 subsidy under PM Surya Ghar.',
+            'meta_keyword' => GeneralHelperFunctions::getSetting('meta_keyword') ?? 'AES Energy, rooftop solar, solar subsidy, PM Surya Ghar',
         );
 
-        $return_data['seo'] = $seo;
-        $return_data['Our_Vision'] = $Our_Vision;
-
-        return view('frontend.pages.home', $return_data);
+        return view('frontend.pages.home', compact('seo', 'website_sections', 'solar_plans', 'solutions', 'products', 'services', 'reviews', 'faqs'));
     }
 
     public function cmsDetail($slug)
@@ -57,13 +61,13 @@ class HomeController extends AppBaseController
 
         if (!empty($cms_detail)) {
             $seo = array(
-                'meta_title' => $cms_detail->meta_title ?? '',
+                'meta_title' => $cms_detail->meta_title ?? $cms_detail->title . ' — AES Energy',
                 'meta_description' => $cms_detail->meta_description ?? '',
                 'meta_keyword' => $cms_detail->meta_keyword ?? '',
             );
             return view('frontend.cms.index', compact('cms_detail', 'seo'));
         } else {
-            return redirect()->back();
+            return redirect()->route('home');
         }
     }
 
@@ -71,9 +75,9 @@ class HomeController extends AppBaseController
     {
         $faqs = Faq::all();
         $seo = array(
-            'meta_title' => 'Frequently Asked Questions - AES Energy' ?? '',
-            'meta_description' => "Have questions about rooftop solar? Explore our FAQ page." ?? '',
-            'meta_keyword' => 'FAQ, frequently asked questions, solar help' ?? '',
+            'meta_title' => 'Frequently Asked Questions — AES Energy',
+            'meta_description' => "Have questions about rooftop solar, PM Surya Ghar subsidy, or net-metering? Explore our FAQs.",
+            'meta_keyword' => 'FAQ, frequently asked questions, solar help, subsidy questions',
         );
         return view('frontend.faqs.index', compact('faqs', 'seo'));
     }
@@ -123,10 +127,10 @@ class HomeController extends AppBaseController
         $save->save();
 
         session()->flash('alert-type', 'success');
-        session()->flash('message', 'Inquiry Submitted successfully!');
+        session()->flash('message', 'Inquiry Submitted successfully! Our engineer will call you shortly.');
 
         return Response::json([
-            'message' => 'Inquiry Submitted successfully!',
+            'message' => 'Inquiry Submitted successfully! Our engineer will call you shortly.',
             'back_url' => route('contact'),
         ]);
     }
@@ -134,69 +138,76 @@ class HomeController extends AppBaseController
     public function contact()
     {
         $seo = array(
-            'meta_title' => 'Contact Us - AES Energy',
-            'meta_description' => "Let's design your rooftop system. Get a free survey.",
-            'meta_keyword' => 'contact, solar survey, solar Pune',
+            'meta_title' => 'Contact Us — AES Energy',
+            'meta_description' => "Let's design your rooftop solar plant. Book a free site survey in Pune, Mumbai, and Maharashtra.",
+            'meta_keyword' => 'contact solar, solar site survey, AES Energy office Pune',
         );
-        return view('frontend.pages.contact', compact('seo'));
+        $setting = Setting::first();
+        return view('frontend.pages.contact', compact('seo', 'setting'));
     }
 
     public function about_us()
     {
         $seo = array(
-            'meta_title' => 'About Us - AES Energy',
-            'meta_description' => "Engineers first, energy company second. Read our story.",
-            'meta_keyword' => 'about solar company, solar engineering',
+            'meta_title' => 'About Us — AES Energy',
+            'meta_description' => "Engineers first, energy company second. Read our story and mission to solarize India.",
+            'meta_keyword' => 'about solar company, solar engineering, AES Energy story',
         );
-        $about_us = Website::where('type', 'About_Us')->first();
-        $vision = Website::where('type', 'Our_Vision')->first();
-        $missions = Website::where('type', 'Our_Mission')->first();
+        $website_sections = Website::all()->keyBy('type');
 
-        return view('frontend.pages.about', compact('seo',
-            'about_us',
-            'vision',
-            'missions',
-        ));
+        return view('frontend.pages.about', compact('seo', 'website_sections'));
     }
 
     public function products()
     {
         $seo = array(
-            'meta_title' => 'Solar Products - AES Energy',
-            'meta_description' => 'Tier-1 panels, hybrid inverters and smart monitoring systems.',
-            'meta_keyword' => 'solar panels, hybrid inverters, battery storage',
+            'meta_title' => 'Solar Products & Hardware — AES Energy',
+            'meta_description' => 'Tier-1 Mono PERC & TOPCon panels, hybrid inverters, and smart Wi-Fi monitoring.',
+            'meta_keyword' => 'solar panels, hybrid inverters, battery storage, DCR panels',
         );
-        return view('frontend.pages.products', compact('seo'));
+        $website_sections = Website::all()->keyBy('type');
+        $products = Website::where('type', 'Products')->get();
+        return view('frontend.pages.products', compact('seo', 'website_sections', 'products'));
     }
 
     public function solutions()
     {
         $seo = array(
-            'meta_title' => 'Solar Solutions - AES Energy',
-            'meta_description' => 'On-grid, off-grid and hybrid rooftop solar solutions.',
-            'meta_keyword' => 'on-grid solar, off-grid solar, hybrid solar',
+            'meta_title' => 'Solar Solutions — AES Energy',
+            'meta_description' => 'On-grid, off-grid and hybrid rooftop solar solutions for homes, societies, and industries.',
+            'meta_keyword' => 'on-grid solar, off-grid solar, hybrid solar, society solar',
         );
-        return view('frontend.pages.solutions', compact('seo'));
+        $website_sections = Website::all()->keyBy('type');
+        $solutions = Website::where('type', 'Solar_Solutions')->get();
+        return view('frontend.pages.solutions', compact('seo', 'website_sections', 'solutions'));
     }
 
     public function services()
     {
         $seo = array(
-            'meta_title' => 'Solar Services & AMC - AES Energy',
-            'meta_description' => 'Rooftop solar maintenance, cleaning plans and 24x7 support.',
-            'meta_keyword' => 'solar cleaning, solar maintenance, solar support',
+            'meta_title' => 'Solar Services & AMC — AES Energy',
+            'meta_description' => 'Turnkey solar installation, DISCOM liaisoning, robotic panel cleaning, and 24x7 AMC.',
+            'meta_keyword' => 'solar cleaning, solar maintenance, solar AMC, net metering liaison',
         );
-        return view('frontend.pages.services', compact('seo'));
+        $website_sections = Website::all()->keyBy('type');
+        $services = Website::where('type', 'Services')->get();
+        $amc_plans = Website::where('type', 'AMC_Plans')->get();
+        $process_steps = Website::where('type', 'Process_Steps')->get();
+
+        return view('frontend.pages.services', compact('seo', 'website_sections', 'services', 'amc_plans', 'process_steps'));
     }
 
     public function suryaghar()
     {
         $seo = array(
-            'meta_title' => 'PM Surya Ghar Yojana - AES Energy',
-            'meta_description' => 'Central government subsidy up to Rs. 78,000 for rooftop solar.',
-            'meta_keyword' => 'pm surya ghar, solar subsidy, free electricity yojana',
+            'meta_title' => 'PM Surya Ghar: Muft Bijli Yojana — AES Energy',
+            'meta_description' => 'Direct central government subsidy up to ₹78,000 for residential rooftop solar.',
+            'meta_keyword' => 'pm surya ghar, solar subsidy, muft bijli yojana, national solar portal',
         );
-        return view('frontend.pages.suryaghar', compact('seo'));
+        $website_sections = Website::all()->keyBy('type');
+        $subsidy_slabs = Website::where('type', 'Subsidy_Slabs')->get();
+
+        return view('frontend.pages.suryaghar', compact('seo', 'website_sections', 'subsidy_slabs'));
     }
 
 

@@ -160,7 +160,26 @@ class UserController extends AppBaseController
         return Response::json(['message' => 'Password updated successfully.', 'back_url' => route('admin.users.index')]);
     }
 
-    public function dashboard(){
-        return view('admin.dashboard.index');
+    public function dashboard()
+    {
+        $totalCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->count();
+        $totalSites = \App\Models\CustomerSite::count();
+        $totalCapacity = \App\Models\CustomerSite::sum('capacity_kw');
+        $totalReferrals = \App\Models\Referral::count();
+        $totalRewards = \App\Models\WalletTransaction::where('type', 'Credit')->sum('amount');
+        $openServiceRequests = \App\Models\ServiceRequest::whereIn('status', ['Pending', 'Scheduled', 'In Progress'])->count();
+        $recentInquiries = \App\Models\Inquiry::orderBy('created_at', 'desc')->take(5)->get();
+        $recentCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->withCount(['sites', 'referrals'])->orderBy('created_at', 'desc')->take(5)->get();
+
+        return view('admin.dashboard.index', compact(
+            'totalCustomers',
+            'totalSites',
+            'totalCapacity',
+            'totalReferrals',
+            'totalRewards',
+            'openServiceRequests',
+            'recentInquiries',
+            'recentCustomers'
+        ));
     }
 }

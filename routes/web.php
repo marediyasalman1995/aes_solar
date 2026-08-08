@@ -1,55 +1,46 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Laravel\Socialite\Facades\Socialite;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Web Routes - Public Website
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
-Route::get('/', function () {
-    return redirect()->route('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/about-us', [HomeController::class, 'about_us'])->name('about');
+Route::get('/solutions', [HomeController::class, 'solutions'])->name('solutions');
+Route::get('/products', [HomeController::class, 'products'])->name('products');
+Route::get('/services', [HomeController::class, 'services'])->name('services');
+Route::get('/suryaghar', [HomeController::class, 'suryaghar'])->name('suryaghar');
+Route::get('/contact-us', [HomeController::class, 'contact'])->name('contact');
+
+Route::get('/cms/{slug}', [HomeController::class, 'cmsDetail'])->name('cms-detail');
+Route::get('/faqs', [HomeController::class, 'faqs'])->name('faqs');
+Route::post('/save-newsletter', [HomeController::class, 'saveNewsLetter'])->name('save.newsletter');
+Route::post('/save-inquiry', [HomeController::class, 'saveInquiry'])->name('save-inquiry');
+
+Route::get('/product/{slug}', [HomeController::class, 'productDetail'])->name('products.single');
+
+/*
+|--------------------------------------------------------------------------
+| Customer Portal Routes (Guard: customer)
+|--------------------------------------------------------------------------
+*/
+Route::group(['middleware' => ['auth:customer']], function () {
+    Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
+    Route::post('/customer/switch-site', [CustomerDashboardController::class, 'switchSite'])->name('customer.switchSite');
+    Route::post('/customer/submit-referral', [CustomerDashboardController::class, 'submitReferral'])->name('customer.submitReferral');
+    Route::post('/customer/submit-service', [CustomerDashboardController::class, 'submitServiceRequest'])->name('customer.submitService');
+    Route::post('/customer/request-payout', [CustomerDashboardController::class, 'requestPayout'])->name('customer.requestPayout');
+    Route::post('/customer/update-profile', [CustomerDashboardController::class, 'updateProfile'])->name('customer.updateProfile');
+    Route::post('/customer/notifications/{id}/read', [CustomerDashboardController::class, 'markNotificationRead'])->name('customer.readNotification');
 });
-
-Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/cms/{slug}', [\App\Http\Controllers\HomeController::class, 'cmsDetail'])->name('cms-detail');
-Route::get('/faqs', [\App\Http\Controllers\HomeController::class, 'faqs'])->name('faqs');
-Route::post('/save-newsletter', [\App\Http\Controllers\HomeController::class, 'saveNewsLetter'])->name('save.newsletter');
-Route::post('/save-inquiry', [\App\Http\Controllers\HomeController::class, 'saveInquiry'])->name('save-inquiry');
-Route::get('/contact-us', [\App\Http\Controllers\HomeController::class, 'contact'])->name('contact');
-Route::get('/about-us', [\App\Http\Controllers\HomeController::class, 'about_us'])->name('about');
-Route::get('/products', [\App\Http\Controllers\HomeController::class, 'products'])->name('products');
-Route::get('/solutions', [\App\Http\Controllers\HomeController::class, 'solutions'])->name('solutions');
-Route::get('/services', [\App\Http\Controllers\HomeController::class, 'services'])->name('services');
-Route::get('/suryaghar', [\App\Http\Controllers\HomeController::class, 'suryaghar'])->name('suryaghar');
-Route::get('/product/{slug}', [\App\Http\Controllers\HomeController::class, 'productDetail'])->name('products.single');
-Route::post('run/cmd', [\App\Http\Controllers\HomeController::class, 'runCmd'])->name('run.cmd');
-Route::get('cmd', [\App\Http\Controllers\HomeController::class, 'cmd'])->name('cmd');
-Route::post('add-to-cart', [\App\Http\Controllers\HomeController::class, 'addToCart'])->name('add-to-cart');
-Route::get('checkout', [\App\Http\Controllers\HomeController::class, 'checkout'])->name('checkout');
-Route::post('place-order', [\App\Http\Controllers\PaymentController::class, 'placeOrder'])->name('place-order');
-Route::get('/order/track', [\App\Http\Controllers\PaymentController::class, 'order_track'])->name('order.track');
-
-
-Route::post('/create-order', [\App\Http\Controllers\PaymentController::class, 'createOrder'])->name('createOrder');
-Route::post('/verify-payment', [\App\Http\Controllers\PaymentController::class, 'verifyPayment'])->name('verifyPayment');
-Route::post('/webhook', [\App\Http\Controllers\PaymentController::class, 'handleWebhook'])->name('handleWebhook');
-//Route::get('/checkout', function () {
-//    return view('checkout');
-//});
-
 
 require __DIR__.'/auth.php';
 require __DIR__.'/media.php';
 require __DIR__.'/admin.php';
-
-
-

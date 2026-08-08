@@ -82,6 +82,15 @@ class User extends Authenticatable implements HasMedia
         'email',
         'password',
         'mobile',
+        'user_type',
+        'referral_code',
+        'referred_by_id',
+        'wallet_balance',
+        'address',
+        'city',
+        'state',
+        'pincode',
+        'status',
     ];
 
     /**
@@ -101,6 +110,8 @@ class User extends Authenticatable implements HasMedia
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'wallet_balance' => 'float',
+        'status' => 'integer',
     ];
 
     /**
@@ -110,11 +121,11 @@ class User extends Authenticatable implements HasMedia
     public static $rules = [
         'avatar' => 'nullable',
         'name' => 'required|string',
-        'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
-        'mobile' => 'nullable|integer|digits:10',
-        'password' => 'required',
-        'role' => 'required|array',
-        'role.*' => 'required|string|exists:roles,name',
+        'email' => 'nullable|email|unique:users,email,NULL,id,deleted_at,NULL',
+        'mobile' => 'nullable|digits:10',
+        'password' => 'nullable',
+        'role' => 'nullable|array',
+        'role.*' => 'nullable|string|exists:roles,name',
     ];
 
     /**
@@ -136,8 +147,49 @@ class User extends Authenticatable implements HasMedia
 
         //Auto-adding uuid to newly created instances
         self::creating(function ($model) {
-            $model->uuid = Str::uuid()->toString();
+            if (empty($model->uuid)) {
+                $model->uuid = Str::uuid()->toString();
+            }
+            if (empty($model->referral_code)) {
+                $base = !empty($model->name) ? strtoupper(preg_replace('/[^A-Za-z0-9]/', '', substr($model->name, 0, 5))) : 'USER';
+                $model->referral_code = 'AES-' . $base . rand(100, 999);
+            }
         });
+    }
+
+    public function sites()
+    {
+        return $this->hasMany(CustomerSite::class, 'user_id');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    public function walletTransactions()
+    {
+        return $this->hasMany(WalletTransaction::class, 'user_id')->orderBy('created_at', 'desc');
+    }
+
+    public function serviceRequests()
+    {
+        return $this->hasMany(ServiceRequest::class, 'user_id')->orderBy('created_at', 'desc');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(CustomerDocument::class, 'user_id')->orderBy('created_at', 'desc');
+    }
+
+    public function customerNotifications()
+    {
+        return $this->hasMany(CustomerNotification::class, 'user_id')->orderBy('created_at', 'desc');
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by_id');
     }
 
 

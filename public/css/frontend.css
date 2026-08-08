@@ -274,16 +274,24 @@ table.compare tr:hover td{background:var(--sky-50);}
 .faq-item:hover{box-shadow:var(--shadow-sm);}
 .faq-item .q{display:flex;justify-content:space-between;align-items:center;font-weight:600;color:var(--blue-900);font-size:.92rem;}
 .faq-item .a{max-height:0;overflow:hidden;transition:max-height .35s ease;color:var(--muted);font-size:.87rem;line-height:1.6;}
-.faq-item.open .a{max-height:200px;padding-top:10px;}
+.faq-item.open .a{max-height:500px;padding-top:10px;}
 .faq-item .plus{transition:transform .3s ease;color:var(--blue-500);font-size:1.2rem;}
 .faq-item.open .plus{transform:rotate(45deg);}
 footer{background:var(--blue-900);color:#dfeefb;padding:56px 5vw 26px;}
-.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:34px;margin-bottom:36px;}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:28px;margin-bottom:36px;}
 .footer-grid h4{color:#fff;margin-bottom:16px;font-size:.95rem;}
 .footer-grid li{margin-bottom:9px;}
 .footer-grid a{color:#b7d6ea;font-size:.88rem;transition:color .25s ease;cursor:pointer;}
 .footer-grid a:hover{color:#fff;}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.8rem;color:#9dc2dc;}
+
+/* CMS Article Styling */
+.cms-article h2{color:var(--blue-900);font-size:1.5rem;margin:30px 0 14px;font-weight:700;}
+.cms-article h3{color:var(--blue-900);font-size:1.25rem;margin:24px 0 12px;font-weight:600;}
+.cms-article p{margin-bottom:18px;color:var(--ink);line-height:1.8;}
+.cms-article ul,.cms-article ol{margin-bottom:20px;padding-left:24px;}
+.cms-article li{margin-bottom:8px;line-height:1.7;}
+.cms-article blockquote{background:var(--sky-50);border-left:4px solid var(--blue-500);padding:16px 20px;border-radius:0 12px 12px 0;margin:24px 0;}
 .view{min-height:100vh;}
 #loginView{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 20% 20%,var(--sky-100),var(--white) 60%);padding:40px 20px;}
 .login-card{background:#fff;border-radius:24px;box-shadow:var(--shadow-lg);width:100%;max-width:420px;padding:44px 38px;border:1px solid var(--sky-200);animation:cardIn .6s ease;}

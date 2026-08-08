@@ -1,5 +1,3 @@
-
-
 .app-sidebar .main-sidebar-header {
     height: 7.75rem;
     width: 15rem;
@@ -42,7 +40,7 @@
 }
 
 .my_btn{
-    display: flex;
+    display: inline-flex;
     vertical-align: middle;
     align-items: center;
 }
@@ -113,4 +111,112 @@ input:checked + .slider:before {
 
 .slider.round:before {
     border-radius: 50%;
+}
+
+/* ============================================================
+   ADMIN TABLES: CONTAINED IN CARD, PROPER PADDING & ALIGNMENT
+   ============================================================ */
+.card {
+    border-radius: 12px !important;
+}
+
+.card-body {
+    overflow-x: auto !important;
+    max-width: 100% !important;
+    padding: 1.25rem !important;
+}
+
+.dataTables_wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+}
+
+table.dataTable, table.table {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 0 !important;
+    border-collapse: collapse !important;
+}
+
+table.dataTable th, table.dataTable td,
+table.table th, table.table td {
+    vertical-align: middle !important;
+    padding: 10px 14px !important;
+    line-height: 1.4 !important;
+}
+
+table.dataTable th, table.table th {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    white-space: nowrap !important;
+}
+
+table.dataTable td, table.table td {
+    color: #334155 !important;
+    font-size: 0.88rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* Crystal-Clear High-Contrast Badges */
+.badge {
+    font-weight: 600 !important;
+    font-size: 0.76rem !important;
+    padding: 0.32rem 0.65rem !important;
+    border-radius: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.02em !important;
+}
+
+.bg-success-transparent {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+
+.bg-primary-transparent {
+    background-color: #f0f9ff !important;
+    color: #0369a1 !important;
+    border: 1px solid #bae6fd !important;
+}
+
+.bg-info-transparent {
+    background-color: #f0f9ff !important;
+    color: #0284c7 !important;
+    border: 1px solid #7dd3fc !important;
+}
+
+.bg-warning-transparent {
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+}
+
+.bg-danger-transparent {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+.bg-secondary-transparent {
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+/* Action icons alignment */
+table.dataTable td a, table.table td a {
+    display: inline-flex !important;
+    align-items: center !important;
+    vertical-align: middle !important;
+}
+table.dataTable td svg, table.table td svg {
+    vertical-align: middle !important;
 }

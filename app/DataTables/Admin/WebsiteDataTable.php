@@ -25,18 +25,31 @@ class WebsiteDataTable extends DataTable
                 return GeneralHelperFunctions::prepareHtmlDate($website->created_at);
             })
             ->addColumn('image', function (Website $website){
-                if($website->type == 'Pet_Adoption_For_grant_recipients'){
-                    return '<img class="list-image" style="background: rgba(1, 1, 108, 1); border-radius: 50%; padding: 10px;" src="'.$website->avatarUrl['250'].'">';
-                }else{
-                    return '<img class="list-image" src="'.$website->avatarUrl['250'].'">';
+                if ($website->hasMedia('avatar')) {
+                    $imgUrl = $website->avatarUrl['250'];
+                } else {
+                    $fallback = match ($website->type) {
+                        'Top_Banner' => 'images/hero-solar.jpg',
+                        'About_Us' => 'images/about-main.jpg',
+                        'Our_Vision', 'Our_Mission' => 'images/about-teaser.jpg',
+                        'Why_Choose_Us' => 'images/team-install.jpg',
+                        'Products' => str_contains($website->heading, 'Panel') ? 'images/product-panel.jpg' : (str_contains($website->heading, 'Inverter') ? 'images/product-inverter.jpg' : 'images/product-battery.jpg'),
+                        'Solar_Solutions' => str_contains($website->heading, 'On-Grid') ? 'images/solution-ongrid.jpg' : (str_contains($website->heading, 'Off-Grid') ? 'images/solution-offgrid.jpg' : 'images/solution-hybrid.jpg'),
+                        'Solar_Plans' => str_contains($website->heading, 'Small') ? 'images/plan-starter.jpg' : (str_contains($website->heading, 'Family') ? 'images/plan-family.jpg' : 'images/plan-business.jpg'),
+                        'Services', 'Process_Steps' => str_contains($website->heading, 'Survey') ? 'images/team-design.jpg' : (str_contains($website->heading, 'Support') ? 'images/team-support.jpg' : 'images/team-install.jpg'),
+                        default => 'images/hero-solar.jpg'
+                    };
+                    $imgUrl = asset($fallback);
                 }
-
+                return '<img class="rounded border shadow-sm" style="width:48px;height:48px;object-fit:cover;" src="'.$imgUrl.'" alt="image">';
+            })
+            ->editColumn('heading', function (Website $website){
+                return '<b class="text-dark">'.$website->heading.'</b>';
             })
             ->editColumn('type', function (Website $website){
-                return str_replace('_' , ' ', $website->type);
+                return '<span class="badge bg-primary-transparent text-primary">'.str_replace('_' , ' ', $website->type).'</span>';
             })
-
-            ->rawColumns(['created_at', 'image', 'action', 'description'])
+            ->rawColumns(['created_at', 'image', 'heading', 'type', 'action'])
             ->addColumn('action', 'admin.websites.datatables_actions');
     }
 
@@ -85,7 +98,6 @@ class WebsiteDataTable extends DataTable
             'heading',
             'sub_heading',
             'type',
-            'description',
             'created_at' => ['title' => 'Added on'],
         ];
     }

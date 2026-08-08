@@ -5,149 +5,189 @@
 @endsection
 
 @section('page_headers')
-    <h4>Dashboard</h4>
+    <h4><i class="ri-dashboard-line me-1"></i> AES Energy Executive Dashboard</h4>
 @endsection
 
 @section('content')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<div class="content">
+    <div class="container-fluid">
+        <!-- 6 KEY METRIC CARDS -->
+        <div class="row mb-4">
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-md bg-primary-transparent text-primary rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                <i class="ri-user-star-line fs-20"></i>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-12">Total Customers</span>
+                                <h4 class="fw-bold mb-0 text-dark">{{ $totalCustomers }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <style>
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-md bg-info-transparent text-info rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                <i class="ri-sun-line fs-20"></i>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-12">Solar Sites / Plants</span>
+                                <h4 class="fw-bold mb-0 text-primary">{{ $totalSites }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-md bg-warning-transparent text-warning rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                <i class="ri-flashlight-line fs-20"></i>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-12">Total Capacity</span>
+                                <h4 class="fw-bold mb-0 text-warning">{{ round($totalCapacity, 1) }} kW</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        .header h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-md bg-success-transparent text-success rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                <i class="ri-gift-line fs-20"></i>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-12">Total Referrals</span>
+                                <h4 class="fw-bold mb-0 text-success">{{ $totalReferrals }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.1em;
-        }
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-md bg-purple-transparent text-purple rounded-circle me-3 d-flex align-items-center justify-content-center" style="background:rgba(147, 51, 234, 0.12); color:#9333ea;">
+                                <i class="ri-wallet-3-line fs-20"></i>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-12">Rewards Credited</span>
+                                <h4 class="fw-bold mb-0 text-purple" style="color:#9333ea;">₹{{ number_format($totalRewards, 0) }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 30px;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-md bg-danger-transparent text-danger rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                <i class="ri-customer-service-2-line fs-20"></i>
+                            </div>
+                            <div>
+                                <span class="text-muted fs-12">Open Service Tickets</span>
+                                <h4 class="fw-bold mb-0 text-danger">{{ $openServiceRequests }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        .year-filter {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        <!-- 2-COLUMN TABLES: RECENT CUSTOMERS & RECENT INQUIRIES -->
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card custom-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">Recent Registered Customers</h6>
+                        <a href="{{ route('admin.customers.index') }}" class="btn btn-xs btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Mobile</th>
+                                        <th>Code</th>
+                                        <th>Sites</th>
+                                        <th>Wallet</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recentCustomers as $rc)
+                                        <tr>
+                                            <td>
+                                                <a href="{{ route('admin.customers.show', $rc->uuid) }}" class="fw-bold">
+                                                    {{ $rc->name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $rc->mobile }}</td>
+                                            <td><span class="badge bg-info-transparent text-info">{{ $rc->referral_code }}</span></td>
+                                            <td>{{ $rc->sites_count }} Site(s)</td>
+                                            <td class="text-success fw-bold">₹{{ number_format($rc->wallet_balance, 0) }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="5" class="text-center text-muted">No customers yet.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        .year-filter label {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 1.1em;
-        }
-
-        select {
-            padding: 10px 15px;
-            border: 2px solid #e0e6ed;
-            border-radius: 10px;
-            font-size: 16px;
-            background: white;
-            color: #2c3e50;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        select:hover {
-            border-color: #667eea;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #2e9cdb, #0f6aa8);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card h3 {
-            opacity: 0.9;
-            color: #fff;
-            font-size: 15px;
-        }
-
-        .stat-card .value {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-        .chart-container {
-            position: relative;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 400px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            .controls {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .chart-wrapper {
-                height: 300px;
-            }
-        }
-    </style>
-
-
+            <div class="col-xl-6">
+                <div class="card custom-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">Recent Public Website Inquiries</h6>
+                        <a href="{{ route('admin.inquiries.index') }}" class="btn btn-xs btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Subject</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recentInquiries as $inq)
+                                        <tr>
+                                            <td><b>{{ $inq->name }}</b></td>
+                                            <td>{{ $inq->phone }}</td>
+                                            <td>{{ $inq->subject }}</td>
+                                            <td>{{ $inq->created_at->format('d M Y') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="4" class="text-center text-muted">No website inquiries yet.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
-@push('stackedScripts')
-
-@endpush

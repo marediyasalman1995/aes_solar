@@ -20,13 +20,16 @@ class FaqDataTable extends DataTable
         $dataTable = new EloquentDataTable($query);
 
         return $dataTable
+            ->editColumn('question_english', function (Faq $faq) {
+                return '<b class="text-dark">' . $faq->question_english . '</b><div class="text-muted fs-12 text-truncate" style="max-width:500px;">' . strip_tags($faq->answer_english) . '</div>';
+            })
             ->editColumn('created_at', function (Faq $faq){
                 return GeneralHelperFunctions::prepareHtmlDate($faq->created_at);
             })
             ->editColumn('updated_at', function (Faq $faq){
                 return GeneralHelperFunctions::prepareHtmlDate($faq->updated_at);
             })
-            ->rawColumns(['created_at', 'updated_at', 'action'])
+            ->rawColumns(['question_english', 'created_at', 'updated_at', 'action'])
             ->addColumn('action', 'admin.faqs.datatables_actions');
     }
 

@@ -83,6 +83,9 @@ class SideBarMenuController extends Controller
      */
     protected function validatePermissions($permissions)
     {
+        if (!$this->authUser) {
+            return true;
+        }
         foreach ($permissions as $permission) {
             return $this->authUser->can($permission);
         }

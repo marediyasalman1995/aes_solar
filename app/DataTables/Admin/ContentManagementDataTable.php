@@ -20,6 +20,9 @@ class ContentManagementDataTable extends DataTable
         $dataTable = new EloquentDataTable($query);
 
         return $dataTable
+            ->editColumn('title', function (ContentManagement $m) {
+                return '<a href="' . route('cms-detail', $m->slug) . '" target="_blank" class="fw-semibold text-primary" title="View on live website">' . $m->title . '</a><div class="text-muted fs-11">/cms/' . $m->slug . '</div>';
+            })
             ->editColumn('created_at', function (ContentManagement $contentManagement){
                 return GeneralHelperFunctions::prepareHtmlDate($contentManagement->created_at);
             })
@@ -42,7 +45,7 @@ class ContentManagementDataTable extends DataTable
                 return view('admin.layouts.status', compact('model', 'tableId','status','alert','urlStatus'));
 
             })
-            ->rawColumns(['created_at', 'updated_at', 'action', 'active'])
+            ->rawColumns(['title', 'created_at', 'updated_at', 'action', 'active'])
             ->addColumn('action', 'admin.content_managements.datatables_actions');
     }
 

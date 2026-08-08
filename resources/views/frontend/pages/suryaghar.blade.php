@@ -6,8 +6,12 @@
 
 @section('content')
 <div class="page-banner">
-      <div><span class="crumb">Home / PM Surya Ghar</span><h1>PM Surya Ghar Muft Bijli Yojana</h1><p>Get up to ₹78,000 central subsidy and target zero electricity bills.</p></div>
-    </div>
+  <div>
+    <span class="crumb">Home / PM Surya Ghar</span>
+    <h1>{{ isset($website_sections['PM_Surya_Ghar']) ? $website_sections['PM_Surya_Ghar']->heading : 'PM Surya Ghar Muft Bijli Yojana' }}</h1>
+    <p>{{ isset($website_sections['PM_Surya_Ghar']) ? $website_sections['PM_Surya_Ghar']->sub_heading : 'Get up to ₹78,000 central subsidy and target zero electricity bills.' }}</p>
+  </div>
+</div>
     <section class="section">
       <div class="scheme-banner reveal">
         <div>
@@ -32,9 +36,17 @@
     <section class="section section-alt">
       <div class="section-head reveal"><span class="eyebrow">Subsidy Slabs</span><h2>How much can you get?</h2></div>
       <div class="slab-grid reveal-stagger">
-        <div class="slab-card"><div class="kw">Up to 2 kW</div><div class="amt">₹30,000</div><span>per kW subsidy</span></div>
-        <div class="slab-card"><div class="kw">2–3 kW</div><div class="amt">₹18,000</div><span>additional per kW</span></div>
-        <div class="slab-card"><div class="kw">Above 3 kW</div><div class="amt">₹78,000</div><span>maximum subsidy capped</span></div>
+        @forelse($subsidy_slabs as $slab)
+          <div class="slab-card">
+            <div class="kw">{{ $slab->heading }}</div>
+            <div class="amt">{{ $slab->sub_heading }}</div>
+            <span>{{ strip_tags($slab->description) }}</span>
+          </div>
+        @empty
+          <div class="slab-card"><div class="kw">Up to 2 kW</div><div class="amt">₹30,000</div><span>per kW subsidy</span></div>
+          <div class="slab-card"><div class="kw">2–3 kW</div><div class="amt">₹18,000</div><span>additional per kW</span></div>
+          <div class="slab-card"><div class="kw">Above 3 kW</div><div class="amt">₹78,000</div><span>maximum subsidy capped</span></div>
+        @endforelse
       </div>
     </section>
     <section class="section">
