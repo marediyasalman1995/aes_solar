@@ -205,10 +205,21 @@ table.dataTable td, table.table td {
     border: 1px solid #fecaca !important;
 }
 
-.bg-secondary-transparent {
-    background-color: #f8fafc !important;
-    color: #334155 !important;
-    border: 1px solid #cbd5e1 !important;
+.badge.bg-secondary-transparent {
+    background-color: rgba(100, 116, 139, 0.12) !important;
+    color: #475569 !important;
+    border: 1px solid rgba(100, 116, 139, 0.25) !important;
+}
+
+/* ============================================================
+   EXECUTIVE DASHBOARD CARDS HOVER ELEVATION
+   ============================================================ */
+.custom-card {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.custom-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08), 0 8px 16px -4px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* Action icons alignment */
@@ -219,4 +230,38 @@ table.dataTable td a, table.table td a {
 }
 table.dataTable td svg, table.table td svg {
     vertical-align: middle !important;
+}
+
+/* ============================================================
+   GLOBAL BUTTONS RIGHT-ALIGNMENT
+   ============================================================ */
+.page-header-breadcrumb {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+}
+
+.page-header-breadcrumb > div:last-child,
+.page-header-breadcrumb .btn,
+.page-header-breadcrumb .my_btn {
+    margin-left: auto !important;
+}
+
+.card-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.card-header .btn,
+.card-header a.btn {
+    margin-left: auto !important;
+}
+
+.card-footer .d-flex,
+.form-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
 }

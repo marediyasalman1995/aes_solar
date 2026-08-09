@@ -68,8 +68,7 @@
             <div class="plan-body">
               <span class="kw">{{ $plan->sub_heading }}</span>
               <h3>{{ $plan->heading }}</h3>
-              <p style="color:var(--muted);font-size:0.88rem;line-height:1.6;margin:10px 0;">{{ strip_tags($plan->description) }}</p>
-              <button class="btn {{ $isFeatured ? 'btn-primary' : 'btn-outline' }}" style="width:100%;justify-content:center;" onclick="window.location.href='{{ route('contact') }}'">Choose Plan</button>
+              <p style="color:var(--muted);font-size:0.88rem;line-height:1.6;margin:10px 0 0;">{{ strip_tags($plan->description) }}</p>
             </div>
           </div>
         @empty
@@ -78,7 +77,6 @@
             <div class="plan-body">
               <span class="kw">3 kW · Starter</span>
               <h3>Small Home Plan</h3>
-              <button class="btn btn-primary" style="width:100%;" onclick="window.location.href='{{ route('contact') }}'">Choose Plan</button>
             </div>
           </div>
         @endforelse

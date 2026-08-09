@@ -25,7 +25,7 @@
 
                 <div class="ms-md-1 ms-0">
                     @yield('page_headers')
-                    <nav style="    margin-top: 10px;">
+                    <nav style="margin-top: 10px;">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
                             @yield('breadcrumbs')
@@ -33,7 +33,9 @@
                     </nav>
                 </div>
 
-                @yield('page_buttons')
+                <div class="d-flex align-items-center gap-2 mt-md-0 mt-2 ms-auto">
+                    @yield('page_buttons')
+                </div>
             </div>
 
             <!-- Start::row-1 -->

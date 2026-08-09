@@ -12,11 +12,13 @@
   </div>
   <div class="nav-actions">
     @if(Auth::guard('customer')->check())
-      <a class="btn btn-primary" href="{{ route('customer.dashboard') }}" style="padding:8px 18px;">
+      <a class="btn btn-primary" href="{{ route('customer.dashboard') }}" style="padding:8px 20px; font-weight:600; border-radius:999px;">
         ⚡ AES One Dashboard
       </a>
     @else
-      <a class="btn btn-ghost" href="{{ route('login') }}">Customer Login</a>
+      <a class="btn btn-primary" href="{{ route('login') }}" style="padding:8px 22px; font-weight:600; border-radius:999px;">
+        Login
+      </a>
     @endif
     <button class="burger" id="burger" onclick="toggleNav()"><span></span><span></span><span></span></button>
   </div>
