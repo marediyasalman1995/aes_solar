@@ -172,6 +172,45 @@
 
     body{
         font-family: var( --font-family-theme);
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        min-height: 100vh !important;
+    }
+    html {
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        height: 100% !important;
+    }
+    .page {
+        min-height: 100vh !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .main-content, .main-content.app-content {
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+        min-height: calc(100vh - 70px) !important;
+    }
+    ::-webkit-scrollbar {
+        width: 10px !important;
+        height: 10px !important;
+        display: block !important;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9 !important;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #94a3b8 !important;
+        border-radius: 8px !important;
+        border: 2px solid #f1f5f9 !important;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #0f6aa8 !important;
+    }
+    * {
+        scrollbar-width: thin !important;
+        scrollbar-color: #94a3b8 #f1f5f9 !important;
     }
 </style>
 @yield('css')
