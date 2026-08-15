@@ -11,31 +11,48 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_screen_can_be_rendered()
+    public function test_customer_login_screen_can_be_rendered()
     {
         $response = $this->get('/login');
 
         $response->assertStatus(200);
     }
 
-    public function test_users_can_authenticate_using_the_login_screen()
+    public function test_admin_login_screen_can_be_rendered()
     {
-        $user = User::factory()->create();
+        $response = $this->get('/admin/login');
 
-        $response = $this->post('/login', [
+        $response->assertStatus(200);
+    }
+
+    public function test_admins_can_authenticate_using_the_login_screen()
+    {
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+
+        $user = User::factory()->create([
+            'user_type' => 'admin',
+            'password' => bcrypt('password')
+        ]);
+
+        $response = $this->post('/admin/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        $response->assertRedirect('/admin/dashboard');
     }
 
-    public function test_users_can_not_authenticate_with_invalid_password()
+    public function test_admins_can_not_authenticate_with_invalid_password()
     {
-        $user = User::factory()->create();
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
-        $this->post('/login', [
+        $user = User::factory()->create([
+            'user_type' => 'admin',
+            'password' => bcrypt('password')
+        ]);
+
+        $this->post('/admin/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);

@@ -22,6 +22,11 @@ class WebsiteController extends AppBaseController
 
     public function __construct(WebsiteRepository $websiteRepo)
     {
+        $this->middleware('permission:websites.index')->only(['index']);
+        $this->middleware('permission:websites.create')->only(['create', 'store']);
+        $this->middleware('permission:websites.edit')->only(['edit', 'update']);
+        $this->middleware('permission:websites.view')->only(['show']);
+        $this->middleware('permission:websites.delete')->only(['destroy']);
         $this->websiteRepository = $websiteRepo;
     }
 

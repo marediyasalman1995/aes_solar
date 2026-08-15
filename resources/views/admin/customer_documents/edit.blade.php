@@ -26,12 +26,11 @@
                         <div class="col-md-6">
                             <label class="form-label">Document Type <span class="text-danger">*</span></label>
                             <select name="doc_type" class="form-control" required>
-                                <option value="Panel Warranty" {{ $customerDocument->doc_type == 'Panel Warranty' ? 'selected' : '' }}>Panel Warranty</option>
-                                <option value="Inverter Warranty" {{ $customerDocument->doc_type == 'Inverter Warranty' ? 'selected' : '' }}>Inverter Warranty</option>
-                                <option value="Installation Agreement" {{ $customerDocument->doc_type == 'Installation Agreement' ? 'selected' : '' }}>Installation Agreement</option>
-                                <option value="Net-Metering Approval" {{ $customerDocument->doc_type == 'Net-Metering Approval' ? 'selected' : '' }}>Net-Metering Approval</option>
-                                <option value="Invoice" {{ $customerDocument->doc_type == 'Invoice' ? 'selected' : '' }}>Invoice</option>
-                                <option value="Other" {{ $customerDocument->doc_type == 'Other' ? 'selected' : '' }}>Other</option>
+                                @foreach($documentTypes as $type)
+                                    <option value="{{ $type->title }}" {{ $customerDocument->doc_type == $type->title ? 'selected' : '' }}>
+                                        {{ $type->title }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">

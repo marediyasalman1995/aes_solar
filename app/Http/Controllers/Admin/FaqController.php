@@ -22,6 +22,11 @@ class FaqController extends AppBaseController
 
     public function __construct(FaqRepository $faqRepo)
     {
+        $this->middleware('permission:faqs.index')->only(['index']);
+        $this->middleware('permission:faqs.create')->only(['create', 'store']);
+        $this->middleware('permission:faqs.edit')->only(['edit', 'update']);
+        $this->middleware('permission:faqs.view')->only(['show']);
+        $this->middleware('permission:faqs.delete')->only(['destroy']);
         $this->faqRepository = $faqRepo;
     }
 

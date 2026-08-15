@@ -160,7 +160,7 @@ class UserController extends AppBaseController
         return Response::json(['message' => 'Password updated successfully.', 'back_url' => route('admin.users.index')]);
     }
 
-    public function dashboard()
+    public function dashboard(\Illuminate\Http\Request $request)
     {
         $totalCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->count();
         $totalSites = \App\Models\CustomerSite::count();
@@ -178,22 +178,22 @@ class UserController extends AppBaseController
         $treesPlantedEquiv = round($co2SavedTons * 45);
         $estimatedMonthlySavings = round($monthlyGenUnits * 8.5);
 
-        // Last 6 Months Chart Series
-        $chartMonths = [];
-        $chartCapacityData = [];
-        $chartGenerationData = [];
-        $chartReferralData = [];
+        // Year options for the filter dropdown
+        $dbYears = \App\Models\CustomerSite::selectRaw('YEAR(created_at) as yr')->distinct()->pluck('yr')->toArray();
+        $currentYear = (int)date('Y');
+        $years = array_unique(array_merge([$currentYear, $currentYear - 1], $dbYears));
+        sort($years);
+        $years = array_reverse($years);
 
-        for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $monthName = $date->format('M Y');
-            $chartMonths[] = $monthName;
+        $filterYear = (int)$request->input('year', $currentYear);
 
-            // Compute or aggregate data points
-            $factor = (6 - $i) / 6;
-            $chartCapacityData[] = round(max(3.2, $totalCapacity * $factor), 1);
-            $chartGenerationData[] = round(max(150, ($totalCapacity * 4.2 * 30) * $factor));
-            $chartReferralData[] = max(1, round($totalReferrals * (0.4 + ($factor * 0.6))));
+        // Generate monthly Customer Plants/Sites registrations
+        $monthlyRegistrations = [];
+        $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        for ($month = 1; $month <= 12; $month++) {
+            $monthlyRegistrations[] = \App\Models\CustomerSite::whereYear('created_at', $filterYear)
+                ->whereMonth('created_at', $month)
+                ->count();
         }
 
         // Referral Pipeline Counts
@@ -218,10 +218,10 @@ class UserController extends AppBaseController
             'co2SavedTons',
             'treesPlantedEquiv',
             'estimatedMonthlySavings',
-            'chartMonths',
-            'chartCapacityData',
-            'chartGenerationData',
-            'chartReferralData',
+            'years',
+            'filterYear',
+            'monthNames',
+            'monthlyRegistrations',
             'referralStages'
         ));
     }

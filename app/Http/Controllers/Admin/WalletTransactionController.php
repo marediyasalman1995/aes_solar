@@ -13,6 +13,15 @@ use Response;
 
 class WalletTransactionController extends AppBaseController
 {
+    public function __construct()
+    {
+        $this->middleware('permission:wallet-transactions.index')->only(['index']);
+        $this->middleware('permission:wallet-transactions.create')->only(['create', 'store']);
+        $this->middleware('permission:wallet-transactions.edit')->only(['edit', 'update', 'updateStatus']);
+        $this->middleware('permission:wallet-transactions.view')->only(['show']);
+        $this->middleware('permission:wallet-transactions.delete')->only(['destroy']);
+    }
+
     public function index(WalletTransactionDataTable $walletTransactionDataTable)
     {
         return $walletTransactionDataTable->render('admin.wallet_transactions.index');

@@ -30,11 +30,11 @@
 <div class="content">
     <div class="container-fluid">
         
-        <!-- 6 DISTINCT COLOR KPI SUMMARY CARDS -->
+        <!-- 5 DISTINCT COLOR KPI SUMMARY CARDS (TOTAL 12 COLUMNS) -->
         <div class="row g-3 mb-4">
             
             <!-- 1. TOTAL CUSTOMERS (ROYAL BLUE) -->
-            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+            <div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6 col-sm-6">
                 <div class="card custom-card h-100 shadow-sm border-0" style="background: linear-gradient(135deg, #eef4ff 0%, #ffffff 100%); border-left: 4px solid #2563eb !important; border-radius: 14px;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -53,7 +53,7 @@
             </div>
 
             <!-- 2. SOLAR PLANTS / SITES (CYAN / TEAL) -->
-            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+            <div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6 col-sm-6">
                 <div class="card custom-card h-100 shadow-sm border-0" style="background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%); border-left: 4px solid #0d9488 !important; border-radius: 14px;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -71,27 +71,8 @@
                 </div>
             </div>
 
-            <!-- 3. TOTAL CAPACITY (SOLAR GOLD / AMBER) -->
-            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
-                <div class="card custom-card h-100 shadow-sm border-0" style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border-left: 4px solid #f59e0b !important; border-radius: 14px;">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-secondary fs-12 fw-bold text-uppercase" style="letter-spacing:.04em; color:#475569;">Total Capacity</span>
-                            <div class="d-flex align-items-center justify-content-center shadow-sm" style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, #d97706, #f59e0b); color:#fff;">
-                                <i class="ri-flashlight-line fs-18"></i>
-                            </div>
-                        </div>
-                        <h3 class="fw-bold mb-1" style="color:#b45309; font-size:1.65rem;">{{ round($totalCapacity, 1) }} <span class="fs-13 fw-bold text-secondary">kW</span></h3>
-                        <div class="d-flex align-items-center fs-11 mt-1">
-                            <span class="badge bg-warning text-dark me-1 px-2 py-1 fw-bold">~{{ number_format($monthlyGenUnits) }} u/mo</span>
-                            <span class="fw-semibold text-dark">Generation</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. TOTAL REFERRALS (EMERALD GREEN) -->
-            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+            <!-- 3. TOTAL REFERRALS (EMERALD GREEN) -->
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-4 col-sm-4">
                 <div class="card custom-card h-100 shadow-sm border-0" style="background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%); border-left: 4px solid #10b981 !important; border-radius: 14px;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -109,8 +90,8 @@
                 </div>
             </div>
 
-            <!-- 5. REWARDS CREDITED (ROYAL VIOLET) -->
-            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+            <!-- 4. REWARDS CREDITED (ROYAL VIOLET) -->
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-4 col-sm-4">
                 <div class="card custom-card h-100 shadow-sm border-0" style="background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%); border-left: 4px solid #8b5cf6 !important; border-radius: 14px;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -128,8 +109,8 @@
                 </div>
             </div>
 
-            <!-- 6. SERVICE TICKETS (CORAL ROSE RED) -->
-            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+            <!-- 5. SERVICE TICKETS (CORAL ROSE RED) -->
+            <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-4 col-sm-4">
                 <div class="card custom-card h-100 shadow-sm border-0" style="background: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%); border-left: 4px solid #f43f5e !important; border-radius: 14px;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -183,17 +164,22 @@
         <!-- INTERACTIVE GRAPHICAL CHARTS SECTION -->
         <div class="row g-3 mb-4">
             
-            <!-- CHART 1: SOLAR CAPACITY & MONTHLY GENERATION -->
+            <!-- CHART 1: CUSTOMER PLANTS/SITES REGISTRATION TRENDS -->
             <div class="col-xl-8">
                 <div class="card custom-card h-100 shadow-sm border-0" style="border-radius:16px;">
                     <div class="card-header d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
                         <div class="d-flex flex-column">
-                            <h6 class="card-title mb-1 fw-bold text-dark fs-15 d-block">Solar Capacity &amp; Generation Trends</h6>
-                            <span class="text-muted fs-12 d-block">Installed kW capacity growth and clean energy output (kWh)</span>
+                            <h6 class="card-title mb-1 fw-bold text-dark fs-15 d-block">Customer Plants/Sites Registered</h6>
+                            <span class="text-muted fs-12 d-block">Month-wise solar rooftop installation count</span>
                         </div>
-                        <span class="badge bg-primary-transparent text-primary px-3 py-2 rounded-pill ms-auto">
-                            <i class="ri-line-chart-line me-1"></i> 6 Months Overview
-                        </span>
+                        <div class="d-flex align-items-center gap-2 ms-auto">
+                            <label class="fs-12 text-muted fw-bold mb-0">Select Year:</label>
+                            <select id="yearFilterSelect" class="form-select form-select-sm" style="width:100px;" onchange="filterYearChanged(this.value)">
+                                @foreach($years as $y)
+                                    <option value="{{ $y }}" {{ $y == $filterYear ? 'selected' : '' }}>{{ $y }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div id="solarAnalyticsChart" style="min-height: 310px;"></div>
@@ -391,64 +377,48 @@
 @push('stackedScripts')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
+    function filterYearChanged(year) {
+        window.location.href = "{{ route('dashboard') }}?year=" + year;
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
-        // 1. Solar Analytics Area Chart
+        // 1. Customer Plants/Sites Registration Bar Chart
         var optionsCapacity = {
             series: [{
-                name: 'Total Installed Capacity (kW)',
-                type: 'area',
-                data: {!! json_encode($chartCapacityData) !!}
-            }, {
-                name: 'Monthly Energy Output (kWh)',
-                type: 'line',
-                data: {!! json_encode($chartGenerationData) !!}
+                name: 'Plants / Sites Registered',
+                data: {!! json_encode($monthlyRegistrations) !!}
             }],
             chart: {
                 height: 310,
-                type: 'line',
+                type: 'bar',
                 toolbar: { show: false },
                 zoom: { enabled: false },
                 fontFamily: 'inherit'
             },
-            colors: ['#0f6aa8', '#16a34a'],
-            dataLabels: { enabled: false },
-            stroke: {
-                curve: 'smooth',
-                width: [2, 3]
-            },
-            fill: {
-                type: ['gradient', 'solid'],
-                gradient: {
-                    shadeIntensity: 1,
-                    opacityFrom: 0.45,
-                    opacityTo: 0.05,
-                    stops: [0, 90, 100]
+            colors: ['#0f6aa8'],
+            plotOptions: {
+                bar: {
+                    borderRadius: 6,
+                    columnWidth: '45%',
+                    dataLabels: { position: 'top' }
                 }
             },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) { return val > 0 ? val : ""; },
+                offsetY: -20,
+                style: { fontSize: '12px', colors: ["#334155"] }
+            },
             xaxis: {
-                categories: {!! json_encode($chartMonths) !!},
+                categories: {!! json_encode($monthNames) !!},
                 axisBorder: { show: false },
                 axisTicks: { show: false }
             },
-            yaxis: [{
-                title: { text: 'Installed Capacity (kW)', style: { color: '#0f6aa8', fontSize: '11px', fontWeight: 600 } },
+            yaxis: {
+                title: { text: 'Registered Count', style: { color: '#0f6aa8', fontSize: '11px', fontWeight: 600 } },
                 labels: {
-                    formatter: function (val) { return val + ' kW'; }
+                    formatter: function (val) { return Math.round(val); }
                 }
-            }, {
-                opposite: true,
-                title: { text: 'Generated Units (kWh)', style: { color: '#16a34a', fontSize: '11px', fontWeight: 600 } },
-                labels: {
-                    formatter: function (val) { return val + ' u'; }
-                }
-            }],
-            tooltip: {
-                shared: true,
-                intersect: false
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'right'
             },
             grid: {
                 borderColor: '#f1f5f9',

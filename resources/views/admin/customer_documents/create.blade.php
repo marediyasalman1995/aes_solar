@@ -36,12 +36,11 @@
                         <div class="col-md-6">
                             <label class="form-label">Document Type <span class="text-danger">*</span></label>
                             <select name="doc_type" class="form-control" required>
-                                <option value="Panel Warranty">Panel Warranty</option>
-                                <option value="Inverter Warranty">Inverter Warranty</option>
-                                <option value="Installation Agreement">Installation Agreement</option>
-                                <option value="Net-Metering Approval">Net-Metering Approval</option>
-                                <option value="Invoice">Invoice</option>
-                                <option value="Other">Other</option>
+                                @foreach($documentTypes as $type)
+                                    <option value="{{ $type->title }}" {{ old('doc_type') == $type->title ? 'selected' : '' }}>
+                                        {{ $type->title }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">

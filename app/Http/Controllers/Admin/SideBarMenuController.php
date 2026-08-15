@@ -48,8 +48,10 @@ class SideBarMenuController extends Controller
                     || request()->is(str_replace(config('app.url') . '/', '', $this->getRouteAction($sidebarItem['route']) . '*'))) {
                     $active = "active";
                 }
-                if (request()->url() === $sidebarItem['route']
-                    || request()->is(str_replace(config('app.url') . '/', '', $sidebarItem['route'] . '*'))) $active = "active";
+                if (is_string($sidebarItem['route']) && (request()->url() === $sidebarItem['route']
+                    || request()->is(str_replace(config('app.url') . '/', '', $sidebarItem['route'] . '*')))) {
+                    $active = "active";
+                }
 
                 $renderedHtml .= "<li class=\"slide ". $active ."\"><a class=\"side-menu__item \" href='"
                     .$this->getRouteAction($sidebarItem['route'])
@@ -87,7 +89,9 @@ class SideBarMenuController extends Controller
             return true;
         }
         foreach ($permissions as $permission) {
-            return $this->authUser->can($permission);
+            if ($this->authUser->can($permission)) {
+                return true;
+            }
         }
         return false;
     }

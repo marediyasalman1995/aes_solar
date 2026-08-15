@@ -18,6 +18,7 @@ Route::get('/products', [HomeController::class, 'products'])->name('products');
 Route::get('/services', [HomeController::class, 'services'])->name('services');
 Route::get('/suryaghar', [HomeController::class, 'suryaghar'])->name('suryaghar');
 Route::get('/contact-us', [HomeController::class, 'contact'])->name('contact');
+Route::get('/dealer', [HomeController::class, 'dealer'])->name('dealer');
 
 Route::get('/cms/{slug}', [HomeController::class, 'cmsDetail'])->name('cms-detail');
 Route::get('/faqs', [HomeController::class, 'faqs'])->name('faqs');

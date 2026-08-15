@@ -67,6 +67,13 @@ class CustomerSite extends Model
                 $model->site_code = 'AES-S-' . rand(1000, 9999);
             }
         });
+
+        self::saving(function ($model) {
+            if ($model->capacity_kw) {
+                $model->monthly_avg_kwh = $model->capacity_kw * 120.00;
+                $model->co2_offset_ton = $model->capacity_kw * 0.40;
+            }
+        });
     }
 
     public function scopeFindWithUuid($query, $uuid, $with = [])

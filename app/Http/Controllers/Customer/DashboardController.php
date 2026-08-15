@@ -97,6 +97,8 @@ class DashboardController extends Controller
         // Estimated bill savings calculation based on active site
         $estimatedSavings = round(($activeSite->monthly_avg_kwh ?? 600) * 7.5);
 
+        $referralPointSettings = \App\Models\ReferralPointSetting::all();
+
         return view('frontend.dashboard.index', compact(
             'user',
             'sites',
@@ -108,7 +110,8 @@ class DashboardController extends Controller
             'openServiceRequestsCount',
             'documents',
             'notifications',
-            'estimatedSavings'
+            'estimatedSavings',
+            'referralPointSettings'
         ));
     }
 
@@ -146,6 +149,7 @@ class DashboardController extends Controller
             'referee_name' => 'required|string|max:255',
             'referee_mobile' => 'required|string|min:10|max:15',
             'referee_city' => 'nullable|string|max:100',
+            'referral_point_setting_id' => 'required|exists:referral_point_settings,id',
         ]);
 
         $user = $this->getCustomer();
@@ -167,28 +171,57 @@ class DashboardController extends Controller
             ], 422);
         }
 
+        // Fetch dynamic setting
+        $setting = \App\Models\ReferralPointSetting::findOrFail($request->referral_point_setting_id);
+        $amount = floatval($setting->amount);
+
+        DB::beginTransaction();
+
         $referral = Referral::create([
             'referrer_id' => $user->id,
+            'referral_point_setting_id' => $setting->id,
             'referee_name' => $request->referee_name,
             'referee_mobile' => $cleanMobile,
             'referee_city' => $request->referee_city ?? 'Pune',
             'stage' => 'Contacted',
-            'reward_amount' => 500.00,
-            'reward_status' => 'Pending',
-            'notes' => 'Submitted via customer portal',
+            'reward_amount' => $amount,
+            'reward_status' => 'Credited',
+            'notes' => 'Submitted via customer portal with rule: ' . $setting->title,
+        ]);
+
+        // Adjust customer wallet immediately
+        if ($setting->type == 'Credit') {
+            $user->wallet_balance += $amount;
+        } else {
+            $user->wallet_balance = max(0, $user->wallet_balance - $amount);
+        }
+        $user->save();
+
+        // Create transaction log
+        WalletTransaction::create([
+            'user_id' => $user->id,
+            'type' => $setting->type,
+            'amount' => $amount,
+            'title' => $setting->title . ' — ' . $request->referee_name,
+            'description' => 'Referral transaction applied for ' . $request->referee_name,
+            'reference_type' => 'Referral',
+            'reference_id' => $referral->id,
+            'status' => 'Credited',
         ]);
 
         // Add customer notification
         CustomerNotification::create([
             'user_id' => $user->id,
-            'title' => 'Referral Submitted!',
-            'message' => 'Referral for ' . $request->referee_name . ' has been submitted. You will earn up to ₹700 upon installation.',
+            'title' => 'Referral Registered: ' . $setting->title,
+            'message' => 'Your referral for ' . $request->referee_name . ' has been registered. Wallet adjusted by ₹' . number_format($amount, 2) . ' (' . $setting->type . ').',
             'type' => 'referral',
         ]);
 
+        DB::commit();
+
         return response()->json([
             'success' => true,
-            'message' => 'Referral for ' . $request->referee_name . ' submitted successfully! Track status in your dashboard.',
+            'message' => 'Referral for ' . $request->referee_name . ' submitted successfully! Wallet adjusted based on rule: ' . $setting->title,
             'referral' => $referral,
         ]);
     }

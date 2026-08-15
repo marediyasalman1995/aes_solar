@@ -24,6 +24,11 @@ class ContentManagementController extends AppBaseController
 
     public function __construct(ContentManagementRepository $contentManagementRepo)
     {
+        $this->middleware('permission:contentManagements.index')->only(['index']);
+        $this->middleware('permission:contentManagements.create')->only(['create', 'store']);
+        $this->middleware('permission:contentManagements.edit')->only(['edit', 'update', 'statusChange']);
+        $this->middleware('permission:contentManagements.view')->only(['show']);
+        $this->middleware('permission:contentManagements.delete')->only(['destroy']);
         $this->contentManagementRepository = $contentManagementRepo;
     }
 

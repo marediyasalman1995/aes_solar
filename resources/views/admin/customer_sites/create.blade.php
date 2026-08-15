@@ -86,3 +86,25 @@
     </div>
 </div>
 @endsection
+
+@push('stackedScripts')
+<script>
+$(document).ready(function() {
+    function updateCalculations() {
+        let capacity = parseFloat($('input[name="capacity_kw"]').val());
+        if (!isNaN(capacity) && capacity > 0) {
+            let generation = Math.round(capacity * 120);
+            let co2 = parseFloat((capacity * 0.62).toFixed(1));
+            $('input[name="monthly_avg_kwh"]').val(generation);
+            $('input[name="co2_offset_ton"]').val(co2);
+        }
+    }
+    $('input[name="capacity_kw"]').on('input change', updateCalculations);
+    
+    // Trigger initially if capacity has a value on page load
+    if ($('input[name="capacity_kw"]').val()) {
+        updateCalculations();
+    }
+});
+</script>
+@endpush

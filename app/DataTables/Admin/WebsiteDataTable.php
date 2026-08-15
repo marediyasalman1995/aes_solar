@@ -61,7 +61,11 @@ class WebsiteDataTable extends DataTable
      */
     public function query(Website $websites)
     {
-        return $websites->newQuery();
+        $query = $websites->newQuery();
+        if (request()->has('type')) {
+            $query->where('type', request('type'));
+        }
+        return $query;
     }
 
     /**

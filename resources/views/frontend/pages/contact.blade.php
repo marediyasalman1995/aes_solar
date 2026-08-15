@@ -23,14 +23,14 @@
       <ul class="contact-info">
         @if(!empty($setting->address))
           <li>
-            <div class="ic">📍</div>
+            <div class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div><b>Head Office</b><span>{{ $setting->address }}</span></div>
           </li>
         @endif
 
         @if(!empty($setting->mobile))
           <li>
-            <div class="ic">📞</div>
+            <div class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
             <div>
               <b>Call Us</b>
               <span>
@@ -44,7 +44,7 @@
 
         @if(!empty($setting->email))
           <li>
-            <div class="ic">✉️</div>
+            <div class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
             <div>
               <b>Email Support</b>
               <span>
@@ -56,7 +56,7 @@
         @endif
 
         <li>
-          <div class="ic">🌐</div>
+          <div class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
           <div><b>Official Website</b><span>{{ request()->getHost() }}</span></div>
         </li>
       </ul>
@@ -97,23 +97,138 @@
     </div>
 
     <!-- INQUIRY FORM -->
-    <form class="form-card reveal" onsubmit="return submitContact(event)">
-      <input type="hidden" name="subject" value="Website Rooftop Solar Survey Request">
-      <div class="form-row">
-        <div class="field"><label>Full Name</label><input type="text" name="name" placeholder="Your name" required></div>
-        <div class="field"><label>Email Address</label><input type="email" name="email" placeholder="Your email address" required></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label>Mobile Number</label><input type="tel" name="phone" placeholder="+91" required></div>
-        <div class="field"><label>City</label><input type="text" name="city" placeholder="City" required></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label>Monthly Bill (₹)</label><input type="number" name="monthly_bill" placeholder="e.g. 3500"></div>
-      </div>
-      <div class="field" style="margin-bottom:16px;"><label>Message</label><textarea name="message" rows="3" placeholder="Tell us about your requirement"></textarea></div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;" type="submit">Request Free Survey</button>
-    </form>
+    <div class="form-card reveal">
+      <form onsubmit="return submitContact(event)" id="inquiryContactForm">
+        @csrf
+        <div class="form-row mb-3" style="grid-template-columns: 1fr;">
+          <div class="field col-12">
+            <label class="fw-bold">I am a...</label>
+            <select name="type" id="inquiryType" class="form-control" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; width: 100%; box-sizing: border-box;" required>
+              <option value="Customer" {{ request('type') == 'Customer' ? 'selected' : '' }}>Customer (Interested in Solar Rooftop)</option>
+              <option value="Dealer" {{ request('type') == 'Dealer' ? 'selected' : '' }}>Dealer (Interested in Partnership)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="field"><label class="fw-bold">Full Name</label><input type="text" name="name" placeholder="Your name" required></div>
+          <div class="field"><label class="fw-bold">Email Address</label><input type="email" name="email" placeholder="Your email address" required></div>
+        </div>
+        
+        <div class="form-row">
+          <div class="field"><label class="fw-bold">WhatsApp Number</label><input type="tel" name="phone" placeholder="e.g. 9876543210" required></div>
+          <div class="field"><label class="fw-bold">City</label><input type="text" name="city" placeholder="e.g. Ahmedabad" required></div>
+        </div>
+
+        <div class="form-row mb-3" style="grid-template-columns: 1fr;">
+          <div class="field col-12">
+            <label class="fw-bold">PIN Code</label>
+            <input type="text" name="pincode" placeholder="e.g. 380001" required style="width: 100%; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <!-- Monthly Electricity Bill Selection Chips -->
+        <div class="mb-4">
+          <label class="form-label fw-bold d-block mb-2">Monthly Electricity Bill Range</label>
+          <input type="hidden" name="monthly_bill" id="monthlyBillInput" value="1500 - 2500">
+          <div class="d-flex flex-wrap gap-2" style="gap: 8px;">
+            <button type="button" class="bill-chip" data-val="< 1500" onclick="setBillChip(this, '< 1500')">&lt; ₹1,500</button>
+            <button type="button" class="bill-chip active" data-val="1500 - 2500" onclick="setBillChip(this, '1500 - 2500')">₹1,500 - ₹2,500</button>
+            <button type="button" class="bill-chip" data-val="2500 - 4000" onclick="setBillChip(this, '2500 - 4000')">₹2,500 - ₹4,000</button>
+            <button type="button" class="bill-chip" data-val="4000 - 8000" onclick="setBillChip(this, '4000 - 8000')">₹4,000 - ₹8,000</button>
+            <button type="button" class="bill-chip" data-val="8000+" onclick="setBillChip(this, '8000+')">₹8,000+</button>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:16px;"><label class="fw-bold">Message</label><textarea name="message" rows="3" placeholder="Tell us about your requirement"></textarea></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" type="submit">Submit Request</button>
+      </form>
+    </div>
   </div>
+
+  <style>
+    .form-card {
+        background: #fff !important;
+        border: 1px solid var(--sky-200) !important;
+        border-radius: 24px !important;
+        padding: 40px !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+    .form-card label {
+        font-size: 0.8rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: var(--blue-900) !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+    }
+    .form-card input, .form-card select, .form-card textarea {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 12px !important;
+        padding: 14px 16px !important;
+        font-size: 0.95rem !important;
+        color: var(--blue-900) !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        transition: all 0.25s ease !important;
+    }
+    .form-card input:focus, .form-card select:focus, .form-card textarea:focus {
+        border-color: var(--blue-500) !important;
+        background: #fff !important;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15) !important;
+        outline: none !important;
+    }
+    .bill-chip {
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border: 1px solid #cbd5e1 !important;
+        background: #fff !important;
+        color: #475569 !important;
+        cursor: pointer !important;
+        display: inline-block !important;
+        margin: 4px 4px !important;
+    }
+    .bill-chip:hover {
+        border-color: var(--blue-500) !important;
+        color: var(--blue-600) !important;
+        background: #f0f9ff !important;
+    }
+    .bill-chip.active {
+        background: var(--blue-900) !important;
+        border-color: var(--blue-900) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15) !important;
+    }
+    .form-card button[type="submit"] {
+        background: linear-gradient(135deg, var(--blue-900) 0%, #0c334d 100%) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        padding: 14px !important;
+        border-radius: 12px !important;
+        border: none !important;
+        cursor: pointer !important;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15) !important;
+    }
+    .form-card button[type="submit"]:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25) !important;
+    }
+  </style>
+
+  <script>
+    function setBillChip(el, val) {
+        document.querySelectorAll('.bill-chip').forEach(btn => btn.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('monthlyBillInput').value = val;
+    }
+  </script>
 </section>
 
 <!-- OFFICE HOURS -->

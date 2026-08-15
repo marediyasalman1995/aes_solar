@@ -19,6 +19,15 @@ use Response;
 
 class CustomerController extends AppBaseController
 {
+    public function __construct()
+    {
+        $this->middleware('permission:customers.index')->only(['index']);
+        $this->middleware('permission:customers.create')->only(['create', 'store', 'storeSite', 'storeDocument']);
+        $this->middleware('permission:customers.edit')->only(['edit', 'update', 'adjustWallet', 'updateReferralStage', 'updateServiceRequest']);
+        $this->middleware('permission:customers.view')->only(['show']);
+        $this->middleware('permission:customers.delete')->only(['destroy']);
+    }
+
     /**
      * Display a listing of Customers.
      */
@@ -124,7 +133,8 @@ class CustomerController extends AppBaseController
             }
         ]);
 
-        return view('admin.customers.show', compact('customer'));
+        $documentTypes = \App\Models\DocumentType::where('status', 1)->get();
+        return view('admin.customers.show', compact('customer', 'documentTypes'));
     }
 
     /**
@@ -290,31 +300,44 @@ class CustomerController extends AppBaseController
         }
 
         // If newly installed and not credited yet, credit wallet!
-        if ($request->stage == 'Installed' && $referral->reward_status != 'Credited' && $referral->reward_amount > 0) {
-            $referral->reward_status = 'Credited';
-            $referrer = $referral->referrer;
+        if ($request->stage == 'Installed' && $referral->reward_status != 'Credited') {
+            $settingPoints = 0;
+            if ($referral->referral_point_setting_id) {
+                $rule = \App\Models\ReferralPointSetting::find($referral->referral_point_setting_id);
+                if ($rule) {
+                    $settingPoints = (float)$rule->points;
+                }
+            }
 
-            if ($referrer) {
-                $referrer->wallet_balance += $referral->reward_amount;
-                $referrer->save();
+            $rewardAmount = $settingPoints > 0 ? $settingPoints : (float)$referral->reward_amount;
+            $referral->reward_amount = $rewardAmount;
 
-                WalletTransaction::create([
-                    'user_id' => $referrer->id,
-                    'type' => 'Credit',
-                    'amount' => $referral->reward_amount,
-                    'title' => 'Referral Bonus — ' . $referral->referee_name . ' Installed',
-                    'description' => 'Referral installation completed successfully for ' . $referral->referee_name,
-                    'reference_type' => 'Referral',
-                    'reference_id' => $referral->id,
-                    'status' => 'Credited',
-                ]);
+            if ($rewardAmount > 0) {
+                $referral->reward_status = 'Credited';
+                $referrer = $referral->referrer;
 
-                CustomerNotification::create([
-                    'user_id' => $referrer->id,
-                    'title' => 'Referral Reward Credited: ₹' . number_format($referral->reward_amount, 2),
-                    'message' => 'Your referral ' . $referral->referee_name . ' has completed solar installation. ₹' . number_format($referral->reward_amount, 2) . ' credited to your wallet!',
-                    'type' => 'referral',
-                ]);
+                if ($referrer) {
+                    $referrer->wallet_balance += $rewardAmount;
+                    $referrer->save();
+
+                    WalletTransaction::create([
+                        'user_id' => $referrer->id,
+                        'type' => 'Credit',
+                        'amount' => $rewardAmount,
+                        'title' => 'Referral Bonus — ' . $referral->referee_name . ' Installed',
+                        'description' => 'Referral installation completed successfully for ' . $referral->referee_name . ($referral->referralPointSetting ? ' (Rule: ' . $referral->referralPointSetting->title . ')' : ''),
+                        'reference_type' => 'Referral',
+                        'reference_id' => $referral->id,
+                        'status' => 'Credited',
+                    ]);
+
+                    CustomerNotification::create([
+                        'user_id' => $referrer->id,
+                        'title' => 'Referral Reward Credited: ₹' . number_format($rewardAmount, 2),
+                        'message' => 'Your referral ' . $referral->referee_name . ' has completed solar installation. ₹' . number_format($rewardAmount, 2) . ' credited to your wallet!',
+                        'type' => 'referral',
+                    ]);
+                }
             }
         }
 

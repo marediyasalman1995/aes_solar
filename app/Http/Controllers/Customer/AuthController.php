@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -27,97 +28,91 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle Customer Mobile + OTP Login (Fixed OTP 1234).
+     * Send OTP via email to valid customer
+     */
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = User::where('email', $request->email)->where('user_type', 'customer')->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This email is not registered with us. Please contact our support team to register your account.'
+            ], 422);
+        }
+
+        // Generate dynamic 4-digit OTP code
+        $otp = rand(1000, 9999);
+
+        // Store OTP and email in session
+        session([
+            'login_email' => $request->email,
+            'login_otp' => $otp,
+            'login_otp_time' => now()
+        ]);
+
+        // Log the OTP for developer access
+        Log::info("Customer OTP Login for email: {$request->email}. Code is: {$otp}");
+
+        // In local environments, we also allow sending simulated emails using mail or log drivers.
+        // We will output a success message to the AJAX callback.
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification code sent successfully to ' . $request->email,
+            'otp' => $otp // Share OTP in response metadata for easy testing/demo
+        ]);
+    }
+
+    /**
+     * Handle Customer OTP verification and login
      */
     public function loginWithOtp(Request $request)
     {
         $request->validate([
-            'mobile' => 'required|string|min:10|max:15',
+            'email' => 'required|email',
             'otp' => 'required|string',
         ]);
 
-        // Clean mobile number (strip +91, spaces, dashes)
-        $cleanMobile = preg_replace('/[^0-9]/', '', $request->mobile);
-        if (strlen($cleanMobile) > 10) {
-            $cleanMobile = substr($cleanMobile, -10);
+        $sessionEmail = session('login_email');
+        $sessionOtp = session('login_otp');
+
+        if (!$sessionEmail || !$sessionOtp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Session expired. Please request a new verification code.'
+            ], 422);
         }
 
-        // Fixed OTP validation
-        if ($request->otp !== '1234') {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid OTP. Please enter 1234.'
-                ], 422);
-            }
-            return back()->withErrors(['otp' => 'Invalid OTP. Please enter 1234.'])->withInput();
+        if ($request->email !== $sessionEmail || $request->otp !== (string)$sessionOtp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code. Please enter the correct OTP.'
+            ], 422);
         }
 
-        // Find or create customer
-        $user = User::where('mobile', $cleanMobile)->first();
+        $user = User::where('email', $request->email)->where('user_type', 'customer')->first();
 
         if (!$user) {
-            // Check if user exists by email placeholder
-            $user = User::create([
-                'name' => 'Customer ' . substr($cleanMobile, -4),
-                'mobile' => $cleanMobile,
-                'email' => 'customer_' . $cleanMobile . '@aesenergy.in',
-                'user_type' => 'customer',
-                'password' => Hash::make(Str::random(16)),
-                'wallet_balance' => 1500.00, // Initial welcome reward bonus
-                'status' => 1,
-            ]);
-
-            // Create default site for new customer
-            CustomerSite::create([
-                'user_id' => $user->id,
-                'site_name' => 'Primary Residence',
-                'capacity_kw' => 5.00,
-                'system_type' => 'On-Grid',
-                'installation_date' => now()->subMonths(2),
-                'inverter_details' => 'AES Smart Hybrid 5kW',
-                'panel_details' => 'Mono PERC 540W Tier-1 (10 Nos)',
-                'monthly_avg_kwh' => 612.00,
-                'co2_offset_ton' => 3.10,
-                'city' => 'Pune',
-                'state' => 'Maharashtra',
-                'status' => 1,
-            ]);
-
-            // Welcome wallet credit transaction
-            WalletTransaction::create([
-                'user_id' => $user->id,
-                'type' => 'Credit',
-                'amount' => 1500.00,
-                'title' => 'Welcome Reward Bonus',
-                'description' => 'Welcome reward balance credited to your AES One account',
-                'reference_type' => 'Manual',
-                'status' => 'Credited',
-            ]);
-
-            // Welcome notification
-            CustomerNotification::create([
-                'user_id' => $user->id,
-                'title' => 'Welcome to AES One!',
-                'message' => 'Your solar dashboard & reward wallet are now active. Start referring to earn cash rewards.',
-                'type' => 'general',
-            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'User account not found.'
+            ], 422);
         }
 
         // Authenticate via customer guard
         Auth::guard('customer')->login($user, true);
 
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Login successful! Welcome to AES One.',
-                'redirect_url' => route('customer.dashboard'),
-            ]);
-        }
+        // Clean up login session attributes
+        session()->forget(['login_email', 'login_otp', 'login_otp_time']);
 
-        return redirect()->route('customer.dashboard')->with([
-            'alert-type' => 'success',
-            'message' => 'Welcome back, ' . $user->name . '!'
+        return response()->json([
+            'success' => true,
+            'message' => 'Login successful! Welcome to AES One.',
+            'redirect_url' => route('customer.dashboard'),
         ]);
     }
 

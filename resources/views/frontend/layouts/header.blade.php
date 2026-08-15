@@ -8,6 +8,7 @@
     <a href="{{ route('products') }}" class="{{ Route::currentRouteName() == 'products' ? 'active' : '' }}">Products</a>
     <a href="{{ route('services') }}" class="{{ Route::currentRouteName() == 'services' ? 'active' : '' }}">Services</a>
     <a href="{{ route('suryaghar') }}" class="{{ Route::currentRouteName() == 'suryaghar' ? 'active' : '' }}">PM Surya Ghar</a>
+    <a href="{{ route('dealer') }}" class="{{ Route::currentRouteName() == 'dealer' ? 'active' : '' }}">Dealership</a>
     <a href="{{ route('contact') }}" class="{{ Route::currentRouteName() == 'contact' ? 'active' : '' }}">Contact</a>
   </div>
   <div class="nav-actions">

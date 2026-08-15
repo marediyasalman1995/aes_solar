@@ -21,7 +21,11 @@ class NewsLetterController extends AppBaseController
 
     public function __construct()
     {
-
+        $this->middleware('permission:newsletters.index')->only(['index']);
+        $this->middleware('permission:newsletters.create')->only(['create', 'store']);
+        $this->middleware('permission:newsletters.edit')->only(['edit', 'update']);
+        $this->middleware('permission:newsletters.view')->only(['show']);
+        $this->middleware('permission:newsletters.delete')->only(['destroy']);
     }
 
 

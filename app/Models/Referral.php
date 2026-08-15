@@ -23,6 +23,7 @@ class Referral extends Model
         'reward_amount',
         'reward_status', // Pending, Credited, None
         'notes',
+        'referral_point_setting_id',
     ];
 
     protected $casts = [
@@ -58,5 +59,10 @@ class Referral extends Model
     public function referrer()
     {
         return $this->belongsTo(User::class, 'referrer_id');
+    }
+
+    public function referralPointSetting()
+    {
+        return $this->belongsTo(ReferralPointSetting::class, 'referral_point_setting_id');
     }
 }

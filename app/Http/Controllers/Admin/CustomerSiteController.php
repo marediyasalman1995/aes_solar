@@ -11,6 +11,15 @@ use Response;
 
 class CustomerSiteController extends AppBaseController
 {
+    public function __construct()
+    {
+        $this->middleware('permission:customer-sites.index')->only(['index']);
+        $this->middleware('permission:customer-sites.create')->only(['create', 'store']);
+        $this->middleware('permission:customer-sites.edit')->only(['edit', 'update']);
+        $this->middleware('permission:customer-sites.view')->only(['show']);
+        $this->middleware('permission:customer-sites.delete')->only(['destroy']);
+    }
+
     public function index(CustomerSiteDataTable $customerSiteDataTable)
     {
         return $customerSiteDataTable->render('admin.customer_sites.index');

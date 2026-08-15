@@ -353,6 +353,17 @@
               <label>City</label>
               <input type="text" name="referee_city" placeholder="e.g. Pune, Mumbai, Nashik">
             </div>
+            <div class="field">
+              <label>Referral Promotion Rule</label>
+              <select name="referral_point_setting_id" required>
+                <option value="">-- Select Referral Program --</option>
+                @foreach($referralPointSettings as $setting)
+                  <option value="{{ $setting->id }}">
+                    {{ $setting->title }} ({{ $setting->type == 'Credit' ? '+' : '-' }}₹{{ number_format($setting->amount, 0) }})
+                  </option>
+                @endforeach
+              </select>
+            </div>
             <button class="btn btn-primary" type="submit" id="refSubmitBtn">Submit Referral</button>
           </form>
         </div>

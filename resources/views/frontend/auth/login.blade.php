@@ -498,38 +498,58 @@
                     <i class="ri-user-smile-line"></i> Customer Sign In
                 </div>
                 <h3>Welcome Back</h3>
-                <p>Enter your mobile number to access your solar plant &amp; wallet</p>
+                <p id="authSubtitle">Enter your email address to access your solar plant &amp; wallet</p>
             </div>
 
             <form id="customerLoginForm" method="POST" action="{{ route('login.otp') }}">
                 @csrf
                 
-                <div class="mb-3">
-                    <label class="form-label">Registered Mobile Number</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="ri-phone-line"></i></span>
-                        <input type="tel" name="mobile" id="mobileInput" class="form-control" placeholder="e.g. 9876543210" maxlength="15" value="{{ old('mobile') }}" required autofocus>
+                <!-- Email Section -->
+                <div id="emailSection">
+                    <div class="mb-3">
+                        <label class="form-label">Registered Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-mail-line"></i></span>
+                            <input type="email" name="email" id="emailInput" class="form-control" placeholder="e.g. rohan.sharma@email.com" value="{{ old('email') }}" required autofocus>
+                        </div>
                     </div>
+
+                    <button type="button" class="btn-submit" id="sendOtpBtn" onclick="handleSendOtp()">
+                        <span>Send Verification Code</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </button>
                 </div>
 
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label mb-0">Enter OTP</label>
-                        <span style="font-size:0.75rem; color:#64748b;">
-                            Test OTP: <b>1234</b>
-                            <button type="button" class="otp-badge-btn ms-1" onclick="fillTestOtp()">Auto-Fill</button>
+                <!-- OTP Verification Section -->
+                <div id="otpSection" style="display: none;">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label mb-0">Enter OTP</label>
+                            <span style="font-size:0.75rem; color:#64748b;" id="otpHint">
+                                Code: <b id="testOtpVal">xxxx</b>
+                                <button type="button" class="otp-badge-btn ms-1" onclick="fillTestOtp()">Auto-Fill</button>
+                            </span>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-key-2-line"></i></span>
+                            <input type="text" name="otp" id="otpInput" class="form-control" placeholder="Enter 4-digit OTP" maxlength="4">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span id="countdownText" style="font-size:0.8rem; color:#64748b;">
+                            Resend code in <b id="timerCount">30</b>s
                         </span>
+                        <button type="button" id="resendOtpBtn" class="btn btn-link p-0 text-primary fw-bold text-decoration-none" style="display:none; font-size:0.8rem;" onclick="handleSendOtp()">
+                            Resend Code
+                        </button>
                     </div>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="ri-key-2-line"></i></span>
-                        <input type="text" name="otp" id="otpInput" class="form-control" placeholder="Enter 4-digit OTP (1234)" maxlength="4" required>
-                    </div>
-                </div>
 
-                <button type="submit" class="btn-submit" id="loginSubmitBtn">
-                    <span>Login to AES One</span>
-                    <i class="ri-arrow-right-line"></i>
-                </button>
+                    <button type="submit" class="btn-submit" id="loginSubmitBtn">
+                        <span>Login to AES One</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </button>
+                </div>
             </form>
 
             <!-- NEW CUSTOMER MARKETING CALLOUT -->
@@ -559,32 +579,104 @@
 <script src="{{ asset('assets/jquery_3.5.1/jquery.min.js') }}"></script>
 <script src="{{ asset('js/frontend.js') }}"></script>
 <script>
-    function fillTestOtp() {
-        document.getElementById('otpInput').value = '1234';
-        if (!document.getElementById('mobileInput').value) {
-            document.getElementById('mobileInput').value = '9876543210';
+    let countdownInterval;
+
+    function startTimer() {
+        clearInterval(countdownInterval);
+        let seconds = 30;
+        document.getElementById('timerCount').innerText = seconds;
+        document.getElementById('countdownText').style.display = 'inline';
+        document.getElementById('resendOtpBtn').style.display = 'none';
+
+        countdownInterval = setInterval(() => {
+            seconds--;
+            document.getElementById('timerCount').innerText = seconds;
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('countdownText').style.display = 'none';
+                document.getElementById('resendOtpBtn').style.display = 'inline';
+            }
+        }, 1000);
+    }
+
+    function handleSendOtp() {
+        const email = document.getElementById('emailInput').value;
+        if (!email || !email.includes('@')) {
+            showToast('Please enter a valid email address.', 'error');
+            return;
         }
-        showToast('Test OTP 1234 applied!', 'info');
+
+        const btn = document.getElementById('sendOtpBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span>Sending Code...</span> <i class="ri-loader-4-line ri-spin"></i>';
+
+        fetch("{{ route('login.sendOtp') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => { throw err; });
+            }
+            return res.json();
+        })
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<span>Send Verification Code</span> <i class="ri-arrow-right-line"></i>';
+            if (data.success) {
+                showToast(data.message, 'success');
+                document.getElementById('testOtpVal').innerText = data.otp;
+                document.getElementById('emailSection').style.display = 'none';
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('authSubtitle').innerText = 'Verification code has been sent to ' + email;
+                startTimer();
+            } else {
+                showToast(data.message || 'Verification failed.', 'error');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<span>Send Verification Code</span> <i class="ri-arrow-right-line"></i>';
+            showToast(err.message || 'Error occurred while sending code.', 'error');
+        });
+    }
+
+    function fillTestOtp() {
+        const code = document.getElementById('testOtpVal').innerText;
+        document.getElementById('otpInput').value = code;
+        showToast('Test OTP ' + code + ' applied!', 'info');
     }
 
     document.getElementById('customerLoginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('loginSubmitBtn');
         const form = this;
-        const formData = new FormData(form);
+        const email = document.getElementById('emailInput').value;
+        const otp = document.getElementById('otpInput').value;
 
         btn.disabled = true;
-        btn.innerHTML = '<span>Verifying OTP...</span> <i class="ri-loader-4-line ri-spin"></i>';
+        btn.innerHTML = '<span>Verifying Code...</span> <i class="ri-loader-4-line ri-spin"></i>';
 
         fetch("{{ route('login.otp') }}", {
             method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: formData
+            body: JSON.stringify({ email: email, otp: otp })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => { throw err; });
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success) {
                 showToast(data.message, 'success');
@@ -594,13 +686,13 @@
             } else {
                 btn.disabled = false;
                 btn.innerHTML = '<span>Login to AES One</span> <i class="ri-arrow-right-line"></i>';
-                showToast(data.message || 'Invalid OTP. Please enter 1234.', 'error');
+                showToast(data.message || 'Invalid code. Please try again.', 'error');
             }
         })
         .catch(err => {
             btn.disabled = false;
             btn.innerHTML = '<span>Login to AES One</span> <i class="ri-arrow-right-line"></i>';
-            showToast('Login failed. Please enter OTP 1234.', 'error');
+            showToast(err.message || 'Login failed. Please enter the correct OTP.', 'error');
         });
     });
 </script>

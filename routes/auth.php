@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
+Route::post('/login/send-otp', [CustomerAuthController::class, 'sendOtp'])->name('login.sendOtp');
 Route::post('/login', [CustomerAuthController::class, 'loginWithOtp'])->name('login.otp');
 Route::get('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
 Route::post('/logout', [CustomerAuthController::class, 'logout']);

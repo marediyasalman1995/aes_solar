@@ -11,6 +11,15 @@ use Response;
 
 class ServiceRequestController extends AppBaseController
 {
+    public function __construct()
+    {
+        $this->middleware('permission:service-requests.index')->only(['index']);
+        $this->middleware('permission:service-requests.create')->only(['create', 'store']);
+        $this->middleware('permission:service-requests.edit')->only(['edit', 'update']);
+        $this->middleware('permission:service-requests.view')->only(['show']);
+        $this->middleware('permission:service-requests.delete')->only(['destroy']);
+    }
+
     public function index(ServiceRequestDataTable $serviceRequestDataTable)
     {
         return $serviceRequestDataTable->render('admin.service_requests.index');

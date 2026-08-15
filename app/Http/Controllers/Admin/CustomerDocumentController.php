@@ -13,6 +13,15 @@ use Response;
 
 class CustomerDocumentController extends AppBaseController
 {
+    public function __construct()
+    {
+        $this->middleware('permission:customer-documents.index')->only(['index']);
+        $this->middleware('permission:customer-documents.create')->only(['create', 'store']);
+        $this->middleware('permission:customer-documents.edit')->only(['edit', 'update']);
+        $this->middleware('permission:customer-documents.view')->only(['show']);
+        $this->middleware('permission:customer-documents.delete')->only(['destroy']);
+    }
+
     public function index(CustomerDocumentDataTable $customerDocumentDataTable)
     {
         return $customerDocumentDataTable->render('admin.customer_documents.index');
@@ -21,7 +30,8 @@ class CustomerDocumentController extends AppBaseController
     public function create()
     {
         $customers = User::where('user_type', 'customer')->orWhereNull('user_type')->with('sites')->get();
-        return view('admin.customer_documents.create', compact('customers'));
+        $documentTypes = \App\Models\DocumentType::where('status', 1)->get();
+        return view('admin.customer_documents.create', compact('customers', 'documentTypes'));
     }
 
     public function store(Request $request)
@@ -71,7 +81,8 @@ class CustomerDocumentController extends AppBaseController
     public function edit(CustomerDocument $customerDocument)
     {
         $customers = User::where('user_type', 'customer')->with('sites')->get();
-        return view('admin.customer_documents.edit', compact('customerDocument', 'customers'));
+        $documentTypes = \App\Models\DocumentType::where('status', 1)->get();
+        return view('admin.customer_documents.edit', compact('customerDocument', 'customers', 'documentTypes'));
     }
 
     public function update(Request $request, CustomerDocument $customerDocument)

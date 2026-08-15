@@ -22,6 +22,11 @@ class InquiryController extends AppBaseController
 
     public function __construct(InquiryRepository $inquiryRepo)
     {
+        $this->middleware('permission:inquiries.index')->only(['index']);
+        $this->middleware('permission:inquiries.create')->only(['create', 'store']);
+        $this->middleware('permission:inquiries.edit')->only(['edit', 'update']);
+        $this->middleware('permission:inquiries.view')->only(['show']);
+        $this->middleware('permission:inquiries.delete')->only(['destroy']);
         $this->inquiryRepository = $inquiryRepo;
     }
 

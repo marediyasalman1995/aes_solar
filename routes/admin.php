@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserTokenController;
 use App\Http\Controllers\Admin\UploadMediaController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\DocumentTypeController;
+use App\Http\Controllers\Admin\ReferralPointSettingController;
 
 Route::group([
     'prefix' => 'admin',
@@ -48,6 +50,8 @@ Route::group([
     Route::resource('newsletters', NewsLetterController::class, ["as" => 'admin']);
     Route::resource('contentManagements', ContentManagementController::class, ["as" => 'admin']);
     Route::resource('websites', WebsiteController::class, ["as" => 'admin']);
+    Route::resource('document-types', DocumentTypeController::class, ["as" => 'admin']);
+    Route::resource('referral-point-settings', ReferralPointSettingController::class, ["as" => 'admin']);
 
     Route::group(['prefix' => 'users', 'as' => 'admin.users.'], function () {
         Route::group(['prefix' => '{user}/change-password', 'as' => 'changePassword.'], function () {

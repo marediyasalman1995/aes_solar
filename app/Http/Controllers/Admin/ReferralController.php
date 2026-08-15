@@ -14,6 +14,15 @@ use Response;
 
 class ReferralController extends AppBaseController
 {
+    public function __construct()
+    {
+        $this->middleware('permission:referrals.index')->only(['index']);
+        $this->middleware('permission:referrals.create')->only(['create', 'store']);
+        $this->middleware('permission:referrals.edit')->only(['edit', 'update']);
+        $this->middleware('permission:referrals.view')->only(['show']);
+        $this->middleware('permission:referrals.delete')->only(['destroy']);
+    }
+
     public function index(ReferralDataTable $referralDataTable)
     {
         return $referralDataTable->render('admin.referrals.index');

@@ -27,12 +27,11 @@
                 'Solar_Solutions' => 'Solar Solution (On-Grid, Off-Grid, Hybrid)',
                 'Products' => 'Solar Product / Hardware (Panels, Inverters, Battery)',
                 'Services' => 'Service Highlight Tile',
-                'AMC_Plans' => 'AMC Maintenance Plan (Basic, Standard, Premium)',
                 'Process_Steps' => 'How It Works Step (1, 2, 3, 4)',
                 'PM_Surya_Ghar' => 'PM Surya Ghar Scheme Banner',
                 'Subsidy_Slabs' => 'Subsidy Slab Tier',
                 'Reviews' => 'Customer Review / Testimonial',
-            ], null, ['class' => 'form-control custom-select', 'required']) !!}
+            ], request('type') ?? null, ['class' => 'form-control custom-select', 'required']) !!}
         </div>
     </div>
 

@@ -438,15 +438,19 @@ class GeneralHelperFunctions {
     public static function getSetting($field){
         if($field != ''){
             $setting =  Setting::where('id', '1')->first();
+            if (!$setting) {
+                if ($field == 'image') {
+                    return route('images_default',['resolution' => '250x250']);
+                }
+                return '';
+            }
             if($field != 'image'){
                 return $setting->$field ?? '';
             }else{
                 $hasAvatar = !empty($setting) ? $setting->hasMedia('avatar') : false;
                 return $hasAvatar ? $setting->avatarUrl['250'] : route('images_default',['resolution' => '250x250']);
             }
-
         }
-
     }
 
     public static function getLang(){

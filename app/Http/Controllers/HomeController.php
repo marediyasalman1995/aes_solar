@@ -106,31 +106,30 @@ class HomeController extends AppBaseController
             'name' => 'required|string',
             'email' => 'required|email',
             'phone' => 'required|string',
-            'subject' => 'required|string',
+            'pincode' => 'required|string|max:10',
             'city' => 'required|string',
-            'monthly_bill' => 'nullable|numeric',
+            'type' => 'required|in:Customer,Dealer',
+            'monthly_bill' => 'nullable|string',
             'message' => 'nullable|string',
         ]);
-
-        $fullMessage = $request->message ?? '';
-        $fullMessage .= "\n\nCity: " . $request->city;
-        if ($request->filled('monthly_bill')) {
-            $fullMessage .= "\nMonthly Bill: Rs. " . $request->monthly_bill;
-        }
 
         $save = new Inquiry();
         $save->name = $request->name;
         $save->email = $request->email;
         $save->phone = $request->phone;
-        $save->subject = $request->subject;
-        $save->message = $fullMessage;
+        $save->pincode = $request->pincode;
+        $save->city = $request->city;
+        $save->type = $request->type;
+        $save->monthly_bill = $request->monthly_bill;
+        $save->message = $request->message;
+        $save->subject = "Website Inquiry: " . $request->type;
         $save->save();
 
         session()->flash('alert-type', 'success');
-        session()->flash('message', 'Inquiry Submitted successfully! Our engineer will call you shortly.');
+        session()->flash('message', 'Inquiry Submitted successfully! Our team will contact you shortly.');
 
         return Response::json([
-            'message' => 'Inquiry Submitted successfully! Our engineer will call you shortly.',
+            'message' => 'Inquiry Submitted successfully! Our team will contact you shortly.',
             'back_url' => route('contact'),
         ]);
     }
@@ -210,8 +209,31 @@ class HomeController extends AppBaseController
         return view('frontend.pages.suryaghar', compact('seo', 'website_sections', 'subsidy_slabs'));
     }
 
+    public function dealer()
+    {
+        $seo = array(
+            'meta_title' => 'Solar Dealership & Franchise Program — AES Energy',
+            'meta_description' => 'Partner with AES Energy and grow your solar business. Earn attractive dealer margins with empanelment support.',
+            'meta_keyword' => 'solar dealership, solar franchise, solar partner program, GEDA empanelment',
+        );
+        $setting = Setting::first();
+        $website_sections = Website::all()->keyBy('type');
+        return view('frontend.pages.dealer', compact('seo', 'setting', 'website_sections'));
+    }
 
-
-
-
+    public function productDetail($slug)
+    {
+        $product = Website::where('type', 'Products')->where('slug', $slug)->firstOrFail();
+        
+        $seo = array(
+            'meta_title' => $product->heading . ' — AES Energy',
+            'meta_description' => $product->sub_heading ?? strip_tags($product->description),
+            'meta_keyword' => 'solar products, ' . $product->heading,
+        );
+        
+        $website_sections = Website::all()->keyBy('type');
+        $related_products = Website::where('type', 'Products')->where('id', '!=', $product->id)->take(3)->get();
+        
+        return view('frontend.pages.product_detail', compact('seo', 'website_sections', 'product', 'related_products'));
+    }
 }

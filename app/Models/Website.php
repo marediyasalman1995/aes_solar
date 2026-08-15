@@ -26,7 +26,9 @@ class Website extends Authenticatable implements HasMedia
         'heading',
         'sub_heading',
         'type',
+        'slug',
         'description',
+        'specifications',
         'uuid',
         'created_at',
         'updated_at'

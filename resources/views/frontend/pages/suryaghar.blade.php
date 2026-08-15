@@ -18,10 +18,19 @@
           <span class="eyebrow" style="color:#fff;opacity:.85;">Government Scheme</span>
           <h2>Free electricity, subsidised solar</h2>
           <p>AES Energy handles registration, DISCOM approval and net-metering for you — from application to subsidy credit.</p>
-          <ul class="scheme-points">
-            <li>✅ Up to 300 units free electricity every month</li>
-            <li>✅ Subsidy credited directly to your bank account</li>
-            <li>✅ Full paperwork &amp; DISCOM liaison by AES Energy</li>
+          <ul class="scheme-points" style="list-style: none; padding-left: 0; margin-bottom: 20px;">
+            <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-weight: 500; font-size: 1.05rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg> 
+              Up to 300 units free electricity every month
+            </li>
+            <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-weight: 500; font-size: 1.05rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg> 
+              Subsidy credited directly to your bank account
+            </li>
+            <li style="display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 1.05rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg> 
+              Full paperwork &amp; DISCOM liaison by AES Energy
+            </li>
           </ul>
           <button class="btn btn-amber" style="margin-top:10px;" onclick="window.location.href='{{ route('login') }}'">Check My Eligibility</button>
         </div>
