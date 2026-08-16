@@ -278,12 +278,7 @@
 <!-- HEADER BRANDING -->
 <div class="error-header">
     <a href="{{ route('home') }}" class="brand-link">
-        <div class="brand-logo-circle">
-            <i class="ri-sun-fill"></i>
-        </div>
-        <div>
-            <h3>AES Energy</h3>
-        </div>
+        <img src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('footer_logo') }}" alt="AES Energy" style="height: 63px; width: auto; object-fit: contain; display: block;">
     </a>
 </div>
 

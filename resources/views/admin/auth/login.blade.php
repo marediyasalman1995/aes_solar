@@ -370,13 +370,7 @@
             
             <!-- Top Branding -->
             <div class="brand-header">
-                <div class="brand-logo-circle">
-                    <i class="ri-sun-fill"></i>
-                </div>
-                <div class="brand-text">
-                    <h4>AES Energy</h4>
-                    <span>Rooftop Solar EPC</span>
-                </div>
+                <img src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('footer_logo') }}" alt="AES Energy" style="height: 63px; width: auto; object-fit: contain; display: block;">
             </div>
 
             <!-- Center Headline & Details -->

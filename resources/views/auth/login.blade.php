@@ -365,13 +365,7 @@
             
             <!-- Top Branding -->
             <div class="brand-header">
-                <div class="brand-logo-circle">
-                    <i class="ri-sun-fill"></i>
-                </div>
-                <div class="brand-text">
-                    <h4>AES One</h4>
-                    <span>Customer Solar Portal</span>
-                </div>
+                <img src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('footer_logo') }}" alt="AES Energy" style="height: 63px; width: auto; object-fit: contain; display: block;">
             </div>
 
             <!-- Center Headline & Details -->

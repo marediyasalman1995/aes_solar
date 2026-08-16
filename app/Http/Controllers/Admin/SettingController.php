@@ -35,6 +35,15 @@ class SettingController extends AppBaseController {
         if(isset($request->avatar) && $request->avatar != '') {
             $this->settingRepository->updateOrCreate_avatar($setting, $request);
         }
+        if(isset($request->favicon) && $request->favicon != '') {
+            $this->settingRepository->updateOrCreate_favicon($setting, $request);
+        }
+        if(isset($request->header_logo) && $request->header_logo != '') {
+            $this->settingRepository->updateOrCreate_header_logo($setting, $request);
+        }
+        if(isset($request->footer_logo) && $request->footer_logo != '') {
+            $this->settingRepository->updateOrCreate_footer_logo($setting, $request);
+        }
         DB::commit();
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Company Detail has been updated successfully.');

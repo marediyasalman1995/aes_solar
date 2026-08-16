@@ -231,17 +231,6 @@
   </script>
 </section>
 
-<!-- OFFICE HOURS -->
-<section class="section">
-  <div class="section-head reveal"><span class="eyebrow">Visit Us</span><h2>Office hours</h2></div>
-  <div class="hours-card reveal">
-    <div class="hours-row"><b>Monday – Friday</b><span>9:00 AM – 7:00 PM</span></div>
-    <div class="hours-row"><b>Saturday</b><span>9:00 AM – 5:00 PM</span></div>
-    <div class="hours-row"><b>Sunday</b><span>Closed (support desk open)</span></div>
-    <div class="hours-row"><b>24×7 Support Desk</b><span>+91 {{ $setting->mobile ?? '9876543210' }}</span></div>
-  </div>
-</section>
-
 <!-- DYNAMIC FAQS -->
 @if($contactFaqs->count() > 0)
 <section class="section section-alt">

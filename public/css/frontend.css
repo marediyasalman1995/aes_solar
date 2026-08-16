@@ -42,7 +42,7 @@ ul{list-style:none;}
 .reveal-stagger.in-view > *:nth-child(5){transition-delay:.45s;}
 .reveal-stagger.in-view > *:nth-child(6){transition-delay:.55s;}
 .topbar-strip{background:linear-gradient(90deg,var(--blue-700),var(--blue-500));color:#fff;font-size:.78rem;letter-spacing:.02em;text-align:center;padding:7px 12px;font-weight:500;}
-.navbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 5vw;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--sky-200);transition:box-shadow .3s ease;}
+.navbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:6px 5vw;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--sky-200);transition:box-shadow .3s ease;}
 .navbar.scrolled{box-shadow:var(--shadow-sm);}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.25rem;color:var(--blue-900);cursor:pointer;}
 .brand-mark{width:38px;height:38px;border-radius:50%;background:conic-gradient(from 0deg,var(--amber),var(--blue-500),var(--amber));position:relative;flex:none;animation:spin 8s linear infinite;}

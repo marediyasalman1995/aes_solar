@@ -12,7 +12,7 @@
         <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
             <div class="my-3 d-flex justify-content-center">
                 <a href="" class="" style="">
-                    <img style="height: 100px;" src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('image') }}">
+                    <img style="height: 63px; object-fit: contain;" src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('header_logo') }}">
                 </a>
             </div>
             <div class="card custom-card">

@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/frontend.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   .site-selector-pill {
     display: flex;
@@ -57,9 +59,6 @@
     color: #ffffff;
     font-weight: 600;
   }
-  .dash-nav-btn.active .nav-ic {
-    filter: brightness(0) invert(1);
-  }
   .dash-tab-content {
     display: none;
   }
@@ -99,34 +98,34 @@
 <div id="dashboardView" class="view">
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
-    <a href="{{ route('home') }}" class="brand" style="padding: 10px 18px 24px;">
-      <div class="brand-mark"></div>AES Energy
+    <a href="{{ route('home') }}" class="brand" style="padding: 10px 18px 24px; display: flex; align-items: center;">
+      <img src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('header_logo') }}" alt="AES Energy" style="height: 63px; width: auto; object-fit: contain; display: block;">
     </a>
 
     <nav class="side-menu">
       <button class="dash-nav-btn active" data-tab="tab-home" onclick="switchDashboardTab('tab-home', this)">
-        <span class="nav-ic">🏠</span> Dashboard
+        <i class="ri-home-4-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> Dashboard
       </button>
       <button class="dash-nav-btn" data-tab="tab-wallet" onclick="switchDashboardTab('tab-wallet', this)">
-        <span class="nav-ic">💰</span> AES Reward Wallet
+        <i class="ri-wallet-3-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> AES Reward Wallet
       </button>
       <button class="dash-nav-btn" data-tab="tab-refer" onclick="switchDashboardTab('tab-refer', this)">
-        <span class="nav-ic">👥</span> Refer &amp; Earn
+        <i class="ri-group-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> Refer &amp; Earn
       </button>
       <button class="dash-nav-btn" data-tab="tab-service" onclick="switchDashboardTab('tab-service', this)">
-        <span class="nav-ic">🛠️</span> Service Request
+        <i class="ri-tools-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> Service Request
       </button>
       <button class="dash-nav-btn" data-tab="tab-warranty" onclick="switchDashboardTab('tab-warranty', this)">
-        <span class="nav-ic">📄</span> Warranty &amp; Documents
+        <i class="ri-file-shield-2-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> Warranty &amp; Docs
       </button>
       <button class="dash-nav-btn" data-tab="tab-plant" onclick="switchDashboardTab('tab-plant', this)">
-        <span class="nav-ic">📈</span> My Solar Plant
+        <i class="ri-bubble-chart-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> My Solar Plant
       </button>
       <button class="dash-nav-btn" data-tab="tab-profile" onclick="switchDashboardTab('tab-profile', this)">
-        <span class="nav-ic">👤</span> My Profile
+        <i class="ri-user-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> My Profile
       </button>
       <button class="dash-nav-btn" data-tab="tab-notifications" onclick="switchDashboardTab('tab-notifications', this)">
-        <span class="nav-ic">🔔</span> Notifications
+        <i class="ri-notification-3-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> Notifications
         @php $unreadCount = $notifications->where('is_read', false)->count(); @endphp
         @if($unreadCount > 0)
           <span class="badge" style="background:#ef4444;color:#fff;margin-left:auto;font-size:0.75rem;padding:2px 8px;border-radius:10px;">{{ $unreadCount }}</span>
@@ -135,9 +134,12 @@
     </nav>
 
     <div style="margin-top: auto; padding: 20px 18px 0; border-top: 1px solid #e2e8f0;">
-      <a href="{{ route('customer.logout') }}" class="dash-nav-btn" style="color: #ef4444;">
-        <span class="nav-ic">🚪</span> Logout AES One
+      <a href="{{ route('customer.logout') }}" class="dash-nav-btn" style="color: #ef4444; text-decoration: none; display: flex; align-items: center; gap: 12px;" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        <i class="ri-logout-box-r-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> Logout AES One
       </a>
+      <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
+        @csrf
+      </form>
     </div>
   </aside>
 
@@ -188,7 +190,7 @@
         <!-- TOP CARD: Available Reward Balance -->
         <div class="wallet-hero">
           <div>
-            <div class="lbl">💰 Available Reward Balance</div>
+            <div class="lbl"><i class="ri-wallet-3-fill text-warning" style="margin-right:6px;"></i> Available Reward Balance</div>
             <div class="amount">₹<span class="counter" data-target="{{ round($user->wallet_balance) }}">{{ number_format($user->wallet_balance, 0) }}</span></div>
           </div>
           <button class="btn btn-amber" onclick="switchDashboardTab('tab-refer', document.querySelector('[data-tab=tab-refer]'))">
@@ -199,22 +201,22 @@
         <!-- STATS GRID -->
         <div class="stat-grid">
           <div class="stat-card">
-            <div class="ic">⚡</div>
+            <div class="ic"><i class="ri-flashlight-fill text-warning"></i></div>
             <div class="val"><span class="counter" data-target="{{ round($activeSite->monthly_avg_kwh ?? 612) }}">{{ round($activeSite->monthly_avg_kwh ?? 612) }}</span> kWh</div>
             <div class="lbl">Generated this month ({{ $activeSite->site_name }})</div>
           </div>
           <div class="stat-card">
-            <div class="ic">💡</div>
+            <div class="ic"><i class="ri-lightbulb-fill text-success"></i></div>
             <div class="val">₹<span class="counter" data-target="{{ round($estimatedSavings) }}">{{ number_format($estimatedSavings, 0) }}</span></div>
             <div class="lbl">Bill savings (est.)</div>
           </div>
           <div class="stat-card">
-            <div class="ic">👥</div>
+            <div class="ic"><i class="ri-group-fill text-primary"></i></div>
             <div class="val"><span class="counter" data-target="{{ $totalReferred }}">{{ $totalReferred }}</span></div>
             <div class="lbl">Friends referred</div>
           </div>
           <div class="stat-card">
-            <div class="ic">🛠</div>
+            <div class="ic"><i class="ri-tools-fill text-info"></i></div>
             <div class="val"><span class="counter" data-target="{{ $openServiceRequestsCount }}">{{ $openServiceRequestsCount }}</span></div>
             <div class="lbl">Open service requests</div>
           </div>
@@ -223,7 +225,7 @@
         <div class="two-col">
           <!-- Generation Panel -->
           <div class="panel">
-            <h3>📈 Generation, last 7 days</h3>
+            <h3><i class="ri-bar-chart-line text-primary" style="margin-right:6px;"></i> Generation, last 7 days</h3>
             <div class="plant-viz">
               <div class="sun-mini"></div>
               <div class="bar" style="height:60%;animation-delay:.05s;"></div>
@@ -239,7 +241,7 @@
 
           <!-- Recent Activity Panel -->
           <div class="panel">
-            <h3>🔔 Recent activity</h3>
+            <h3><i class="ri-notification-3-line text-primary" style="margin-right:6px;"></i> Recent activity</h3>
             @forelse($notifications->take(4) as $notif)
               <div class="notif-item {{ !$notif->is_read ? 'unread' : '' }}">
                 <span class="dot"></span>
@@ -259,7 +261,7 @@
       <div id="tab-wallet" class="dash-tab-content">
         <div class="wallet-hero">
           <div>
-            <div class="lbl">💰 AES Reward Wallet Balance</div>
+            <div class="lbl"><i class="ri-wallet-3-fill text-warning" style="margin-right:6px;"></i> AES Reward Wallet Balance</div>
             <div class="amount">₹<span class="counter" data-target="{{ round($user->wallet_balance) }}">{{ number_format($user->wallet_balance, 0) }}</span></div>
           </div>
           <button class="btn btn-ghost" style="background:rgba(255,255,255,.2);color:#fff;" onclick="openPayoutModal()">
@@ -315,21 +317,21 @@
             </div>
             <div class="share-row">
               <a class="share-btn wa" href="https://api.whatsapp.com/send?text=Hey!%20I%20installed%20rooftop%20solar%20with%20AES%20Energy%20and%20cut%20my%20bill%20to%20almost%20zero.%20Use%20my%20referral%20code%20*{{ $user->referral_code }}*%20to%20get%20a%20free%20site%20survey%20and%20subsidy%20help:%20{{ url('/?ref=' . $user->referral_code) }}" target="_blank">
-                🟢 WhatsApp
+                <i class="ri-whatsapp-fill" style="margin-right:4px;"></i> WhatsApp
               </a>
               <a class="share-btn sms" href="sms:?body=Check%20out%20AES%20Energy%20for%20rooftop%20solar.%20Use%20my%20referral%20code%20{{ $user->referral_code }}:%20{{ url('/?ref=' . $user->referral_code) }}">
-                💬 SMS
+                <i class="ri-chat-1-line" style="margin-right:4px;"></i> SMS
               </a>
               <a class="share-btn link" href="#" onclick="copyShareLink(); return false;">
-                🔗 Copy Link
+                <i class="ri-link-m" style="margin-right:4px;"></i> Copy Link
               </a>
             </div>
           </div>
           <div>
             <div class="flow-row">
-              <div class="flow-step"><div class="ic">👥</div><span>You Refer</span><div class="flow-line"></div></div>
-              <div class="flow-step"><div class="ic">☀️</div><span>They Install</span><div class="flow-line"></div></div>
-              <div class="flow-step"><div class="ic">💰</div><span>You Earn</span></div>
+              <div class="flow-step"><div class="ic"><i class="ri-group-line"></i></div><span>You Refer</span><div class="flow-line"></div></div>
+              <div class="flow-step"><div class="ic"><i class="ri-sun-line"></i></div><span>They Install</span><div class="flow-line"></div></div>
+              <div class="flow-step"><div class="ic"><i class="ri-wallet-3-line"></i></div><span>You Earn</span></div>
             </div>
             <div class="reward-cta">
               <div><b>₹500–₹700</b><br><span>per successful referral installation</span></div>
@@ -490,7 +492,7 @@
           @forelse($documents as $doc)
             <div class="doc-row">
               <div class="left">
-                <div class="ic">📄</div>
+                <div class="ic"><i class="ri-file-pdf-line text-danger"></i></div>
                 <div>
                   <b>{{ $doc->title }}</b><br>
                   <span style="color:var(--muted);font-size:.82rem;">
@@ -516,22 +518,22 @@
       <div id="tab-plant" class="dash-tab-content">
         <div class="stat-grid">
           <div class="stat-card">
-            <div class="ic">🔋</div>
+            <div class="ic"><i class="ri-battery-charge-fill text-warning"></i></div>
             <div class="val">{{ $activeSite->capacity_kw }} kW</div>
             <div class="lbl">System Capacity</div>
           </div>
           <div class="stat-card">
-            <div class="ic">📅</div>
+            <div class="ic"><i class="ri-calendar-event-fill text-success"></i></div>
             <div class="val">{{ optional($activeSite->installation_date)->format('d M Y') ?? '12 May 2026' }}</div>
             <div class="lbl">Installed On</div>
           </div>
           <div class="stat-card">
-            <div class="ic">🧾</div>
+            <div class="ic"><i class="ri-receipt-fill text-primary"></i></div>
             <div class="val">{{ $activeSite->system_type }}</div>
             <div class="lbl">System Type</div>
           </div>
           <div class="stat-card">
-            <div class="ic">🌱</div>
+            <div class="ic"><i class="ri-seedling-fill text-success"></i></div>
             <div class="val">{{ $activeSite->co2_offset_ton }} T</div>
             <div class="lbl">CO₂ Offset</div>
           </div>
@@ -548,7 +550,7 @@
         </div>
 
         <div class="panel">
-          <h3>📈 Monthly Generation Trend ({{ $activeSite->site_name }})</h3>
+          <h3><i class="ri-bar-chart-fill text-primary" style="margin-right:6px;"></i> Monthly Generation Trend ({{ $activeSite->site_name }})</h3>
           <div class="plant-viz" style="height:210px;">
             <div class="sun-mini"></div>
             <div class="bar" style="height:50%;"></div><div class="bar" style="height:65%;"></div><div class="bar" style="height:58%;"></div>

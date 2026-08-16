@@ -444,6 +444,16 @@ class GeneralHelperFunctions {
                 }
                 return '';
             }
+            if(in_array($field, ['favicon', 'header_logo', 'footer_logo'])){
+                if ($setting->hasMedia($field)) {
+                    return $setting->getFirstMedia($field)->getUrl();
+                }
+                return match($field) {
+                    'favicon' => asset('images/favicon.png'),
+                    'header_logo' => asset('images/logo.png'),
+                    'footer_logo' => asset('images/logo-white.png'),
+                };
+            }
             if($field != 'image'){
                 return $setting->$field ?? '';
             }else{

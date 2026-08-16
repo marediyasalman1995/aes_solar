@@ -5,18 +5,23 @@
 <footer>
   <div class="footer-grid">
     <div>
-      <a href="{{ route('home') }}" class="brand" style="color:#fff;margin-bottom:12px;"><div class="brand-mark"></div>AES Energy</a>
+      <a href="{{ route('home') }}" class="brand" style="color:#fff; margin-bottom:16px; display:inline-block; padding:0;">
+        <img src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('footer_logo') }}" alt="AES Energy" style="height: 63px; width: auto; object-fit: contain; display: block;">
+      </a>
       <p style="color:#b7d6ea;font-size:.88rem;line-height:1.7;max-width:280px;">
         {{ $footerSetting->footer_text ?? 'Rooftop solar, done properly — from site survey to subsidy to twenty-five years of support.' }}
       </p>
       
       @if($footerSetting)
-        <div style="margin-top:14px; display:flex; flex-direction:column; gap:6px; font-size:.85rem; color:#b7d6ea;">
+        <div style="margin-top:14px; display:flex; flex-direction:column; gap:8px; font-size:.85rem; color:#b7d6ea;">
           @if($footerSetting->mobile)
-            <div>📞 <a href="tel:+91{{ $footerSetting->mobile }}" style="color:#fff; font-weight:600;">+91 {{ $footerSetting->mobile }}</a></div>
+            <div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px; vertical-align:middle; display:inline-block;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> <a href="tel:+91{{ $footerSetting->mobile }}" style="color:#fff; font-weight:600;">+91 {{ $footerSetting->mobile }}</a></div>
+          @endif
+          @if($footerSetting->whatsapp)
+            <div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px; vertical-align:middle; display:inline-block;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> <a href="{{ $footerSetting->whatsapp }}" target="_blank" style="color:#22c55e; font-weight:600; text-decoration:none;">WhatsApp Support</a></div>
           @endif
           @if($footerSetting->email)
-            <div>✉️ <a href="mailto:{{ $footerSetting->email }}" style="color:#b7d6ea;">{{ $footerSetting->email }}</a></div>
+            <div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px; vertical-align:middle; display:inline-block;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> <a href="mailto:{{ $footerSetting->email }}" style="color:#b7d6ea;">{{ $footerSetting->email }}</a></div>
           @endif
         </div>
 

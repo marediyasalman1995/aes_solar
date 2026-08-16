@@ -1,6 +1,8 @@
 <div class="topbar-strip">☀️ Subsidy up to ₹78,000 under PM Surya Ghar Yojana — Free Site Survey This Week</div>
 <nav class="navbar" id="navbar">
-  <a href="{{ route('home') }}" class="brand"><div class="brand-mark"></div>AES Energy</a>
+  <a href="{{ route('home') }}" class="brand" style="padding: 5px 0; display: flex; align-items: center;">
+    <img src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('header_logo') }}" alt="AES Energy" style="height: 63px; width: auto; object-fit: contain; display: block;">
+  </a>
   <div class="nav-links" id="navLinks">
     <a href="{{ route('home') }}" class="{{ Route::currentRouteName() == 'home' ? 'active' : '' }}">Home</a>
     <a href="{{ route('about') }}" class="{{ Route::currentRouteName() == 'about' ? 'active' : '' }}">About</a>

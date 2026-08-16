@@ -51,6 +51,21 @@ class SettingRepository extends BaseRepository
         $defaultMedia = 'https://ui-avatars.com/api/?' . http_build_query(['name' => $setting->name, 'size' => '500']);
         return GeneralHelperFunctions::updateOrCreate_singleMedia_viaDropZone($setting, $request->input('avatar'),  $defaultMedia);
     }
+    public function updateOrCreate_favicon(Setting $setting, Request $request) {
+        if ($request->has('favicon') && $request->input('favicon') != '') {
+            GeneralHelperFunctions::updateOrCreate_singleMedia_viaDropZone($setting, $request->input('favicon'), null, 'favicon');
+        }
+    }
+    public function updateOrCreate_header_logo(Setting $setting, Request $request) {
+        if ($request->has('header_logo') && $request->input('header_logo') != '') {
+            GeneralHelperFunctions::updateOrCreate_singleMedia_viaDropZone($setting, $request->input('header_logo'), null, 'header_logo');
+        }
+    }
+    public function updateOrCreate_footer_logo(Setting $setting, Request $request) {
+        if ($request->has('footer_logo') && $request->input('footer_logo') != '') {
+            GeneralHelperFunctions::updateOrCreate_singleMedia_viaDropZone($setting, $request->input('footer_logo'), null, 'footer_logo');
+        }
+    }
 
 
 }

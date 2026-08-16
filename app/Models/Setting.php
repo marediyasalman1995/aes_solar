@@ -25,6 +25,7 @@ class Setting extends Model implements HasMedia
         'mobile',
         'mobile_2',
         'mobile_3',
+        'whatsapp',
         'email',
         'email_2',
         'facebook',
@@ -67,6 +68,7 @@ class Setting extends Model implements HasMedia
         'mobile_3' => 'string',
         'mobile_2' => 'string',
         'mobile' => 'string',
+        'whatsapp' => 'string',
         'app_store_url' => 'string',
         'pay_store_url' => 'string',
     ];
@@ -94,6 +96,7 @@ class Setting extends Model implements HasMedia
         'mobile_3' => 'nullable',
         'mobile_2' => 'nullable',
         'mobile' => 'nullable',
+        'whatsapp' => 'nullable',
         'app_store_url' => 'nullable',
         'pay_store_url' => 'nullable',
     ];
@@ -158,6 +161,26 @@ class Setting extends Model implements HasMedia
             ->withResponsiveImages()
             ->singleFile();
 
+        $this
+            ->addMediaCollection('favicon')
+            ->acceptsFile(function (File $file) {
+                return in_array($file->mimeType,['image/gif','image/png','image/jpeg','image/x-icon','image/svg+xml']);
+            })
+            ->singleFile();
+
+        $this
+            ->addMediaCollection('header_logo')
+            ->acceptsFile(function (File $file) {
+                return in_array($file->mimeType,['image/gif','image/png','image/jpeg','image/svg+xml']);
+            })
+            ->singleFile();
+
+        $this
+            ->addMediaCollection('footer_logo')
+            ->acceptsFile(function (File $file) {
+                return in_array($file->mimeType,['image/gif','image/png','image/jpeg','image/svg+xml']);
+            })
+            ->singleFile();
     }
 
     /**
