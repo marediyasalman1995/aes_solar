@@ -242,6 +242,33 @@
     color: #fff;
     box-shadow: 0 6px 18px rgba(255, 176, 32, 0.3);
   }
+
+  /* Responsive Overrides */
+  @media (max-width: 900px) {
+    header.hero {
+      grid-template-columns: 1fr !important;
+      padding: 40px 5% 60px !important;
+      gap: 30px !important;
+    }
+    .hero-art {
+      height: 380px !important;
+      margin-top: 20px !important;
+    }
+  }
+  @media (max-width: 768px) {
+    .testi-carousel-container {
+      padding: 20px 15px !important;
+    }
+    .carousel-control-prev,
+    .carousel-control-next {
+      display: none !important;
+    }
+  }
+  @media (max-width: 600px) {
+    .calc-system-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
 </style>
 
 <header class="hero" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; padding: 80px 4% 60px;">
@@ -493,7 +520,7 @@
           
           <!-- System Size Selection -->
           <label style="color: #94a3b8; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 12px;">System Size</label>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px;">
+          <div class="calc-system-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px;">
             <!-- 3kW Card -->
             <div class="calc-card" onclick="selectCalcSystem('3kW', '4400', '3300')" id="calc-3kW" style="background: #0f172a; border: 2px solid #3b82f6; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.25s ease;">
               <b style="color: #fff; font-size: 1.2rem; display: block; margin-bottom: 6px;">3kW</b>

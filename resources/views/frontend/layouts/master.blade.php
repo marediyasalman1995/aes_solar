@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="overflow-y: scroll !important; height: auto !important;">
 <head>
     @include('frontend.layouts.head')
 </head>
-<body>
+<body style="overflow-y: visible !important; height: auto !important; overflow-x: hidden !important; position: relative !important;">
 
 <div id="publicSite">
   @include('frontend.layouts.header')

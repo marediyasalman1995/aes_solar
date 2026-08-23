@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="overflow-y: scroll !important; height: auto !important;">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('css/frontend.css') }}">
+<link rel="stylesheet" href="{{ asset('css/frontend.css') }}?v={{ time() }}">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+  select, option, input, textarea, button {
+    font-family: 'Poppins', sans-serif !important;
+  }
   .site-selector-pill {
     display: flex;
     align-items: center;
@@ -91,9 +94,85 @@
     padding: 30px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   }
+  @media (max-width: 768px) {
+    .table-responsive {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 1rem;
+    }
+    .table-responsive table {
+      width: 100%;
+      min-width: 500px;
+    }
+  }
+  @media (max-width: 600px) {
+    .user-name-text {
+      display: none !important;
+    }
+    .user-chip {
+      padding: 0 !important;
+      border-radius: 50% !important;
+      background: transparent !important;
+      border-color: transparent !important;
+      box-shadow: none !important;
+    }
+    .profile-grid {
+      grid-template-columns: 1fr !important;
+    }
+    #serviceRequestForm {
+      grid-template-columns: 1fr !important;
+    }
+    .doc-row {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 12px !important;
+    }
+    .doc-row .btn {
+      width: 100% !important;
+      justify-content: center !important;
+    }
+    table {
+      font-size: 0.76rem !important;
+    }
+    th, td {
+      padding: 8px 6px !important;
+    }
+  }
+  .chart-tooltip {
+    position: absolute;
+    background: rgba(15, 23, 42, 0.95);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 9999;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .chart-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background: rgba(15, 23, 42, 0.95);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
 </style>
 </head>
-<body>
+<body style="overflow-y: visible !important; height: auto !important; overflow-x: hidden !important; position: relative !important;">
 
 <div id="dashboardView" class="view">
   <!-- Sidebar -->
@@ -153,7 +232,7 @@
         <div class="sub">Here's how your solar plant &amp; rewards are doing</div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:16px;">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between;">
         <!-- Multi-site selector -->
         <div class="site-selector-pill">
           <span>☀️ Plant:</span>
@@ -177,7 +256,7 @@
             @endphp
             {{ $initials }}
           </div>
-          {{ $user->name }}
+          <span class="user-name-text">{{ $user->name }}</span>
         </div>
       </div>
     </div>
@@ -193,29 +272,29 @@
             <div class="lbl"><i class="ri-wallet-3-fill text-warning" style="margin-right:6px;"></i> Available Reward Balance</div>
             <div class="amount">₹<span class="counter" data-target="{{ round($user->wallet_balance) }}">{{ number_format($user->wallet_balance, 0) }}</span></div>
           </div>
-          <button class="btn btn-amber" onclick="switchDashboardTab('tab-refer', document.querySelector('[data-tab=tab-refer]'))">
+          <button class="btn btn-amber" onclick="switchDashboardTab('tab-refer', document.querySelector('[data-tab=\'tab-refer\']'))">
             Refer More Friends →
           </button>
         </div>
 
         <!-- STATS GRID -->
         <div class="stat-grid">
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="switchDashboardTab('tab-plant', document.querySelector('[data-tab=\'tab-plant\']'))">
             <div class="ic"><i class="ri-flashlight-fill text-warning"></i></div>
             <div class="val"><span class="counter" data-target="{{ round($activeSite->monthly_avg_kwh ?? 612) }}">{{ round($activeSite->monthly_avg_kwh ?? 612) }}</span> kWh</div>
             <div class="lbl">Generated this month ({{ $activeSite->site_name }})</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="switchDashboardTab('tab-wallet', document.querySelector('[data-tab=\'tab-wallet\']'))">
             <div class="ic"><i class="ri-lightbulb-fill text-success"></i></div>
             <div class="val">₹<span class="counter" data-target="{{ round($estimatedSavings) }}">{{ number_format($estimatedSavings, 0) }}</span></div>
             <div class="lbl">Bill savings (est.)</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="switchDashboardTab('tab-refer', document.querySelector('[data-tab=\'tab-refer\']'))">
             <div class="ic"><i class="ri-group-fill text-primary"></i></div>
             <div class="val"><span class="counter" data-target="{{ $totalReferred }}">{{ $totalReferred }}</span></div>
             <div class="lbl">Friends referred</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="switchDashboardTab('tab-service', document.querySelector('[data-tab=\'tab-service\']'))">
             <div class="ic"><i class="ri-tools-fill text-info"></i></div>
             <div class="val"><span class="counter" data-target="{{ $openServiceRequestsCount }}">{{ $openServiceRequestsCount }}</span></div>
             <div class="lbl">Open service requests</div>
@@ -223,20 +302,91 @@
         </div>
 
         <div class="two-col">
-          <!-- Generation Panel -->
+          <!-- Daily Solar Generation Curve Panel -->
           <div class="panel">
-            <h3><i class="ri-bar-chart-line text-primary" style="margin-right:6px;"></i> Generation, last 7 days</h3>
-            <div class="plant-viz">
-              <div class="sun-mini"></div>
-              <div class="bar" style="height:60%;animation-delay:.05s;"></div>
-              <div class="bar" style="height:80%;animation-delay:.1s;"></div>
-              <div class="bar" style="height:45%;animation-delay:.15s;"></div>
-              <div class="bar" style="height:90%;animation-delay:.2s;"></div>
-              <div class="bar" style="height:70%;animation-delay:.25s;"></div>
-              <div class="bar" style="height:95%;animation-delay:.3s;"></div>
-              <div class="bar" style="height:65%;animation-delay:.35s;"></div>
+            <h3><i class="ri-sun-line text-amber" style="margin-right:6px;"></i> Daily Solar Generation Curve</h3>
+            
+            <!-- Quick metrics row -->
+            <div style="display: flex; gap: 20px; margin-bottom: 20px; background: #f8fafc; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+              <div style="flex: 1;">
+                <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">
+                  <span class="pulse-dot" style="background:#22c55e; width: 8px; height: 8px; display: inline-block; border-radius: 50%; margin-right: 4px; vertical-align: middle;"></span>Current Output
+                </span>
+                <b id="liveCurrentOutput" style="font-size: 1.3rem; color: var(--blue-900);">0.0 kW</b>
+              </div>
+              <div style="flex: 1; border-left: 1px solid #e2e8f0; padding-left: 20px;">
+                <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">Peak Today</span>
+                <b id="livePeakOutput" style="font-size: 1.3rem; color: var(--blue-900);">0.0 kW</b>
+              </div>
+              <div style="flex: 1; border-left: 1px solid #e2e8f0; padding-left: 20px;">
+                <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">Total Today</span>
+                <b id="liveTotalToday" style="font-size: 1.3rem; color: #16a34a;">0.0 kWh</b>
+              </div>
             </div>
-            <span style="color:var(--muted);font-size:.82rem;">Plant ({{ $activeSite->site_name }}) is performing 8% above the regional average.</span>
+
+            @php
+              $dailyPoints = [];
+              $peakKw = ($activeSite->capacity_kw ?? 6.4) * 0.8;
+              for ($i = 0; $i <= 12; $i++) {
+                  $pct = $i / 12;
+                  $x = 50 + $pct * 400;
+                  $y = 130 - 110 * sin($pct * M_PI);
+                  $kw = $peakKw * sin($pct * M_PI);
+                  $hourNum = 6 + $i;
+                  $ampm = $hourNum >= 12 ? ($hourNum > 12 ? ($hourNum - 12) . ' PM' : '12 PM') : $hourNum . ' AM';
+                  $dailyPoints[] = [
+                      'x' => round($x, 1),
+                      'y' => round($y, 1),
+                      'kw' => round($kw, 2),
+                      'time' => $ampm
+                  ];
+              }
+            @endphp
+
+            <!-- SVG Sun Curve Chart -->
+            <div style="position: relative; background: #f8fafc; border-radius: 14px; border: 1px solid #e2e8f0; padding: 10px 10px 5px; overflow: hidden;">
+              <svg width="100%" height="150" viewBox="0 0 500 150" style="display: block;">
+                <defs>
+                  <linearGradient id="solarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--amber)" stop-opacity="0.45"/>
+                    <stop offset="100%" stop-color="var(--amber)" stop-opacity="0.0"/>
+                  </linearGradient>
+                  <linearGradient id="curveStroke" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="var(--blue-400)"/>
+                    <stop offset="50%" stop-color="var(--amber)"/>
+                    <stop offset="100%" stop-color="var(--blue-600)"/>
+                  </linearGradient>
+                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+
+                <!-- Grid helper lines -->
+                <line x1="50" y1="130" x2="450" y2="130" stroke="#cbd5e1" stroke-width="1" />
+                <line x1="250" y1="20" x2="250" y2="130" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4" />
+
+                <!-- Filled solar curve -->
+                <path d="M 50 130 C 150 130, 190 20, 250 20 C 310 20, 350 130, 450 130 Z" fill="url(#solarGradient)" />
+
+                <!-- Stroke line curve -->
+                <path id="solarCurvePath" d="M 50 130 C 150 130, 190 20, 250 20 C 310 20, 350 130, 450 130" fill="none" stroke="url(#curveStroke)" stroke-width="4.5" stroke-linecap="round" />
+
+                <!-- Hourly vertex dots -->
+                @foreach($dailyPoints as $dp)
+                  <circle cx="{{ $dp['x'] }}" cy="{{ $dp['y'] }}" r="4" fill="#fff" stroke="var(--amber)" stroke-width="2" class="daily-point" data-label="{{ $dp['time'] }}" data-value="{{ $dp['kw'] }} kW" style="cursor: pointer;" />
+                @endforeach
+
+                <!-- Text labels -->
+                <text x="50" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">6:00 AM</text>
+                <text x="250" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">12:00 PM</text>
+                <text x="450" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">6:00 PM</text>
+
+                <!-- Current time tracker dot -->
+                <circle id="solarTrackerDot" cx="50" cy="130" r="7" fill="var(--amber)" stroke="#fff" stroke-width="2" filter="url(#glow)" style="display: none;" />
+              </svg>
+            </div>
+            <span style="color:var(--muted);font-size:.78rem;margin-top:10px;display:block;text-align:center;">Solar curve simulates current time-of-day output based on plant capacity ({{ $activeSite->capacity_kw }} kW).</span>
           </div>
 
           <!-- Recent Activity Panel -->
@@ -271,38 +421,40 @@
 
         <div class="panel">
           <h3>Wallet Credit &amp; Debit History</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($walletTransactions as $tx)
+          <div class="table-responsive">
+            <table>
+              <thead>
                 <tr>
-                  <td>{{ $tx->created_at->format('d M Y') }}</td>
-                  <td>{{ $tx->title }} <br><span style="color:var(--muted);font-size:0.8rem;">{{ $tx->description }}</span></td>
-                  <td>{{ $tx->type }}</td>
-                  <td style="font-weight:600; color: {{ $tx->type == 'Credit' ? '#16a34a' : '#ef4444' }};">
-                    {{ $tx->type == 'Credit' ? '+' : '-' }}₹{{ number_format($tx->amount, 0) }}
-                  </td>
-                  <td>
-                    <span class="badge {{ $tx->status == 'Credited' || $tx->status == 'Approved' ? 'success' : ($tx->status == 'Pending' ? 'pending' : 'failed') }}">
-                      {{ $tx->status }}
-                    </span>
-                  </td>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Status</th>
                 </tr>
-              @empty
-                <tr>
-                  <td colspan="5" style="text-align:center;color:var(--muted);">No transactions yet. Start referring friends to earn rewards!</td>
-                </tr>
-              @endforelse
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @forelse($walletTransactions as $tx)
+                  <tr>
+                    <td>{{ $tx->created_at->format('d M Y') }}</td>
+                    <td>{{ $tx->title }} <br><span style="color:var(--muted);font-size:0.8rem;">{{ $tx->description }}</span></td>
+                    <td>{{ $tx->type }}</td>
+                    <td style="font-weight:600; color: {{ $tx->type == 'Credit' ? '#16a34a' : '#ef4444' }};">
+                      {{ $tx->type == 'Credit' ? '+' : '-' }}₹{{ number_format($tx->amount, 0) }}
+                    </td>
+                    <td>
+                      <span class="badge {{ $tx->status == 'Credited' || $tx->status == 'Approved' ? 'success' : ($tx->status == 'Pending' ? 'pending' : 'failed') }}">
+                        {{ $tx->status }}
+                      </span>
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="5" style="text-align:center;color:var(--muted);">No transactions yet. Start referring friends to earn rewards!</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -372,38 +524,40 @@
 
         <div class="panel">
           <h3>Referral Status</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Friend Name</th>
-                <th>Mobile</th>
-                <th>Date Referred</th>
-                <th>Stage</th>
-                <th>Reward</th>
-              </tr>
-            </thead>
-            <tbody id="referralTableBody">
-              @forelse($referrals as $ref)
+          <div class="table-responsive">
+            <table>
+              <thead>
                 <tr>
-                  <td><b>{{ $ref->referee_name }}</b></td>
-                  <td>{{ substr($ref->referee_mobile, 0, 3) . '****' . substr($ref->referee_mobile, -3) }}</td>
-                  <td>{{ $ref->created_at->format('d M Y') }}</td>
-                  <td>
-                    <span class="badge {{ $ref->stage == 'Installed' ? 'success' : ($ref->stage == 'Rejected' ? 'failed' : 'processing') }}">
-                      {{ $ref->stage }}
-                    </span>
-                  </td>
-                  <td style="font-weight:600; color: {{ $ref->reward_status == 'Credited' ? '#16a34a' : '#0284c7' }};">
-                    {{ $ref->reward_status == 'Credited' ? '+₹' . number_format($ref->reward_amount, 0) : '₹' . number_format($ref->reward_amount, 0) . ' (' . $ref->reward_status . ')' }}
-                  </td>
+                  <th>Friend Name</th>
+                  <th>Mobile</th>
+                  <th>Date Referred</th>
+                  <th>Stage</th>
+                  <th>Reward</th>
                 </tr>
-              @empty
-                <tr>
-                  <td colspan="5" style="text-align:center;color:var(--muted);">No referrals submitted yet. Use the form above or share your code to start earning!</td>
-                </tr>
-              @endforelse
-            </tbody>
-          </table>
+              </thead>
+              <tbody id="referralTableBody">
+                @forelse($referrals as $ref)
+                  <tr>
+                    <td><b>{{ $ref->referee_name }}</b></td>
+                    <td>{{ substr($ref->referee_mobile, 0, 3) . '****' . substr($ref->referee_mobile, -3) }}</td>
+                    <td>{{ $ref->created_at->format('d M Y') }}</td>
+                    <td>
+                      <span class="badge {{ $ref->stage == 'Installed' ? 'success' : ($ref->stage == 'Rejected' ? 'failed' : 'processing') }}">
+                        {{ $ref->stage }}
+                      </span>
+                    </td>
+                    <td style="font-weight:600; color: {{ $ref->reward_status == 'Credited' ? '#16a34a' : '#0284c7' }};">
+                      {{ $ref->reward_status == 'Credited' ? '+₹' . number_format($ref->reward_amount, 0) : '₹' . number_format($ref->reward_amount, 0) . ' (' . $ref->reward_status . ')' }}
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="5" style="text-align:center;color:var(--muted);">No referrals submitted yet. Use the form above or share your code to start earning!</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -448,36 +602,38 @@
 
         <div class="panel">
           <h3>My Service Requests</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Ticket</th>
-                <th>Site</th>
-                <th>Issue</th>
-                <th>Raised On</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="serviceTableBody">
-              @forelse($serviceRequests as $srv)
+          <div class="table-responsive">
+            <table>
+              <thead>
                 <tr>
-                  <td><b>{{ $srv->ticket_no }}</b></td>
-                  <td>{{ optional($srv->site)->site_name ?? 'Primary Plant' }}</td>
-                  <td>{{ $srv->issue_type }}</td>
-                  <td>{{ $srv->created_at->format('d M Y') }}</td>
-                  <td>
-                    <span class="badge {{ $srv->status == 'Resolved' ? 'success' : ($srv->status == 'In Progress' ? 'processing' : 'pending') }}">
-                      {{ $srv->status }}
-                    </span>
-                  </td>
+                  <th>Ticket</th>
+                  <th>Site</th>
+                  <th>Issue</th>
+                  <th>Raised On</th>
+                  <th>Status</th>
                 </tr>
-              @empty
-                <tr>
-                  <td colspan="5" style="text-align:center;color:var(--muted);">No service requests logged. Everything is running smoothly!</td>
-                </tr>
-              @endforelse
-            </tbody>
-          </table>
+              </thead>
+              <tbody id="serviceTableBody">
+                @forelse($serviceRequests as $srv)
+                  <tr>
+                    <td><b>{{ $srv->ticket_no }}</b></td>
+                    <td>{{ optional($srv->site)->site_name ?? 'Primary Plant' }}</td>
+                    <td>{{ $srv->issue_type }}</td>
+                    <td>{{ $srv->created_at->format('d M Y') }}</td>
+                    <td>
+                      <span class="badge {{ $srv->status == 'Resolved' ? 'success' : ($srv->status == 'In Progress' ? 'processing' : 'pending') }}">
+                        {{ $srv->status }}
+                      </span>
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="5" style="text-align:center;color:var(--muted);">No service requests logged. Everything is running smoothly!</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -550,14 +706,79 @@
         </div>
 
         <div class="panel">
-          <h3><i class="ri-bar-chart-fill text-primary" style="margin-right:6px;"></i> Monthly Generation Trend ({{ $activeSite->site_name }})</h3>
-          <div class="plant-viz" style="height:210px;">
-            <div class="sun-mini"></div>
-            <div class="bar" style="height:50%;"></div><div class="bar" style="height:65%;"></div><div class="bar" style="height:58%;"></div>
-            <div class="bar" style="height:80%;"></div><div class="bar" style="height:92%;"></div><div class="bar" style="height:88%;"></div>
-            <div class="bar" style="height:70%;"></div><div class="bar" style="height:75%;"></div><div class="bar" style="height:83%;"></div>
+          <h3><i class="ri-bar-chart-fill text-primary" style="margin-right:6px;"></i> Yearly Generation Curve ({{ $activeSite->site_name }})</h3>
+          @php
+            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            $factors = [0.85, 1.00, 1.20, 1.25, 1.15, 0.90, 0.70, 0.75, 0.95, 1.05, 0.95, 0.80];
+            $points = [];
+            $svgPoints = "";
+            $areaPoints = "40,130 ";
+            foreach ($months as $i => $m) {
+                $x = 40 + $i * 47.27;
+                $factor = $factors[$i];
+                $variation = 1 + ((($activeSite->id + $i) % 8) - 4) / 100;
+                $kwh = ($activeSite->monthly_avg_kwh ?? 612) * $factor * $variation;
+                
+                $y = 130 - ($kwh / (($activeSite->monthly_avg_kwh ?? 612) * 1.45)) * 110;
+                $y = max(20, min(120, $y));
+                
+                $points[] = ['x' => round($x, 1), 'y' => round($y, 1), 'kwh' => round($kwh), 'month' => $m];
+                $svgPoints .= round($x, 1) . "," . round($y, 1) . " ";
+                $areaPoints .= round($x, 1) . "," . round($y, 1) . " ";
+            }
+            $areaPoints .= "560,130 Z";
+            $currentMonthIdx = date('n') - 1;
+            $currentMonthDot = $points[$currentMonthIdx] ?? $points[7];
+          @endphp
+
+          <!-- SVG Yearly Curve Chart -->
+          <div style="position: relative; background: #f8fafc; border-radius: 14px; border: 1px solid #e2e8f0; padding: 15px 10px 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <svg width="100%" height="160" viewBox="0 0 600 160" style="display: block; min-width: 580px; margin: 0 auto;">
+              <defs>
+                <linearGradient id="yearlyGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--blue-500)" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="var(--blue-500)" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="yearlyStroke" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="var(--blue-400)"/>
+                  <stop offset="35%" stop-color="var(--amber)"/>
+                  <stop offset="70%" stop-color="var(--blue-600)"/>
+                  <stop offset="100%" stop-color="var(--blue-900)"/>
+                </linearGradient>
+                <filter id="yearlyGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <!-- Grid helper lines -->
+              <line x1="40" y1="130" x2="560" y2="130" stroke="#cbd5e1" stroke-width="1" />
+              <line x1="40" y1="75" x2="560" y2="75" stroke="#e2e8f0" stroke-width="0.75" stroke-dasharray="2,2" />
+              <line x1="40" y1="20" x2="560" y2="20" stroke="#e2e8f0" stroke-width="0.75" stroke-dasharray="2,2" />
+
+              <!-- Filled area under curve -->
+              <polygon points="{{ $areaPoints }}" fill="url(#yearlyGradient)" />
+
+              <!-- Stroke line curve -->
+              <polyline points="{{ $svgPoints }}" fill="none" stroke="url(#yearlyStroke)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+
+              <!-- Data vertex points -->
+              @foreach($points as $pt)
+                <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="4.5" fill="#fff" stroke="var(--blue-600)" stroke-width="2.5" 
+                        class="yearly-point" data-label="{{ $pt['month'] }}" data-value="{{ $pt['kwh'] }} kWh" style="cursor: pointer;" />
+              @endforeach
+
+              <!-- Text labels -->
+              @foreach($points as $pt)
+                <text x="{{ $pt['x'] }}" y="146" fill="var(--muted)" font-size="9" font-weight="600" text-anchor="middle">{{ $pt['month'] }}</text>
+              @endforeach
+
+              <!-- Current month glowing tracker dot -->
+              <circle cx="{{ $currentMonthDot['x'] }}" cy="{{ $currentMonthDot['y'] }}" r="7.5" fill="var(--amber)" stroke="#fff" stroke-width="2" filter="url(#yearlyGlow)" 
+                      class="yearly-point" data-label="Current Month ({{ $currentMonthDot['month'] }})" data-value="{{ $currentMonthDot['kwh'] }} kWh" style="cursor: pointer;" />
+            </svg>
           </div>
-          <span style="color:var(--muted);font-size:.82rem;">Jan – Sep 2026 · Average Generation: <b>{{ $activeSite->monthly_avg_kwh ?? 612 }} kWh / month</b></span>
+          <span style="color:var(--muted);font-size:.82rem;margin-top:10px;display:block;text-align:center;">Yearly Generation Profile ({{ date('Y') }}) · Estimated Annual Generation: <b>{{ number_format(($activeSite->monthly_avg_kwh ?? 612) * 12) }} kWh</b></span>
         </div>
       </div>
 
@@ -651,6 +872,7 @@
 </div>
 
 <div id="toast"></div>
+<div id="chartTooltip" class="chart-tooltip"></div>
 
 <script src="{{ asset('js/frontend.js') }}"></script>
 <script>
@@ -665,6 +887,13 @@
     if (el) {
       el.classList.add('active');
     }
+
+    // Auto-close sidebar on mobile/responsive view
+    const sb = document.getElementById('sidebar');
+    if (sb && sb.classList.contains('open')) {
+      sb.classList.remove('open');
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -839,6 +1068,73 @@
       el.classList.remove('unread');
     });
   }
+
+  // Daily Solar Generation Curve live update
+  function updateSolarGenerationCurve() {
+    let capacity = parseFloat("{{ $activeSite->capacity_kw }}") || 6.4;
+    let peak = (capacity * 0.8).toFixed(1);
+    let total = (capacity * 4.2).toFixed(1);
+
+    let now = new Date();
+    let hour = now.getHours();
+    let min = now.getMinutes();
+    let timeDecimal = hour + min / 60;
+
+    let currentKw = 0;
+    let dotCx = 50;
+    let dotCy = 130;
+    let showDot = false;
+
+    if (timeDecimal >= 6 && timeDecimal <= 18) {
+      let pct = (timeDecimal - 6) / 12;
+      dotCx = 50 + pct * 400;
+      dotCy = 130 - 110 * Math.sin(pct * Math.PI);
+      currentKw = (peak * Math.sin(pct * Math.PI)).toFixed(2);
+      showDot = true;
+    }
+
+    document.getElementById('liveCurrentOutput').innerText = currentKw + ' kW';
+    document.getElementById('livePeakOutput').innerText = peak + ' kW';
+    document.getElementById('liveTotalToday').innerText = total + ' kWh';
+
+    let trackerDot = document.getElementById('solarTrackerDot');
+    if (trackerDot) {
+      if (showDot) {
+        trackerDot.setAttribute('cx', dotCx);
+        trackerDot.setAttribute('cy', dotCy);
+        trackerDot.style.display = 'block';
+      } else {
+        trackerDot.style.display = 'none';
+      }
+    }
+  }
+
+  // Run on load
+  document.addEventListener('DOMContentLoaded', () => {
+    updateSolarGenerationCurve();
+
+    const tooltip = document.getElementById('chartTooltip');
+
+    // Bind event listeners for custom interactive tooltips on curve vertices
+    document.querySelectorAll('.daily-point, .yearly-point').forEach(point => {
+      point.addEventListener('mouseenter', () => {
+        const label = point.getAttribute('data-label');
+        const val = point.getAttribute('data-value');
+        tooltip.innerHTML = `<strong>${label}</strong>: ${val}`;
+        tooltip.style.opacity = '1';
+      });
+
+      point.addEventListener('mousemove', () => {
+        const rect = point.getBoundingClientRect();
+        tooltip.style.left = (window.scrollX + rect.left + rect.width / 2) + 'px';
+        tooltip.style.top = (window.scrollY + rect.top) + 'px';
+      });
+
+      point.addEventListener('mouseleave', () => {
+        tooltip.style.opacity = '0';
+      });
+    });
+  });
 </script>
 </body>
 </html>

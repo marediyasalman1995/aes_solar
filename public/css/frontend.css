@@ -19,8 +19,11 @@
   --shadow-lg:0 20px 60px rgba(15,106,168,.20);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{font-family:'Poppins',sans-serif;background:var(--white);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+html{scroll-behavior:smooth;overflow-y:scroll !important;}
+body{font-family:'Poppins',sans-serif;background:var(--white);color:var(--ink);overflow-x:hidden !important;overflow-y:visible !important;-webkit-font-smoothing:antialiased;}
+select, option, input, textarea, button {
+  font-family: 'Poppins', sans-serif !important;
+}
 img{max-width:100%;display:block;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;border:none;background:none;}
@@ -413,7 +416,7 @@ tr:hover td{background:var(--sky-50);}
   .burger{display:flex;}
   .nav-actions .btn-ghost{display:none;}
   .grid-3,.plans-grid,.testi-grid,.amc-grid{grid-template-columns:1fr;}
-  .services-strip,.slab-grid{grid-template-columns:1fr 1fr;}
+  .services-strip,.slab-grid{grid-template-columns:1fr;}
   .team-grid{grid-template-columns:1fr 1fr;}
   .process-row{grid-template-columns:1fr 1fr;}
   .footer-grid{grid-template-columns:1fr;}
@@ -422,6 +425,25 @@ tr:hover td{background:var(--sky-50);}
   .stat-grid{grid-template-columns:1fr 1fr;}
   .contact-wrap{gap:30px;}
   .page-banner{padding:44px 5vw;}
+  .brand img {
+    height: 48px !important;
+  }
+  .nav-actions {
+    gap: 8px !important;
+  }
+  .nav-actions .btn {
+    padding: 6px 14px !important;
+    font-size: 0.85rem !important;
+  }
+}
+@media (max-width:375px) {
+  .brand img {
+    height: 40px !important;
+  }
+  .nav-actions .btn {
+    padding: 5px 10px !important;
+    font-size: 0.8rem !important;
+  }
 }
 
 /* Global utility colors and dark banner overrides */
