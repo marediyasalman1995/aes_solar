@@ -29,7 +29,13 @@ class CustomerDocumentController extends AppBaseController
 
     public function create()
     {
-        $customers = User::where('user_type', 'customer')->orWhereNull('user_type')->with('sites')->get();
+        $customersQuery = User::where(function($q) {
+            $q->where('user_type', 'customer')->orWhereNull('user_type');
+        })->with('sites');
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $customersQuery->where('dealer_id', auth()->id());
+        }
+        $customers = $customersQuery->get();
         $documentTypes = \App\Models\DocumentType::where('status', 1)->get();
         return view('admin.customer_documents.create', compact('customers', 'documentTypes'));
     }
@@ -45,6 +51,13 @@ class CustomerDocumentController extends AppBaseController
             'notes' => 'nullable|string',
             'document_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:20480',
         ]);
+
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $customer = User::find($request->user_id);
+            if (!$customer || $customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
 
         $data = $request->except('document_file');
 
@@ -68,6 +81,17 @@ class CustomerDocumentController extends AppBaseController
             'type' => 'warranty',
         ]);
 
+        // Send Document Uploaded Email
+        $customer = User::find($request->user_id);
+        if ($customer && $customer->email) {
+            \App\MyClasses\MailHelper::sendMail($customer->email, 'New Document Uploaded — ' . $request->title, 'emails.document_uploaded', [
+                'user' => $customer,
+                'title' => $request->title,
+                'doc_type' => $request->doc_type,
+                'notes' => $request->notes
+            ]);
+        }
+
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Customer document created successfully!');
 
@@ -80,13 +104,30 @@ class CustomerDocumentController extends AppBaseController
 
     public function edit(CustomerDocument $customerDocument)
     {
-        $customers = User::where('user_type', 'customer')->with('sites')->get();
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customerDocument->user && $customerDocument->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+        $customersQuery = User::where(function($q) {
+            $q->where('user_type', 'customer')->orWhereNull('user_type');
+        })->with('sites');
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $customersQuery->where('dealer_id', auth()->id());
+        }
+        $customers = $customersQuery->get();
         $documentTypes = \App\Models\DocumentType::where('status', 1)->get();
         return view('admin.customer_documents.edit', compact('customerDocument', 'customers', 'documentTypes'));
     }
 
     public function update(Request $request, CustomerDocument $customerDocument)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customerDocument->user && $customerDocument->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $request->validate([
             'doc_type' => 'required|string',
             'title' => 'required|string|max:255',
@@ -122,6 +163,12 @@ class CustomerDocumentController extends AppBaseController
 
     public function destroy(CustomerDocument $customerDocument)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customerDocument->user && $customerDocument->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $customerDocument->delete();
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Document deleted successfully!');

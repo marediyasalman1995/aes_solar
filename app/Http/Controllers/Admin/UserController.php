@@ -70,7 +70,9 @@ class UserController extends AppBaseController
     public function store(CreateUserRequest $request)
     {
         DB::beginTransaction();
-        $user = User::create($request->validated());
+        $data = $request->validated();
+        $data['user_type'] = 'admin';
+        $user = User::create($data);
         $user->syncRoles($request->input('role'));
         $user->markEmailAsVerified();
         $this->userRepository->updateOrCreate_avatar($user,$request);
@@ -78,7 +80,6 @@ class UserController extends AppBaseController
         session()->flash('alert-type', 'success');
         session()->flash('message', 'User has been created successfully!');
         return Response::json(['message' => 'User has been created successfully.', 'back_url' => route('admin.users.index')]);
-
     }
 
     /**
@@ -111,7 +112,9 @@ class UserController extends AppBaseController
     public function update(User $user, UpdateUserRequest $request)
     {
         DB::beginTransaction();
-        $user->update($request->validated());
+        $data = $request->validated();
+        $data['user_type'] = 'admin';
+        $user->update($data);
         $user = $user->fresh();
         $user->syncRoles($request->input('role'));
         $this->userRepository->updateOrCreate_avatar($user,$request);

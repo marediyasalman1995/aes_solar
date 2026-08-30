@@ -27,12 +27,23 @@ class ServiceRequestController extends AppBaseController
 
     public function show(ServiceRequest $serviceRequest)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($serviceRequest->user && $serviceRequest->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
         $serviceRequest->load(['user', 'site']);
         return view('admin.service_requests.show', compact('serviceRequest'));
     }
 
     public function update(Request $request, ServiceRequest $serviceRequest)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($serviceRequest->user && $serviceRequest->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $request->validate([
             'status' => 'required|in:Pending,Scheduled,In Progress,Resolved,Cancelled',
             'admin_notes' => 'nullable|string',
@@ -50,6 +61,14 @@ class ServiceRequestController extends AppBaseController
             'type' => 'service',
         ]);
 
+        // Send Service Ticket Updated Email
+        if ($serviceRequest->user && $serviceRequest->user->email) {
+            \App\MyClasses\MailHelper::sendMail($serviceRequest->user->email, 'Service Ticket ' . $serviceRequest->ticket_no . ' Update: ' . $serviceRequest->status, 'emails.service_request_updated', [
+                'user' => $serviceRequest->user,
+                'ticket' => $serviceRequest
+            ]);
+        }
+
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Service ticket updated successfully!');
 
@@ -62,6 +81,12 @@ class ServiceRequestController extends AppBaseController
 
     public function destroy(ServiceRequest $serviceRequest)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($serviceRequest->user && $serviceRequest->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $serviceRequest->delete();
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Service request deleted successfully!');

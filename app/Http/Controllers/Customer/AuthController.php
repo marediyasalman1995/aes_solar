@@ -58,8 +58,12 @@ class AuthController extends Controller
         // Log the OTP for developer access
         Log::info("Customer OTP Login for email: {$request->email}. Code is: {$otp}");
 
-        // In local environments, we also allow sending simulated emails using mail or log drivers.
-        // We will output a success message to the AJAX callback.
+        // Send OTP via email using custom SMTP settings
+        \App\MyClasses\MailHelper::sendMail($request->email, 'AES One — Verification Code: ' . $otp, 'emails.otp', [
+            'otp' => $otp,
+            'user' => $user
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Verification code sent successfully to ' . $request->email,

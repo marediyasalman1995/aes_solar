@@ -41,7 +41,8 @@ class CustomerController extends AppBaseController
      */
     public function create()
     {
-        return view('admin.customers.create');
+        $dealers = User::role('Dealer')->get();
+        return view('admin.customers.create', compact('dealers'));
     }
 
     /**
@@ -52,20 +53,26 @@ class CustomerController extends AppBaseController
         $request->validate([
             'name' => 'required|string|max:255',
             'mobile' => 'required|digits:10|unique:users,mobile',
-            'email' => 'nullable|email|unique:users,email',
+            'email' => 'required|email|unique:users,email',
             'address' => 'nullable|string',
             'city' => 'nullable|string',
             'state' => 'nullable|string',
             'pincode' => 'nullable|string',
             'wallet_balance' => 'nullable|numeric|min:0',
+            'dealer_id' => 'nullable|exists:users,id',
         ]);
+
+        $dealerId = $request->dealer_id;
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $dealerId = auth()->id();
+        }
 
         DB::beginTransaction();
 
         $user = User::create([
             'name' => $request->name,
             'mobile' => $request->mobile,
-            'email' => $request->email ?? 'customer_' . $request->mobile . '@aesenergy.in',
+            'email' => $request->email,
             'user_type' => 'customer',
             'password' => Hash::make(Str::random(16)),
             'address' => $request->address,
@@ -73,12 +80,18 @@ class CustomerController extends AppBaseController
             'state' => $request->state ?? 'Maharashtra',
             'pincode' => $request->pincode,
             'wallet_balance' => $request->wallet_balance ?? 1500.00,
+            'dealer_id' => $dealerId,
             'status' => 1,
+        ]);
+
+        // Send Welcome Email
+        \App\MyClasses\MailHelper::sendMail($user->email, 'Welcome to AES Energy Solar Portal!', 'emails.welcome', [
+            'user' => $user
         ]);
 
         // Create default site if specified
         if ($request->filled('site_name')) {
-            CustomerSite::create([
+            $site = CustomerSite::create([
                 'user_id' => $user->id,
                 'site_name' => $request->site_name,
                 'capacity_kw' => $request->capacity_kw ?? 5.00,
@@ -89,6 +102,12 @@ class CustomerController extends AppBaseController
                 'address' => $request->address,
                 'city' => $request->city,
                 'status' => 1,
+            ]);
+
+            // Send Solar Plant Setup Email
+            \App\MyClasses\MailHelper::sendMail($user->email, 'Solar Plant Site Setup Completed — ' . $site->site_name, 'emails.site_created', [
+                'user' => $user,
+                'site' => $site
             ]);
         }
 
@@ -112,6 +131,12 @@ class CustomerController extends AppBaseController
      */
     public function show(User $customer)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $customer->load([
             'sites' => function ($q) {
                 $q->orderBy('created_at', 'desc');
@@ -142,7 +167,13 @@ class CustomerController extends AppBaseController
      */
     public function edit(User $customer)
     {
-        return view('admin.customers.edit', compact('customer'));
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+        $dealers = User::role('Dealer')->get();
+        return view('admin.customers.edit', compact('customer', 'dealers'));
     }
 
     /**
@@ -150,20 +181,35 @@ class CustomerController extends AppBaseController
      */
     public function update(Request $request, User $customer)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'mobile' => 'required|digits:10|unique:users,mobile,' . $customer->id,
-            'email' => 'nullable|email|unique:users,email,' . $customer->id,
+            'email' => 'required|email|unique:users,email,' . $customer->id,
             'address' => 'nullable|string',
             'city' => 'nullable|string',
             'state' => 'nullable|string',
             'pincode' => 'nullable|string',
             'status' => 'required|in:0,1',
+            'dealer_id' => 'nullable|exists:users,id',
         ]);
 
-        $customer->update($request->only([
+        $data = $request->only([
             'name', 'mobile', 'email', 'address', 'city', 'state', 'pincode', 'status'
-        ]));
+        ]);
+
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $data['dealer_id'] = auth()->id();
+        } else {
+            $data['dealer_id'] = $request->dealer_id;
+        }
+
+        $customer->update($data);
 
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Customer details updated successfully!');
@@ -183,6 +229,12 @@ class CustomerController extends AppBaseController
      */
     public function destroy(User $customer)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $customer->delete();
 
         session()->flash('alert-type', 'success');
@@ -196,6 +248,12 @@ class CustomerController extends AppBaseController
      */
     public function storeSite(Request $request, User $customer)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $request->validate([
             'site_name' => 'required|string|max:255',
             'capacity_kw' => 'required|numeric|min:0.1',
@@ -224,6 +282,14 @@ class CustomerController extends AppBaseController
             'status' => 1,
         ]);
 
+        // Send Solar Plant Setup Email
+        if ($customer->email) {
+            \App\MyClasses\MailHelper::sendMail($customer->email, 'New Solar Plant Site Setup Completed — ' . $site->site_name, 'emails.site_created', [
+                'user' => $customer,
+                'site' => $site
+            ]);
+        }
+
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Site added successfully for ' . $customer->name);
 
@@ -235,6 +301,12 @@ class CustomerController extends AppBaseController
      */
     public function adjustWallet(Request $request, User $customer)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $request->validate([
             'type' => 'required|in:Credit,Debit',
             'amount' => 'required|numeric|min:1',
@@ -270,6 +342,16 @@ class CustomerController extends AppBaseController
         ]);
 
         DB::commit();
+
+        // Send Wallet Credited Email on Earning
+        if ($request->type == 'Credit' && $customer->email) {
+            \App\MyClasses\MailHelper::sendMail($customer->email, 'Reward Credited to Wallet: ₹' . number_format($amount, 2), 'emails.wallet_credited', [
+                'user' => $customer,
+                'amount' => $amount,
+                'title' => $request->title,
+                'description' => $request->description
+            ]);
+        }
 
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Wallet updated successfully for ' . $customer->name);
@@ -337,6 +419,16 @@ class CustomerController extends AppBaseController
                         'message' => 'Your referral ' . $referral->referee_name . ' has completed solar installation. ₹' . number_format($rewardAmount, 2) . ' credited to your wallet!',
                         'type' => 'referral',
                     ]);
+
+                    // Send Wallet Credited Email on Referral Bonus
+                    if ($referrer->email) {
+                        \App\MyClasses\MailHelper::sendMail($referrer->email, 'Referral Bonus Credited: ₹' . number_format($rewardAmount, 2), 'emails.wallet_credited', [
+                            'user' => $referrer,
+                            'amount' => $rewardAmount,
+                            'title' => 'Referral Bonus — ' . $referral->referee_name . ' Installed',
+                            'description' => 'Referral installation completed successfully for ' . $referral->referee_name
+                        ]);
+                    }
                 }
             }
         }
@@ -372,6 +464,14 @@ class CustomerController extends AppBaseController
             'type' => 'service',
         ]);
 
+        // Send Service Ticket Updated Email
+        if ($serviceRequest->user && $serviceRequest->user->email) {
+            \App\MyClasses\MailHelper::sendMail($serviceRequest->user->email, 'Service Ticket ' . $serviceRequest->ticket_no . ' Update: ' . $serviceRequest->status, 'emails.service_request_updated', [
+                'user' => $serviceRequest->user,
+                'ticket' => $serviceRequest
+            ]);
+        }
+
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Service request status updated successfully!');
 
@@ -383,6 +483,12 @@ class CustomerController extends AppBaseController
      */
     public function storeDocument(Request $request, User $customer)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $request->validate([
             'doc_type' => 'required|string',
             'title' => 'required|string|max:255',
@@ -420,6 +526,16 @@ class CustomerController extends AppBaseController
             'message' => 'A new warranty or installation document has been uploaded for your rooftop plant.',
             'type' => 'warranty',
         ]);
+
+        // Send Document Uploaded Email
+        if ($customer->email) {
+            \App\MyClasses\MailHelper::sendMail($customer->email, 'New Document Uploaded — ' . $request->title, 'emails.document_uploaded', [
+                'user' => $customer,
+                'title' => $request->title,
+                'doc_type' => $request->doc_type,
+                'notes' => $request->notes
+            ]);
+        }
 
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Document added successfully!');

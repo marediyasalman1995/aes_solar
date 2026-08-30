@@ -27,7 +27,13 @@ class CustomerSiteController extends AppBaseController
 
     public function create()
     {
-        $customers = User::where('user_type', 'customer')->orWhereNull('user_type')->get();
+        $customersQuery = User::where(function($q) {
+            $q->where('user_type', 'customer')->orWhereNull('user_type');
+        });
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $customersQuery->where('dealer_id', auth()->id());
+        }
+        $customers = $customersQuery->get();
         return view('admin.customer_sites.create', compact('customers'));
     }
 
@@ -47,6 +53,13 @@ class CustomerSiteController extends AppBaseController
             'co2_offset_ton' => 'nullable|numeric',
         ]);
 
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $customer = User::find($request->user_id);
+            if (!$customer || $customer->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $site = CustomerSite::create([
             'user_id' => $request->user_id,
             'site_name' => $request->site_name,
@@ -62,6 +75,15 @@ class CustomerSiteController extends AppBaseController
             'status' => 1,
         ]);
 
+        // Send Solar Plant Setup Email
+        $customer = User::find($request->user_id);
+        if ($customer && $customer->email) {
+            \App\MyClasses\MailHelper::sendMail($customer->email, 'New Solar Plant Site Setup Completed — ' . $site->site_name, 'emails.site_created', [
+                'user' => $customer,
+                'site' => $site
+            ]);
+        }
+
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Solar site created successfully!');
 
@@ -74,18 +96,40 @@ class CustomerSiteController extends AppBaseController
 
     public function show(CustomerSite $customerSite)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customerSite->user && $customerSite->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
         $customerSite->load(['user', 'serviceRequests', 'documents']);
         return view('admin.customer_sites.show', compact('customerSite'));
     }
 
     public function edit(CustomerSite $customerSite)
     {
-        $customers = User::where('user_type', 'customer')->orWhereNull('user_type')->get();
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customerSite->user && $customerSite->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+        $customersQuery = User::where(function($q) {
+            $q->where('user_type', 'customer')->orWhereNull('user_type');
+        });
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $customersQuery->where('dealer_id', auth()->id());
+        }
+        $customers = $customersQuery->get();
         return view('admin.customer_sites.edit', compact('customerSite', 'customers'));
     }
 
     public function update(Request $request, CustomerSite $customerSite)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customerSite->user && $customerSite->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $request->validate([
             'site_name' => 'required|string|max:255',
             'capacity_kw' => 'required|numeric|min:0.1',
@@ -114,6 +158,12 @@ class CustomerSiteController extends AppBaseController
 
     public function destroy(CustomerSite $customerSite)
     {
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            if ($customerSite->user && $customerSite->user->dealer_id !== auth()->id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        }
+
         $customerSite->delete();
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Site deleted successfully!');

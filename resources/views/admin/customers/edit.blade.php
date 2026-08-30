@@ -64,6 +64,17 @@
                                         <option value="0" {{ $customer->status == 0 ? 'selected' : '' }}>Inactive</option>
                                     </select>
                                 </div>
+                                @if(!auth()->user()->hasRole('Dealer'))
+                                <div class="col-md-4">
+                                    <label class="form-label">Assign Dealer</label>
+                                    <select name="dealer_id" class="form-control">
+                                        <option value="">Select Dealer (Optional)</option>
+                                        @foreach($dealers as $dealer)
+                                            <option value="{{ $dealer->id }}" {{ old('dealer_id', $customer->dealer_id) == $dealer->id ? 'selected' : '' }}>{{ $dealer->name }} ({{ $dealer->mobile }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endif
                             </div>
 
                             <div class="d-flex gap-2">

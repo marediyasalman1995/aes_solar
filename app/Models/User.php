@@ -85,6 +85,7 @@ class User extends Authenticatable implements HasMedia
         'user_type',
         'referral_code',
         'referred_by_id',
+        'dealer_id',
         'wallet_balance',
         'address',
         'city',
@@ -190,6 +191,16 @@ class User extends Authenticatable implements HasMedia
     public function referrer()
     {
         return $this->belongsTo(User::class, 'referred_by_id');
+    }
+
+    public function dealer()
+    {
+        return $this->belongsTo(User::class, 'dealer_id');
+    }
+
+    public function dealerCustomers()
+    {
+        return $this->hasMany(User::class, 'dealer_id');
     }
 
 

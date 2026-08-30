@@ -61,6 +61,17 @@
                                     <label class="form-label">Initial Reward Wallet Balance (₹)</label>
                                     <input type="number" name="wallet_balance" class="form-control" value="1500">
                                 </div>
+                                @if(!auth()->user()->hasRole('Dealer'))
+                                <div class="col-md-4">
+                                    <label class="form-label">Assign Dealer</label>
+                                    <select name="dealer_id" class="form-control">
+                                        <option value="">Select Dealer (Optional)</option>
+                                        @foreach($dealers as $dealer)
+                                            <option value="{{ $dealer->id }}" {{ old('dealer_id') == $dealer->id ? 'selected' : '' }}>{{ $dealer->name }} ({{ $dealer->mobile }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endif
                             </div>
 
                             <h6 class="fw-bold text-primary mb-3">2. Initial Solar Plant Site (Optional)</h6>

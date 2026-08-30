@@ -31,13 +31,20 @@ class CustomerDataTable extends DataTable
             ->editColumn('created_at', function (User $user) {
                 return GeneralHelperFunctions::prepareHtmlDate($user->created_at);
             })
+            ->addColumn('dealer', function (User $user) {
+                return $user->dealer ? '<span class="fw-semibold text-primary">' . $user->dealer->name . '</span>' : '<span class="text-muted">—</span>';
+            })
             ->addColumn('action', 'admin.customers.datatables_actions')
-            ->rawColumns(['sites_count', 'wallet_balance', 'referral_code', 'status', 'created_at', 'action']);
+            ->rawColumns(['sites_count', 'wallet_balance', 'referral_code', 'status', 'created_at', 'action', 'dealer']);
     }
 
     public function query(User $model)
     {
-        return $model->newQuery()->where('user_type', 'customer');
+        $query = $model->newQuery()->with('dealer')->where('user_type', 'customer');
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $query->where('dealer_id', auth()->id());
+        }
+        return $query;
     }
 
     public function html()
@@ -56,15 +63,24 @@ class CustomerDataTable extends DataTable
 
     protected function getColumns()
     {
-        return [
+        $columns = [
             'name',
             'mobile',
+        ];
+
+        if (auth()->check() && !auth()->user()->hasRole('Dealer')) {
+            $columns['dealer'] = ['title' => 'Assigned Dealer', 'orderable' => false, 'searchable' => false];
+        }
+
+        $columns += [
             'referral_code' => ['title' => 'Referral Code'],
             'sites_count'   => ['title' => 'Sites', 'orderable' => false, 'searchable' => false],
             'wallet_balance'=> ['title' => 'Wallet Balance'],
             'created_at'    => ['title' => 'Added on'],
             'status'        => ['title' => 'Status'],
         ];
+
+        return $columns;
     }
 
     protected function filename(): string

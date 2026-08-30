@@ -41,6 +41,15 @@ class Setting extends Model implements HasMedia
         'meta_title',
         'meta_description',
         'meta_keyword',
+        'mail_status',
+        'mail_mailer',
+        'mail_host',
+        'mail_port',
+        'mail_username',
+        'mail_password',
+        'mail_encryption',
+        'mail_from_address',
+        'mail_from_name',
         'created_at',
         'updated_at'
     ];
@@ -71,6 +80,15 @@ class Setting extends Model implements HasMedia
         'whatsapp' => 'string',
         'app_store_url' => 'string',
         'pay_store_url' => 'string',
+        'mail_status' => 'integer',
+        'mail_mailer' => 'string',
+        'mail_host' => 'string',
+        'mail_port' => 'string',
+        'mail_username' => 'string',
+        'mail_password' => 'string',
+        'mail_encryption' => 'string',
+        'mail_from_address' => 'string',
+        'mail_from_name' => 'string',
     ];
 
     /**
@@ -99,6 +117,15 @@ class Setting extends Model implements HasMedia
         'whatsapp' => 'nullable',
         'app_store_url' => 'nullable',
         'pay_store_url' => 'nullable',
+        'mail_status' => 'nullable',
+        'mail_mailer' => 'nullable',
+        'mail_host' => 'nullable',
+        'mail_port' => 'nullable',
+        'mail_username' => 'nullable',
+        'mail_password' => 'nullable',
+        'mail_encryption' => 'nullable',
+        'mail_from_address' => 'nullable',
+        'mail_from_name' => 'nullable',
     ];
     public function getRouteKeyName() {
         return 'uuid';
@@ -202,5 +229,24 @@ class Setting extends Model implements HasMedia
             ->nonQueued()
             ->keepOriginalImageFormat()
             ->performOnCollections('avatar');
+    }
+
+    public function setMailPasswordAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['mail_password'] = encrypt($value);
+        }
+    }
+
+    public function getMailPasswordAttribute($value)
+    {
+        if (!empty($value)) {
+            try {
+                return decrypt($value);
+            } catch (\Exception $e) {
+                return $value;
+            }
+        }
+        return $value;
     }
 }

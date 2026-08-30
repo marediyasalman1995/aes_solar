@@ -161,6 +161,59 @@
     {!! Form::label('meta_keyword', 'Meta Keyword:') !!}
     {!! Form::textarea('meta_keyword', @$setting->meta_keyword, ['class' => 'form-control', 'rows'=>'4']) !!}
 </div>
+
+<!-- SMTP Email Configuration -->
+<div class="col-sm-12 mb-4" style="margin-top: 25px;">
+    <div class="card border shadow-sm" style="border-radius: 16px; border: 1px solid #bae6fd !important;">
+        <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="fw-bold text-primary mb-0"><i class="ri-mail-settings-line me-1"></i> Email SMTP Configuration</h6>
+                <small class="text-muted">Configure SMTP settings for system notification emails. The SMTP password will be stored in an encrypted format.</small>
+            </div>
+            <div class="custom-control custom-switch ml-auto">
+                <input type="checkbox" class="custom-control-input" id="mail_status" name="mail_status" value="1" {{ @$setting->mail_status ? 'checked' : '' }}>
+                <label class="custom-control-label fw-bold text-secondary" style="cursor: pointer;" for="mail_status">Enable Emails</label>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="form-group col-sm-3">
+                    {!! Form::label('mail_mailer', 'Mailer/Transport:') !!}
+                    {!! Form::select('mail_mailer', ['smtp' => 'SMTP', 'sendmail' => 'Sendmail', 'log' => 'Log (Testing)'], @$setting->mail_mailer ?? 'smtp', ['class' => 'form-control']) !!}
+                </div>
+                <div class="form-group col-sm-6">
+                    {!! Form::label('mail_host', 'SMTP Host:') !!}
+                    {!! Form::text('mail_host', @$setting->mail_host, ['class' => 'form-control', 'placeholder' => 'e.g. smtp.gmail.com']) !!}
+                </div>
+                <div class="form-group col-sm-3">
+                    {!! Form::label('mail_port', 'SMTP Port:') !!}
+                    {!! Form::number('mail_port', @$setting->mail_port ?? 587, ['class' => 'form-control', 'placeholder' => 'e.g. 587']) !!}
+                </div>
+                <div class="form-group col-sm-4">
+                    {!! Form::label('mail_username', 'SMTP Username:') !!}
+                    {!! Form::text('mail_username', @$setting->mail_username, ['class' => 'form-control', 'placeholder' => 'e.g. user@gmail.com']) !!}
+                </div>
+                <div class="form-group col-sm-4">
+                    {!! Form::label('mail_password', 'SMTP Password:') !!}
+                    {!! Form::password('mail_password', ['class' => 'form-control', 'placeholder' => 'Leave empty to keep existing password']) !!}
+                </div>
+                <div class="form-group col-sm-4">
+                    {!! Form::label('mail_encryption', 'Encryption:') !!}
+                    {!! Form::select('mail_encryption', ['tls' => 'TLS', 'ssl' => 'SSL', 'none' => 'None'], @$setting->mail_encryption ?? 'tls', ['class' => 'form-control']) !!}
+                </div>
+                <div class="form-group col-sm-6">
+                    {!! Form::label('mail_from_address', 'Sender Email (From Address):') !!}
+                    {!! Form::email('mail_from_address', @$setting->mail_from_address, ['class' => 'form-control', 'placeholder' => 'e.g. notifications@aesenergy.in']) !!}
+                </div>
+                <div class="form-group col-sm-6">
+                    {!! Form::label('mail_from_name', 'Sender Name (From Name):') !!}
+                    {!! Form::text('mail_from_name', @$setting->mail_from_name, ['class' => 'form-control', 'placeholder' => 'e.g. AES Solar Energy']) !!}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Submit Field -->
 <div class="form-group col-sm-12">
     {!! Form::submit('Save', ['class' => 'btn btn-primary rspSuccessBtns']) !!}

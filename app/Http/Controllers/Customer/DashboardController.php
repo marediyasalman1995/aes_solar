@@ -258,6 +258,14 @@ class DashboardController extends Controller
             'type' => 'service',
         ]);
 
+        // Send Service Request Created Email
+        if ($user->email) {
+            \App\MyClasses\MailHelper::sendMail($user->email, 'Service Ticket ' . $ticket->ticket_no . ' Raised Successfully', 'emails.service_request_created', [
+                'user' => $user,
+                'ticket' => $ticket
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Service request ' . $ticket->ticket_no . ' submitted successfully! Our engineer will contact you.',

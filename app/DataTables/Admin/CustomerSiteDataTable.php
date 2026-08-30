@@ -41,7 +41,13 @@ class CustomerSiteDataTable extends DataTable
 
     public function query(CustomerSite $model)
     {
-        return $model->newQuery()->with('user');
+        $query = $model->newQuery()->with('user');
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $query->whereHas('user', function ($q) {
+                $q->where('dealer_id', auth()->id());
+            });
+        }
+        return $query;
     }
 
     public function html()

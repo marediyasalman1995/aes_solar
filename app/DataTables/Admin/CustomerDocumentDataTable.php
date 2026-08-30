@@ -45,7 +45,13 @@ class CustomerDocumentDataTable extends DataTable
 
     public function query(CustomerDocument $model)
     {
-        return $model->newQuery()->with(['user', 'site']);
+        $query = $model->newQuery()->with(['user', 'site']);
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $query->whereHas('user', function ($q) {
+                $q->where('dealer_id', auth()->id());
+            });
+        }
+        return $query;
     }
 
     public function html()

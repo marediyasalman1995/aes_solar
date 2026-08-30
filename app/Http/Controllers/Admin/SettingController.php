@@ -28,6 +28,10 @@ class SettingController extends AppBaseController {
 
     public function store(CreateSettingRequest $request) {
         $input = $request->all();
+        $input['mail_status'] = $request->has('mail_status') ? 1 : 0;
+        if (empty($input['mail_password'])) {
+            unset($input['mail_password']);
+        }
 
         DB::beginTransaction();
         $request->merge(['id' => 1]);

@@ -184,6 +184,14 @@
                         <span class="fw-semibold text-dark fs-14">{{ $customer->city ?? 'Pune' }}, {{ $customer->state ?? 'Maharashtra' }}</span>
                     </div>
                     <div class="col-md-3 col-sm-6">
+                        <span class="text-muted fs-12 fw-bold text-uppercase d-block mb-1" style="letter-spacing:0.04em;">Assigned Dealer</span>
+                        @if($customer->dealer)
+                            <span class="fw-semibold text-dark fs-14"><i class="ri-user-star-line text-warning me-1"></i>{{ $customer->dealer->name }}</span>
+                        @else
+                            <span class="text-muted fs-14">—</span>
+                        @endif
+                    </div>
+                    <div class="col-md-3 col-sm-6">
                         <span class="text-muted fs-12 fw-bold text-uppercase d-block mb-1" style="letter-spacing:0.04em;">Account Created</span>
                         <span class="fw-semibold text-dark fs-14">{{ $customer->created_at->format('M d, Y') }}</span>
                     </div>

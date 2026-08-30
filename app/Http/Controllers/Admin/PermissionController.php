@@ -34,7 +34,8 @@ class PermissionController extends Controller
     public function update(Role $role)
     {
         $roleName = str_replace(' ', '-', $role->name);
-        $role->syncPermissions(request()->input($roleName));
+        $permissions = request()->input($roleName, []);
+        $role->syncPermissions(Permission::whereIn('id', $permissions)->get());
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Permission updated successfully');
 
