@@ -43,6 +43,14 @@ return [
                 'children' => [],
             ],
             [
+                'name' => 'Withdrawal Requests',
+                'icon' => '',
+                'isHeader' => false,
+                'route' => 'admin.withdraw-requests.index',
+                'permissions' => ['wallet-transactions.index'],
+                'children' => [],
+            ],
+            [
                 'name' => 'Wallet Transactions',
                 'icon' => '',
                 'isHeader' => false,
@@ -65,9 +73,26 @@ return [
         'name' => 'Service Requests',
         'icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="side-menu__icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5z" /></svg>',
         'isHeader' => false,
-        'route' => 'admin.service-requests.index',
-        'permissions' => ['service-requests.index'],
-        'children' => [],
+        'route' => '#',
+        'permissions' => ['service-requests.index', 'issue-types.index'],
+        'children' => [
+            [
+                'name' => 'All Service Requests',
+                'icon' => '',
+                'isHeader' => false,
+                'route' => 'admin.service-requests.index',
+                'permissions' => ['service-requests.index'],
+                'children' => [],
+            ],
+            [
+                'name' => 'Issue Types Master',
+                'icon' => '',
+                'isHeader' => false,
+                'route' => 'admin.issue-types.index',
+                'permissions' => ['issue-types.index'],
+                'children' => [],
+            ],
+        ],
     ],
 
     [

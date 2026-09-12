@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\UploadMediaController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\DocumentTypeController;
 use App\Http\Controllers\Admin\ReferralPointSettingController;
+use App\Http\Controllers\Admin\IssueTypeController;
 
 Route::group([
     'prefix' => 'admin',
@@ -39,13 +40,16 @@ Route::group([
     Route::resource('customer-sites', CustomerSiteController::class, ["as" => 'admin']);
     Route::resource('referrals', ReferralController::class, ["as" => 'admin']);
     Route::resource('service-requests', ServiceRequestController::class, ["as" => 'admin']);
+    Route::resource('issue-types', IssueTypeController::class, ["as" => 'admin']);
     Route::resource('wallet-transactions', WalletTransactionController::class, ["as" => 'admin']);
+    Route::get('withdraw-requests', [WalletTransactionController::class, 'withdrawRequests'])->name('admin.withdraw-requests.index');
     Route::post('wallet-transactions/{walletTransaction}/status', [WalletTransactionController::class, 'updateStatus'])->name('admin.wallet-transactions.update-status');
     Route::resource('customer-documents', CustomerDocumentController::class, ["as" => 'admin']);
 
     // Admin Users, Roles, Inquiries, Content
     Route::resource('users', UserController::class, ["as" => 'admin']);
     Route::resource('inquiries', InquiryController::class, ["as" => 'admin']);
+    Route::post('inquiries/{inquiry}/update-status', [InquiryController::class, 'updateStatus'])->name('admin.inquiries.update-status');
     Route::resource('faqs', FaqController::class, ["as" => 'admin']);
     Route::resource('newsletters', NewsLetterController::class, ["as" => 'admin']);
     Route::resource('contentManagements', ContentManagementController::class, ["as" => 'admin']);

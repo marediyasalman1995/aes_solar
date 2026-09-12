@@ -189,7 +189,7 @@
         </table>
       @endif
       
-      <a href="{{ route('contact', ['type' => 'Customer', 'message' => 'I would like to receive a detailed quote for the ' . $product->heading]) }}" class="btn btn-primary py-3 px-5 text-white fw-bold shadow-sm" style="border-radius:12px; font-size:1.05rem; background: var(--blue-900); border-color: var(--blue-900); box-shadow: 0 10px 25px rgba(11, 61, 92, 0.25);">
+      <a href="{{ route('contact', ['type' => 'Product', 'message' => 'I would like to receive a detailed quote for ' . $product->heading]) }}" class="btn btn-primary py-3 px-5 text-white fw-bold shadow-sm" style="border-radius:12px; font-size:1.05rem; background: var(--blue-900); border-color: var(--blue-900); box-shadow: 0 10px 25px rgba(11, 61, 92, 0.25);">
         Request Quotation / Callback →
       </a>
     </div>
@@ -234,19 +234,19 @@
           <div class="ref-product-badge">
             {{ $rel->heading }}
           </div>
-          <a href="{{ route('products.single', ['slug' => $rel->slug]) }}" class="ref-product-img-container">
+          <a href="{{ route('products.single', ['slug' => $rel->slug ?: \Illuminate\Support\Str::slug($rel->heading)]) }}" class="ref-product-img-container">
             <img src="{{ $imgSrc }}" alt="{{ $rel->heading }}">
           </a>
           <div class="ref-product-desc">
             <h4 style="margin: 16px 0 8px; font-size: 1rem; line-height: 1.4;">
-              <a href="{{ route('products.single', ['slug' => $rel->slug]) }}" style="color: var(--blue-900); font-weight: 700; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--blue-900)'">
+              <a href="{{ route('products.single', ['slug' => $rel->slug ?: \Illuminate\Support\Str::slug($rel->heading)]) }}" style="color: var(--blue-900); font-weight: 700; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--blue-900)'">
                 {{ $rel->sub_heading }}
               </a>
             </h4>
           </div>
         </div>
         <div class="ref-product-btn-container">
-          <a href="{{ route('contact', ['type' => 'Customer', 'message' => 'I am interested in inquiring about ' . $rel->heading]) }}" class="ref-inquiry-btn">
+          <a href="{{ route('contact', ['type' => 'Product', 'message' => 'I am interested in inquiring about ' . $rel->heading]) }}" class="ref-inquiry-btn">
             Inquiry Now
           </a>
         </div>

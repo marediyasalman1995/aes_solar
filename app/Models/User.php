@@ -255,6 +255,19 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Dynamically calculate accurate wallet balance from transactions
+     */
+    public function getWalletBalanceAttribute($value)
+    {
+        $credits = $this->walletTransactions()->where('type', 'Credit')->whereIn('status', ['Credited', 'Approved'])->sum('amount');
+        $debits = $this->walletTransactions()->whereIn('type', ['Debit', 'Payout'])->whereIn('status', ['Credited', 'Approved'])->sum('amount');
+        if ($credits > 0 || $debits > 0) {
+            return max(0.0, floatval($credits - $debits));
+        }
+        return floatval($value ?? 0);
+    }
+
+    /**
      * Registering media collection
      */
     public function registerMediaCollections(): void

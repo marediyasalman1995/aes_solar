@@ -79,7 +79,7 @@ class CustomerController extends AppBaseController
             'city' => $request->city,
             'state' => $request->state ?? 'Maharashtra',
             'pincode' => $request->pincode,
-            'wallet_balance' => $request->wallet_balance ?? 1500.00,
+            'wallet_balance' => $request->wallet_balance ?? 0.00,
             'dealer_id' => $dealerId,
             'status' => 1,
         ]);
@@ -365,7 +365,7 @@ class CustomerController extends AppBaseController
     public function updateReferralStage(Request $request, Referral $referral)
     {
         $request->validate([
-            'stage' => 'required|in:Contacted,Site Survey Done,Quotation Shared,Installed,Rejected',
+            'stage' => 'required|in:Pending,Contacted,Site Survey Done,Quotation Shared,Installed,Rejected',
             'reward_amount' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);

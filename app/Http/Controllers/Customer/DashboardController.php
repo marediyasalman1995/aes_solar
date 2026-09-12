@@ -63,6 +63,7 @@ class DashboardController extends Controller
 
         // Wallet transactions
         $walletTransactions = $user->walletTransactions()->orderBy('created_at', 'desc')->get();
+        $payoutRequests = $user->walletTransactions()->where('type', 'Payout')->orderBy('created_at', 'desc')->get();
 
         // Service Requests
         $serviceRequests = $user->serviceRequests()->with('site')->orderBy('created_at', 'desc')->get();
@@ -98,6 +99,7 @@ class DashboardController extends Controller
         $estimatedSavings = round(($activeSite->monthly_avg_kwh ?? 600) * 7.5);
 
         $referralPointSettings = \App\Models\ReferralPointSetting::all();
+        $issueTypes = \App\Models\IssueType::where('status', 1)->orderBy('sort_order', 'asc')->get();
 
         return view('frontend.dashboard.index', compact(
             'user',
@@ -106,12 +108,14 @@ class DashboardController extends Controller
             'referrals',
             'totalReferred',
             'walletTransactions',
+            'payoutRequests',
             'serviceRequests',
             'openServiceRequestsCount',
             'documents',
             'notifications',
             'estimatedSavings',
-            'referralPointSettings'
+            'referralPointSettings',
+            'issueTypes'
         ));
     }
 
@@ -183,45 +187,33 @@ class DashboardController extends Controller
             'referee_name' => $request->referee_name,
             'referee_mobile' => $cleanMobile,
             'referee_city' => $request->referee_city ?? 'Pune',
-            'stage' => 'Contacted',
+            'stage' => 'Pending',
             'reward_amount' => $amount,
-            'reward_status' => 'Credited',
+            'reward_status' => 'Pending',
             'notes' => 'Submitted via customer portal with rule: ' . $setting->title,
         ]);
 
-        // Adjust customer wallet immediately
-        if ($setting->type == 'Credit') {
-            $user->wallet_balance += $amount;
-        } else {
-            $user->wallet_balance = max(0, $user->wallet_balance - $amount);
-        }
-        $user->save();
-
-        // Create transaction log
-        WalletTransaction::create([
-            'user_id' => $user->id,
-            'type' => $setting->type,
-            'amount' => $amount,
-            'title' => $setting->title . ' — ' . $request->referee_name,
-            'description' => 'Referral transaction applied for ' . $request->referee_name,
-            'reference_type' => 'Referral',
-            'reference_id' => $referral->id,
-            'status' => 'Credited',
-        ]);
-
-        // Add customer notification
         CustomerNotification::create([
             'user_id' => $user->id,
-            'title' => 'Referral Registered: ' . $setting->title,
-            'message' => 'Your referral for ' . $request->referee_name . ' has been registered. Wallet adjusted by ₹' . number_format($amount, 2) . ' (' . $setting->type . ').',
+            'title' => 'Referral Submitted: ' . $request->referee_name,
+            'message' => 'Your referral for ' . $request->referee_name . ' has been submitted and is pending verification. Reward of ₹' . number_format($amount, 2) . ' will be credited once verified & installed.',
             'type' => 'referral',
         ]);
+
+        // Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
+        $adminEmail = \App\MyClasses\GeneralHelperFunctions::getSetting('email');
+        if (!empty($adminEmail)) {
+            \App\MyClasses\MailHelper::sendMail($adminEmail, 'New Referral Submitted: ' . $request->referee_name, 'emails.admin_new_referral', [
+                'referral' => $referral,
+                'user' => $user
+            ]);
+        }
 
         DB::commit();
 
         return response()->json([
             'success' => true,
-            'message' => 'Referral for ' . $request->referee_name . ' submitted successfully! Wallet adjusted based on rule: ' . $setting->title,
+            'message' => 'Referral for ' . $request->referee_name . ' submitted successfully! Status is Pending review by AES team.',
             'referral' => $referral,
         ]);
     }
@@ -236,6 +228,8 @@ class DashboardController extends Controller
             'customer_site_id' => 'nullable|exists:customer_sites,id',
             'preferred_date' => 'nullable|date',
             'description' => 'nullable|string',
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
         $user = $this->getCustomer();
@@ -248,21 +242,39 @@ class DashboardController extends Controller
             'issue_type' => $request->issue_type,
             'preferred_date' => $request->preferred_date ?? now()->addDays(2),
             'description' => $request->description,
-            'status' => 'Scheduled',
+            'status' => 'Pending',
         ]);
+
+        // Upload multiple images if provided
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $imageFile) {
+                if ($imageFile->isValid()) {
+                    $ticket->addMedia($imageFile)->toMediaCollection('service_images');
+                }
+            }
+        }
 
         CustomerNotification::create([
             'user_id' => $user->id,
             'title' => 'Service Request ' . $ticket->ticket_no . ' Raised',
-            'message' => 'Your request for "' . $request->issue_type . '" has been logged. Our technician will visit soon.',
+            'message' => 'Your request for "' . $request->issue_type . '" has been logged with status Pending.',
             'type' => 'service',
         ]);
 
-        // Send Service Request Created Email
+        // Send Service Request Created Email to Customer
         if ($user->email) {
             \App\MyClasses\MailHelper::sendMail($user->email, 'Service Ticket ' . $ticket->ticket_no . ' Raised Successfully', 'emails.service_request_created', [
                 'user' => $user,
                 'ticket' => $ticket
+            ]);
+        }
+
+        // Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
+        $adminEmail = \App\MyClasses\GeneralHelperFunctions::getSetting('email');
+        if (!empty($adminEmail)) {
+            \App\MyClasses\MailHelper::sendMail($adminEmail, 'New Service Request Logged: ' . $ticket->ticket_no, 'emails.admin_service_request', [
+                'ticket' => $ticket,
+                'user' => $user
             ]);
         }
 
@@ -279,42 +291,73 @@ class DashboardController extends Controller
     public function requestPayout(Request $request)
     {
         $user = $this->getCustomer();
-        $amount = floatval($request->amount ?? $user->wallet_balance);
+        $maxWithdrawable = max(0, $user->wallet_balance - 5000);
 
-        if ($user->wallet_balance <= 0) {
+        // 1. Eligibility Check: User wallet balance must be at least ₹5,000 to submit withdrawal request
+        if ($user->wallet_balance < 5000) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have sufficient reward balance for a payout request.'
+                'message' => 'Withdrawal requests require a minimum wallet balance of ₹5,000. Your current balance is ₹' . number_format($user->wallet_balance, 2) . '.'
             ], 422);
         }
 
-        if ($amount > $user->wallet_balance) {
+        if ($maxWithdrawable < 1000) {
             return response()->json([
                 'success' => false,
-                'message' => 'Requested payout amount exceeds available balance (₹' . number_format($user->wallet_balance, 2) . ').'
+                'message' => 'Minimum withdrawal request is ₹1,000. You need a total wallet balance of at least ₹6,000 to withdraw while retaining the required ₹5,000 minimum balance.'
             ], 422);
         }
+
+        $amount = floatval($request->amount ?? 0);
+
+        // 2. Minimum Request Amount Check: Minimum withdrawal request amount is ₹1,000
+        if ($amount < 1000) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Minimum withdrawal request amount is ₹1,000.'
+            ], 422);
+        }
+
+        // 3. Maximum Withdrawable Amount Check (must retain ₹5,000 in wallet)
+        if ($amount > $maxWithdrawable) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Requested withdrawal amount (₹' . number_format($amount, 2) . ') exceeds maximum withdrawable amount (₹' . number_format($maxWithdrawable, 2) . '). A minimum balance of ₹5,000 must remain in your wallet.'
+            ], 422);
+        }
+
+        $payoutDetails = $request->payout_details ? ' (' . $request->payout_details . ')' : '';
 
         $tx = WalletTransaction::create([
             'user_id' => $user->id,
             'type' => 'Payout',
             'amount' => $amount,
             'title' => 'Payout Request Submitted',
-            'description' => 'Payout request submitted for ₹' . number_format($amount, 2) . ' to registered bank account/UPI.',
+            'description' => 'Withdrawal request for ₹' . number_format($amount, 2) . $payoutDetails,
             'reference_type' => 'Payout',
             'status' => 'Pending',
         ]);
 
         CustomerNotification::create([
             'user_id' => $user->id,
-            'title' => 'Payout Request Received',
-            'message' => 'Your payout request for ₹' . number_format($amount, 2) . ' has been received and will be processed within 48 hours.',
+            'title' => 'Withdrawal Request Received',
+            'message' => 'Your withdrawal request for ₹' . number_format($amount, 2) . ' has been received with Pending status.',
             'type' => 'wallet',
         ]);
 
+        // Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
+        $adminEmail = \App\MyClasses\GeneralHelperFunctions::getSetting('email');
+        if (!empty($adminEmail)) {
+            \App\MyClasses\MailHelper::sendMail($adminEmail, 'New Withdrawal Request: ₹' . number_format($amount) . ' from ' . $user->name, 'emails.admin_withdraw_request', [
+                'tx' => $tx,
+                'user' => $user,
+                'amount' => $amount
+            ]);
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Payout request for ₹' . number_format($amount, 2) . ' submitted successfully!',
+            'message' => 'Withdrawal request for ₹' . number_format($amount, 2) . ' submitted successfully with Pending status.',
         ]);
     }
 

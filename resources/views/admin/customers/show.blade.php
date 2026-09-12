@@ -433,6 +433,7 @@
                                     <th style="padding-left:18px;">Ticket #</th>
                                     <th>Plant / Site</th>
                                     <th>Issue Type</th>
+                                    <th>Attached Photos</th>
                                     <th>Preferred Date</th>
                                     <th>Raised On</th>
                                     <th>Status</th>
@@ -446,6 +447,20 @@
                                         <td style="padding-left:18px;"><b class="text-dark fs-13">{{ $srv->ticket_no }}</b></td>
                                         <td><span class="badge bg-secondary-transparent text-dark">{{ optional($srv->site)->site_name ?? 'Primary Site' }}</span></td>
                                         <td><span class="badge bg-info-transparent text-info fw-bold">{{ $srv->issue_type }}</span></td>
+                                        <td>
+                                            @php $photos = $srv->getMedia('service_images'); @endphp
+                                            @if($photos->count() > 0)
+                                                <div class="d-flex gap-1 flex-wrap align-items-center">
+                                                    @foreach($photos as $photo)
+                                                        <a href="{{ $photo->getUrl() }}" target="_blank" data-bs-toggle="tooltip" title="View Full Image">
+                                                            <img src="{{ $photo->getUrl() }}" class="rounded border shadow-sm" style="width:34px; height:34px; object-fit:cover;">
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <span class="text-muted fs-12">—</span>
+                                            @endif
+                                        </td>
                                         <td><span class="text-dark fs-12 fw-medium">{{ $srv->preferred_date ? $srv->preferred_date->format('M d, Y') : '—' }}</span></td>
                                         <td><span class="text-muted fs-12">{{ $srv->created_at->format('M d, Y') }}</span></td>
                                         <td>
@@ -462,7 +477,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center text-muted py-4">
+                                        <td colspan="9" class="text-center text-muted py-4">
                                             <i class="ri-customer-service-line fs-24 d-block mb-1"></i>
                                             No service requests logged for this customer.
                                         </td>

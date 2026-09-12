@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class ServiceRequest extends Model
+class ServiceRequest extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithMedia;
 
     protected $table = 'service_requests';
 
@@ -66,5 +68,12 @@ class ServiceRequest extends Model
     public function site()
     {
         return $this->belongsTo(CustomerSite::class, 'customer_site_id');
+    }
+
+    public function getImagesUrlsAttribute()
+    {
+        return $this->getMedia('service_images')->map(function ($media) {
+            return $media->getUrl();
+        });
     }
 }

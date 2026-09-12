@@ -20,13 +20,27 @@ class InquiryDataTable extends DataTable
         $dataTable = new EloquentDataTable($query);
 
         return $dataTable
+            ->editColumn('status', function (Inquiry $inquiry) {
+                $status = $inquiry->status ?? 'Pending';
+                $badgeCls = match($status) {
+                    'Completed' => 'bg-success text-white',
+                    'In Progress' => 'bg-info text-white',
+                    default => 'bg-warning text-dark'
+                };
+                return '
+                <select class="form-select form-select-sm inquiry-status-select ' . $badgeCls . '" data-uuid="' . $inquiry->uuid . '" style="width: auto; font-weight: 600; cursor: pointer; border-radius: 20px; padding: 4px 10px; border: none; display: inline-block;">
+                    <option value="Pending" ' . ($status == 'Pending' ? 'selected' : '') . ' class="bg-white text-dark">Pending</option>
+                    <option value="In Progress" ' . ($status == 'In Progress' ? 'selected' : '') . ' class="bg-white text-dark">In Progress</option>
+                    <option value="Completed" ' . ($status == 'Completed' ? 'selected' : '') . ' class="bg-white text-dark">Completed</option>
+                </select>';
+            })
             ->editColumn('created_at', function (Inquiry $inquiry){
                 return GeneralHelperFunctions::prepareHtmlDate($inquiry->created_at);
             })
             ->editColumn('updated_at', function (Inquiry $inquiry){
                 return GeneralHelperFunctions::prepareHtmlDate($inquiry->updated_at);
             })
-            ->rawColumns(['created_at', 'updated_at', 'action'])
+            ->rawColumns(['status', 'created_at', 'updated_at', 'action'])
             ->addColumn('action', 'admin.inquiries.datatables_actions');
     }
 
@@ -55,15 +69,8 @@ class InquiryDataTable extends DataTable
             ->parameters([
                 'dom'       => 'B<\'row p-t-15\' <\'col-sm-6\'l><\'col-sm-6\'f>>rt<\'row\'<\'col-sm-12 col-md-5\'i><\'col-sm-12 col-md-7\'p>>',
                 'stateSave' => true,
-                'order'     => [[0, 'desc']],
-                'buttons'   => [
-                    // ['extend' => 'create', 'className' => 'btn btn-default btn-sm no-corner',],
-                    // ['extend' => 'export', 'className' => 'btn btn-default btn-sm no-corner',],
-//                    ['extend' => 'print', 'className' => 'btn btn-default btn-sm no-corner',],
-//                    ['extend' => 'reset', 'className' => 'btn btn-default btn-sm no-corner',],
-//                    ['extend' => 'reload', 'className' => 'btn btn-default btn-sm no-corner',],
-//                    ['extend' => 'colvis', 'className' => 'btn btn-default btn-sm no-corner']
-            ],
+                'order'     => [[5, 'desc']],
+                'buttons'   => [],
             ]);
     }
 
@@ -80,6 +87,7 @@ class InquiryDataTable extends DataTable
             'phone',
             'subject',
             'message',
+            'status',
             'created_at' => ['title' => 'Added on'],
         ];
     }

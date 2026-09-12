@@ -46,13 +46,35 @@ class HomeController extends AppBaseController
         $reviews = Website::where('type', 'Reviews')->get();
         $faqs = Faq::take(6)->get();
 
+        $hero_banners = Website::where('type', 'Top_Banner')->get();
+        $hero_images = [];
+        foreach ($hero_banners as $banner) {
+            if ($banner->hasMedia('avatar')) {
+                $hero_images[] = $banner->avatarUrl['250'];
+            }
+        }
+
+        // Fallback default showcase images if no admin images or only 1 image uploaded
+        if (empty($hero_images)) {
+            $hero_images = [
+                asset('images/hero-solar.jpg'),
+                asset('images/solution-ongrid.jpg'),
+                asset('images/solution-hybrid.jpg'),
+                asset('images/about-main.jpg')
+            ];
+        } elseif (count($hero_images) === 1) {
+            $hero_images[] = asset('images/solution-ongrid.jpg');
+            $hero_images[] = asset('images/solution-hybrid.jpg');
+            $hero_images[] = asset('images/about-main.jpg');
+        }
+
         $seo = array(
             'meta_title' => GeneralHelperFunctions::getSetting('meta_title') ?? 'AES Energy — Solar for Every Rooftop in India',
             'meta_description' => GeneralHelperFunctions::getSetting('meta_description') ?? 'Turnkey rooftop solar solutions for homes, societies, and commercial buildings. Get up to ₹78,000 subsidy under PM Surya Ghar.',
             'meta_keyword' => GeneralHelperFunctions::getSetting('meta_keyword') ?? 'AES Energy, rooftop solar, solar subsidy, PM Surya Ghar',
         );
 
-        return view('frontend.pages.home', compact('seo', 'website_sections', 'solar_plans', 'solutions', 'products', 'services', 'reviews', 'faqs'));
+        return view('frontend.pages.home', compact('seo', 'website_sections', 'solar_plans', 'solutions', 'products', 'services', 'reviews', 'faqs', 'hero_images'));
     }
 
     public function cmsDetail($slug)
@@ -108,7 +130,7 @@ class HomeController extends AppBaseController
             'phone' => 'required|string',
             'pincode' => 'required|string|max:10',
             'city' => 'required|string',
-            'type' => 'required|in:Customer,Dealer',
+            'type' => 'required|in:Customer,Product,Dealer',
             'monthly_bill' => 'nullable|string',
             'message' => 'nullable|string',
         ]);
@@ -123,7 +145,16 @@ class HomeController extends AppBaseController
         $save->monthly_bill = $request->monthly_bill;
         $save->message = $request->message;
         $save->subject = "Website Inquiry: " . $request->type;
+        $save->status = 'Pending';
         $save->save();
+
+        // Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
+        $adminEmail = GeneralHelperFunctions::getSetting('email');
+        if (!empty($adminEmail)) {
+            \App\MyClasses\MailHelper::sendMail($adminEmail, 'New Website Inquiry: ' . $request->name, 'emails.admin_new_inquiry', [
+                'inquiry' => $save
+            ]);
+        }
 
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Inquiry Submitted successfully! Our team will contact you shortly.');

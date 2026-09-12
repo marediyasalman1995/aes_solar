@@ -282,26 +282,174 @@
         </div>
       </div>
       
-      <!-- Hero Art (Image 1 style) -->
+      <!-- Hero Art Slider Box -->
       <div class="hero-art reveal">
         <div class="sun-orb"></div>
         <div class="sun-ray"></div>
-        <div class="panel-card">
-          @php
-            $heroImg = (isset($website_sections['Top_Banner']) && $website_sections['Top_Banner']->hasMedia('avatar')) 
-              ? $website_sections['Top_Banner']->avatarUrl['250'] 
-              : asset('images/hero-solar.jpg');
-          @endphp
-          <img src="{{ $heroImg }}" alt="Rooftop solar installation">
-          <div class="panel-meta">
-            <span><span class="pulse-dot"></span> Generating Live</span>
-            <b>6.4 kW</b>
+        
+        <div class="panel-card hero-slider-card">
+          <div class="hero-slider-wrapper" id="heroSliderWrapper">
+            @foreach($hero_images as $index => $imgSrc)
+              <div class="hero-slide {{ $index === 0 ? 'active' : '' }}">
+                <img src="{{ $imgSrc }}" alt="Rooftop Solar Installation {{ $index + 1 }}">
+              </div>
+            @endforeach
           </div>
+
+          <!-- Slider Controls & Dots -->
+          @if(count($hero_images) > 1)
+            <button class="hero-slider-arrow prev" id="heroSliderPrev" title="Previous Slide" aria-label="Previous Slide">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button class="hero-slider-arrow next" id="heroSliderNext" title="Next Slide" aria-label="Next Slide">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <div class="hero-slider-dots" id="heroSliderDots">
+              @foreach($hero_images as $index => $imgSrc)
+                <span class="hero-dot {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
+              @endforeach
+            </div>
+          @endif
         </div>
-        <div class="floating-chip c1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle; display: inline-block;"><path d="M12 22C12 22 20 18 20 12C20 6.47715 15.5228 2 12 2C8.47715 2 4 6.47715 4 12C4 18 12 22 12 22Z"/><path d="M12 2v20"/></svg> 3.1T CO2 offset</div>
-        <div class="floating-chip c2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle; display: inline-block;"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> ₹4,180 saved this month</div>
       </div>
     </header>
+
+<style>
+  .hero-art {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .hero-slider-card {
+    position: relative;
+    width: 100% !important;
+    max-width: 540px !important;
+    height: 480px !important;
+    padding: 0 !important;
+    background: #ffffff;
+    border-radius: 28px !important;
+    box-shadow: 0 25px 60px rgba(11, 61, 92, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    overflow: hidden !important;
+    animation: floaty 5s ease-in-out infinite !important;
+  }
+
+  .hero-slider-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  .hero-slide.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+  }
+
+  .hero-slide img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 0 !important;
+    transform: scale(1);
+    transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .hero-slide.active img {
+    transform: scale(1.08);
+  }
+
+  .hero-slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: #0b3d5c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  }
+
+  .hero-slider-arrow.prev { left: 16px; }
+  .hero-slider-arrow.next { right: 16px; }
+
+  .hero-slider-card:hover .hero-slider-arrow {
+    opacity: 1;
+  }
+
+  .hero-slider-arrow:hover {
+    background: #0b3d5c;
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .hero-slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(11, 61, 92, 0.45);
+    backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .hero-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hero-dot.active {
+    width: 24px;
+    border-radius: 12px;
+    background: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+  }
+
+  @media (max-width: 991px) {
+    .hero-slider-card {
+      height: 380px !important;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .hero-slider-card {
+      height: 300px !important;
+    }
+  }
+</style>
 
 
 
@@ -421,14 +569,14 @@
               </div>
               
               <!-- Image Container -->
-              <a href="{{ route('products.single', ['slug' => $prod->slug]) }}" class="ref-product-img-container">
+              <a href="{{ route('products.single', ['slug' => $prod->slug ?: \Illuminate\Support\Str::slug($prod->heading)]) }}" class="ref-product-img-container">
                 <img src="{{ $imgSrc }}" alt="{{ $prod->heading }}">
               </a>
               
               <!-- Description -->
               <div class="ref-product-desc">
                 <h4 style="margin: 16px 0 8px; font-size: 1.05rem; line-height: 1.4;">
-                  <a href="{{ route('products.single', ['slug' => $prod->slug]) }}" style="color: var(--blue-900); font-weight: 700; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--blue-900)'">
+                  <a href="{{ route('products.single', ['slug' => $prod->slug ?: \Illuminate\Support\Str::slug($prod->heading)]) }}" style="color: var(--blue-900); font-weight: 700; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--blue-900)'">
                     {{ $prod->sub_heading }}
                   </a>
                 </h4>
@@ -437,7 +585,7 @@
             
             <!-- Inquiry Button -->
             <div class="ref-product-btn-container">
-              <a href="{{ route('contact', ['type' => 'Customer', 'message' => 'I am interested in inquiring about ' . $prod->heading]) }}" class="ref-inquiry-btn">
+              <a href="{{ route('contact', ['type' => 'Product', 'message' => 'I am interested in inquiring about ' . $prod->heading]) }}" class="ref-inquiry-btn">
                 Inquiry Now
               </a>
             </div>
@@ -565,7 +713,7 @@
     <!-- Powering Homes Across India (solarsquare style) -->
     <section class="section" style="padding-top:20px; padding-bottom:50px; background:var(--white);">
       <div class="section-head reveal text-center" style="max-width: 600px; margin: 0 auto 40px;">
-        <h2 class="fw-bold" style="color:var(--blue-900); font-size: 2.2rem; letter-spacing: -0.02em;">Powering Homes Across India</h2>
+        <h2 class="fw-bold" style="color:var(--blue-900); font-size: 2.2rem; letter-spacing: -0.02em;">Powering Homes Across Gujarat</h2>
       </div>
 
       <!-- Four Stats Cards Grid -->
@@ -601,7 +749,7 @@
         <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 280px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 15 9 18 3 15"/></svg>
           <p style="color: var(--blue-900); font-weight: 600; font-size: 1.05rem; margin: 0; line-height: 1.5; text-align: left;">
-            We are present in 31 Cities across 10 States, and are growing every day.
+            We are present in 31 Cities across Gujarat state, and are growing every day.
           </p>
         </div>
         <button class="btn btn-primary" onclick="window.location.href='{{ route('contact') }}'" style="background: #0f172a; border-color: #0f172a; color: #fff; padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); transition: all 0.25s ease;">
@@ -671,25 +819,57 @@
       </div>
     </section>
 
-    <!-- Testimonial Slider / Carousel (Img 2) -->
-    <section class="section section-alt" style="overflow:hidden; position:relative; padding:80px 0;">
+    <!-- Testimonial Slider / Carousel -->
+    <section class="section section-alt" style="overflow:hidden; position:relative; padding:80px 0; background: #f8fafc;">
       <div class="section-head reveal text-center">
-        <span class="eyebrow">Customer Stories</span>
-        <h2>Trusted by thousands of rooftops</h2>
+        <span class="eyebrow" style="color: var(--blue-600); font-weight: 700;">Real Installations & Feedback</span>
+        <h2 style="color: var(--blue-900); font-size: 2.2rem; font-weight: 800;">Trusted by thousands of rooftops</h2>
+        <p style="color: var(--muted); max-width: 620px; margin: 8px auto 0;">See real photos of rooftop solar installations completed by AES Energy across Gujarat.</p>
       </div>
       
       <!-- Slider Track -->
-      <div class="testi-carousel-container reveal" style="max-width:1240px; margin:0 auto; position:relative; overflow:hidden; padding:20px 60px;">
+      <div class="testi-carousel-container reveal" style="max-width:1260px; margin:0 auto; position:relative; overflow:hidden; padding:20px 60px;">
         <div class="testi-slider-track d-flex" id="testiSliderTrack" style="transition: transform 0.5s ease-in-out; width: 100%;">
           @forelse($reviews as $rev)
             <div class="testi-slide">
-              <div class="testi-card text-center" style="background:#fff; border-radius:24px; position:relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--sky-200); padding: 36px 24px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);">
+              <div class="testi-card" style="background:#fff; border-radius:24px; border:1px solid var(--sky-200); padding: 22px; box-shadow: 0 12px 35px rgba(11, 61, 92, 0.07); height: 100%; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s ease, box-shadow 0.3s ease;">
                 <div>
-                  <div class="testi-stars fs-3 mb-3 text-warning">★★★★★</div>
-                  <p class="text-dark" style="font-size: 0.95rem; line-height: 1.65; margin-bottom: 20px; font-style: italic; font-weight: 500;">"{{ $rev->description }}"</p>
+                  @php
+                    $photoImgs = ['hero-solar.jpg', 'solution-ongrid.jpg', 'solution-hybrid.jpg', 'about-main.jpg'];
+                    $fallbackImg = 'images/' . ($photoImgs[$loop->index % count($photoImgs)]);
+                    $installPhoto = $rev->hasMedia('avatar') ? $rev->avatarUrl['250'] : asset($fallbackImg);
+                    $rating = is_numeric($rev->specifications) ? (int)$rev->specifications : 5;
+                  @endphp
+
+                  <!-- User Solar Installation Photo -->
+                  <div style="position: relative; border-radius: 16px; overflow: hidden; height: 265px; margin-bottom: 18px; border: 1px solid #e2e8f0; background: #f1f5f9;">
+                    <img src="{{ $installPhoto }}" alt="Solar Installation for {{ $rev->heading }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(11, 61, 92, 0.85); backdrop-filter: blur(8px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      Verified Installation
+                    </div>
+                  </div>
+
+                  <!-- Rating Stars -->
+                  <div style="color: #f59e0b; font-size: 1.15rem; letter-spacing: 2px; margin-bottom: 12px;">
+                    @for($i = 1; $i <= 5; $i++)
+                      @if($i <= $rating)
+                        ★
+                      @else
+                        <span style="color: #cbd5e1;">★</span>
+                      @endif
+                    @endfor
+                  </div>
+
+                  <!-- Review Text -->
+                  <p style="color: #334155; font-size: 0.94rem; line-height: 1.65; font-style: italic; font-weight: 500; margin-bottom: 20px;">
+                    "{!! strip_tags($rev->description) !!}"
+                  </p>
                 </div>
-                <div class="testi-person d-flex align-items-center justify-content-center gap-3">
-                  <div class="testi-avatar" style="width:50px; height:50px; border-radius:50%; background:var(--blue-900); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold;">
+
+                <!-- Customer Details -->
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #0b3d5c 0%, #0f6aa8 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(11,61,92,0.2);">
                     @php
                       $words = explode(' ', trim($rev->heading));
                       $initials = '';
@@ -697,25 +877,129 @@
                     @endphp
                     {{ $initials ?: 'AES' }}
                   </div>
-                  <div class="text-start">
-                    <b class="d-block text-dark">{{ $rev->heading }}</b>
-                    <span class="text-muted fs-12">{{ $rev->sub_heading }}</span>
+                  <div style="text-align: left; flex: 1; overflow: hidden;">
+                    <b style="color: #0f172a; font-size: 0.98rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $rev->heading }}</b>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      {{ $rev->sub_heading ?: 'Pune • Rooftop Solar' }}
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          @empty
+            <!-- Fallback Demo Testimonial Card 1 -->
+            <div class="testi-slide">
+              <div class="testi-card" style="background:#fff; border-radius:24px; border:1px solid var(--sky-200); padding: 22px; box-shadow: 0 12px 35px rgba(11, 61, 92, 0.07); height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="position: relative; border-radius: 16px; overflow: hidden; height: 265px; margin-bottom: 18px; border: 1px solid #e2e8f0; background: #f1f5f9;">
+                    <img src="{{ asset('images/hero-solar.jpg') }}" alt="Solar Installation Pune" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(11, 61, 92, 0.85); backdrop-filter: blur(8px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      Verified Installation
+                    </div>
+                  </div>
+                  <div style="color: #f59e0b; font-size: 1.15rem; letter-spacing: 2px; margin-bottom: 12px;">★★★★★</div>
+                  <p style="color: #334155; font-size: 0.94rem; line-height: 1.65; font-style: italic; font-weight: 500; margin-bottom: 20px;">
+                    "Our electricity bill dropped from ₹4,200 to almost zero within the first month. The AES team handled the subsidy paperwork end to end without any hassle."
+                  </p>
+                </div>
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #0b3d5c 0%, #0f6aa8 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(11,61,92,0.2);">PN</div>
+                  <div style="text-align: left; flex: 1; overflow: hidden;">
+                    <b style="color: #0f172a; font-size: 0.98rem; display: block;">Priya Nair</b>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Pune • 5kW Rooftop System
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          @empty
+
+            <!-- Fallback Demo Testimonial Card 2 -->
             <div class="testi-slide">
-              <div class="testi-card text-center" style="background:#fff; border-radius:24px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--sky-200); padding: 36px 24px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);">
+              <div class="testi-card" style="background:#fff; border-radius:24px; border:1px solid var(--sky-200); padding: 22px; box-shadow: 0 12px 35px rgba(11, 61, 92, 0.07); height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                  <div class="testi-stars fs-3 mb-3 text-warning">★★★★★</div>
-                  <p class="text-dark" style="font-size: 0.95rem; line-height: 1.65; margin-bottom: 20px; font-style: italic; font-weight: 500;">"Our bill dropped from ₹4,200 to almost zero within the first month. The team handled the subsidy paperwork end to end."</p>
+                  <div style="position: relative; border-radius: 16px; overflow: hidden; height: 265px; margin-bottom: 18px; border: 1px solid #e2e8f0; background: #f1f5f9;">
+                    <img src="{{ asset('images/solution-ongrid.jpg') }}" alt="Solar Installation Nashik" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(11, 61, 92, 0.85); backdrop-filter: blur(8px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      Verified Installation
+                    </div>
+                  </div>
+                  <div style="color: #f59e0b; font-size: 1.15rem; letter-spacing: 2px; margin-bottom: 12px;">★★★★★</div>
+                  <p style="color: #334155; font-size: 0.94rem; line-height: 1.65; font-style: italic; font-weight: 500; margin-bottom: 20px;">
+                    "Installation was done in two days flat, and the AES One app lets me track generation in real time. Great after-sales support too."
+                  </p>
                 </div>
-                <div class="testi-person d-flex align-items-center justify-content-center gap-3">
-                  <div class="testi-avatar" style="width:50px; height:50px; border-radius:50%; background:var(--blue-900); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold;">PN</div>
-                  <div class="text-start">
-                    <b>Priya Nair</b>
-                    <span class="text-muted fs-12">Pune, 5kW system</span>
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #0b3d5c 0%, #0f6aa8 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(11,61,92,0.2);">AV</div>
+                  <div style="text-align: left; flex: 1; overflow: hidden;">
+                    <b style="color: #0f172a; font-size: 0.98rem; display: block;">Amit Verma</b>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Nashik • 3kW Rooftop System
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fallback Demo Testimonial Card 3 -->
+            <div class="testi-slide">
+              <div class="testi-card" style="background:#fff; border-radius:24px; border:1px solid var(--sky-200); padding: 22px; box-shadow: 0 12px 35px rgba(11, 61, 92, 0.07); height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="position: relative; border-radius: 16px; overflow: hidden; height: 265px; margin-bottom: 18px; border: 1px solid #e2e8f0; background: #f1f5f9;">
+                    <img src="{{ asset('images/solution-hybrid.jpg') }}" alt="Solar Installation Mumbai" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(11, 61, 92, 0.85); backdrop-filter: blur(8px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      Verified Installation
+                    </div>
+                  </div>
+                  <div style="color: #f59e0b; font-size: 1.15rem; letter-spacing: 2px; margin-bottom: 12px;">★★★★★</div>
+                  <p style="color: #334155; font-size: 0.94rem; line-height: 1.65; font-style: italic; font-weight: 500; margin-bottom: 20px;">
+                    "Referred two neighbours after seeing my own savings — the AES Reward Wallet is a nice bonus on top of the electricity savings."
+                  </p>
+                </div>
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #0b3d5c 0%, #0f6aa8 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(11,61,92,0.2);">SI</div>
+                  <div style="text-align: left; flex: 1; overflow: hidden;">
+                    <b style="color: #0f172a; font-size: 0.98rem; display: block;">Sneha Iyer</b>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Mumbai • 10kW Commercial System
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fallback Demo Testimonial Card 4 -->
+            <div class="testi-slide">
+              <div class="testi-card" style="background:#fff; border-radius:24px; border:1px solid var(--sky-200); padding: 22px; box-shadow: 0 12px 35px rgba(11, 61, 92, 0.07); height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="position: relative; border-radius: 16px; overflow: hidden; height: 265px; margin-bottom: 18px; border: 1px solid #e2e8f0; background: #f1f5f9;">
+                    <img src="{{ asset('images/about-main.jpg') }}" alt="Solar Installation Nagpur" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(11, 61, 92, 0.85); backdrop-filter: blur(8px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      Verified Installation
+                    </div>
+                  </div>
+                  <div style="color: #f59e0b; font-size: 1.15rem; letter-spacing: 2px; margin-bottom: 12px;">★★★★★</div>
+                  <p style="color: #334155; font-size: 0.94rem; line-height: 1.65; font-style: italic; font-weight: 500; margin-bottom: 20px;">
+                    "Fast DISCOM approval and ₹78,000 PM Surya Ghar subsidy credited directly to bank account within 25 days. Highly recommended!"
+                  </p>
+                </div>
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #0b3d5c 0%, #0f6aa8 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(11,61,92,0.2);">RK</div>
+                  <div style="text-align: left; flex: 1; overflow: hidden;">
+                    <b style="color: #0f172a; font-size: 0.98rem; display: block;">Rajesh Kulkarni</b>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Nagpur • 5kW On-Grid System
+                    </span>
                   </div>
                 </div>
               </div>
@@ -857,5 +1141,64 @@
   updateCarousel();
   // Auto slide every 6 seconds
   setInterval(slideNext, 6000);
+
+  // Hero Right-Side Box Slider
+  (function() {
+    const slides = document.querySelectorAll('#heroSliderWrapper .hero-slide');
+    const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
+    const prevBtn = document.getElementById('heroSliderPrev');
+    const nextBtn = document.getElementById('heroSliderNext');
+    const card = document.querySelector('.hero-slider-card');
+
+    if (!slides.length || slides.length <= 1) return;
+
+    let currentIndex = 0;
+    let timer = null;
+
+    function goToSlide(index) {
+      slides[currentIndex].classList.remove('active');
+      if (dots[currentIndex]) dots[currentIndex].classList.remove('active');
+
+      currentIndex = (index + slides.length) % slides.length;
+
+      slides[currentIndex].classList.add('active');
+      if (dots[currentIndex]) dots[currentIndex].classList.add('active');
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentIndex - 1);
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+      timer = setInterval(nextSlide, 3600);
+    }
+
+    function stopAutoplay() {
+      if (timer) clearInterval(timer);
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', function(e) { e.preventDefault(); nextSlide(); startAutoplay(); });
+    if (prevBtn) prevBtn.addEventListener('click', function(e) { e.preventDefault(); prevSlide(); startAutoplay(); });
+
+    dots.forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        const idx = parseInt(this.getAttribute('data-slide'));
+        goToSlide(idx);
+        startAutoplay();
+      });
+    });
+
+    if (card) {
+      card.addEventListener('mouseenter', stopAutoplay);
+      card.addEventListener('mouseleave', startAutoplay);
+    }
+
+    startAutoplay();
+  })();
 </script>
 @endpush

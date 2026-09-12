@@ -40,7 +40,13 @@ class ReferralDataTable extends DataTable
 
     public function query(Referral $model)
     {
-        return $model->newQuery()->with('referrer');
+        $query = $model->newQuery()->with('referrer');
+        if (auth()->check() && auth()->user()->hasRole('Dealer')) {
+            $query->whereHas('referrer', function ($q) {
+                $q->where('dealer_id', auth()->id());
+            });
+        }
+        return $query;
     }
 
     public function html()

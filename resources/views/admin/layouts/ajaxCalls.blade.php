@@ -74,21 +74,36 @@
                 success: function (res) {
                     $('.loading').hide();
                     toastr.remove();
-                    toastr.success(res.message, {timeOut: 10000});
-                    LaravelDataTables["dataTableBuilder"].ajax.reload();
+                    toastr.success(res.message || 'Deleted successfully!', {timeOut: 10000});
+                    if (typeof LaravelDataTables !== 'undefined' && tableId && LaravelDataTables[tableId]) {
+                        LaravelDataTables[tableId].ajax.reload(null, false);
+                    } else if (typeof LaravelDataTables !== 'undefined' && LaravelDataTables["dataTableBuilder"]) {
+                        LaravelDataTables["dataTableBuilder"].ajax.reload(null, false);
+                    } else {
+                        setTimeout(function() {
+                            location.reload();
+                        }, 500);
+                    }
                 },
                 error: function (jqXHR) {
                     $('.loading').hide();
-                    LaravelDataTables["dataTableBuilder"].ajax.reload();
-                    let errorRes = JSON.parse(jqXHR.responseText);
-                    if (errorRes.errors) {
-                        $.each(errorRes.errors, function (key, value) {
-                            toastr.error(value, {timeOut: 10000});
-                        });
-                    } else {
+                    if (typeof LaravelDataTables !== 'undefined' && tableId && LaravelDataTables[tableId]) {
+                        LaravelDataTables[tableId].ajax.reload(null, false);
+                    } else if (typeof LaravelDataTables !== 'undefined' && LaravelDataTables["dataTableBuilder"]) {
+                        LaravelDataTables["dataTableBuilder"].ajax.reload(null, false);
+                    }
+                    try {
                         let errorRes = JSON.parse(jqXHR.responseText);
-                        toastr.remove();
-                        toastr.error(errorRes.message, {timeOut: 10000});
+                        if (errorRes && errorRes.errors) {
+                            $.each(errorRes.errors, function (key, value) {
+                                toastr.error(value, {timeOut: 10000});
+                            });
+                        } else if (errorRes && errorRes.message) {
+                            toastr.remove();
+                            toastr.error(errorRes.message, {timeOut: 10000});
+                        }
+                    } catch (e) {
+                        toastr.error('Error deleting record.', {timeOut: 10000});
                     }
                 }
             });

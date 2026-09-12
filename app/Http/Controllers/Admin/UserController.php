@@ -165,49 +165,119 @@ class UserController extends AppBaseController
 
     public function dashboard(\Illuminate\Http\Request $request)
     {
-        $totalCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->count();
-        $totalSites = \App\Models\CustomerSite::count();
-        $totalCapacity = (float)\App\Models\CustomerSite::sum('capacity_kw');
-        $totalReferrals = \App\Models\Referral::count();
-        $totalRewards = (float)\App\Models\WalletTransaction::where('type', 'Credit')->sum('amount');
-        $openServiceRequests = \App\Models\ServiceRequest::whereIn('status', ['Pending', 'Scheduled', 'In Progress'])->count();
-        $recentInquiries = \App\Models\Inquiry::orderBy('created_at', 'desc')->take(5)->get();
-        $recentCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->withCount(['sites', 'referrals'])->orderBy('created_at', 'desc')->take(5)->get();
+        $authUser = auth()->user();
+        $isDealer = $authUser && ($authUser->hasRole('Dealer') || $authUser->hasRole('dealer') || $authUser->user_type == 'dealer');
 
-        // Environmental & Energy Analytics
-        $monthlyGenUnits = round($totalCapacity * 4.2 * 30);
-        $annualGenUnits = round($totalCapacity * 4.2 * 365);
-        $co2SavedTons = round(($annualGenUnits * 0.82) / 1000, 1);
-        $treesPlantedEquiv = round($co2SavedTons * 45);
-        $estimatedMonthlySavings = round($monthlyGenUnits * 8.5);
+        $dashboardTitle = $isDealer ? 'Dealer Solar Dashboard' : 'Executive Solar Dashboard';
+        $dashboardSubtitle = $isDealer ? 'Dealer Overview & Customer Operations' : 'Executive Overview';
 
-        // Year options for the filter dropdown
-        $dbYears = \App\Models\CustomerSite::selectRaw('YEAR(created_at) as yr')->distinct()->pluck('yr')->toArray();
-        $currentYear = (int)date('Y');
-        $years = array_unique(array_merge([$currentYear, $currentYear - 1], $dbYears));
-        sort($years);
-        $years = array_reverse($years);
+        if ($isDealer) {
+            // Filter to only customers assigned to this logged-in dealer
+            $dealerCustomerIds = User::where('dealer_id', $authUser->id)
+                ->where(function($q) {
+                    $q->where('user_type', 'customer')->orWhereNull('user_type');
+                })->pluck('id')->toArray();
 
-        $filterYear = (int)$request->input('year', $currentYear);
+            $totalCustomers = count($dealerCustomerIds);
+            $totalSites = \App\Models\CustomerSite::whereIn('user_id', $dealerCustomerIds)->count();
+            $totalCapacity = (float)\App\Models\CustomerSite::whereIn('user_id', $dealerCustomerIds)->sum('capacity_kw');
+            $totalReferrals = \App\Models\Referral::whereIn('referrer_id', $dealerCustomerIds)->count();
+            $totalRewards = (float)\App\Models\WalletTransaction::whereIn('user_id', $dealerCustomerIds)->where('type', 'Credit')->sum('amount');
+            $openServiceRequests = \App\Models\ServiceRequest::whereIn('user_id', $dealerCustomerIds)->whereIn('status', ['Pending', 'Scheduled', 'In Progress'])->count();
 
-        // Generate monthly Customer Plants/Sites registrations
-        $monthlyRegistrations = [];
-        $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        for ($month = 1; $month <= 12; $month++) {
-            $monthlyRegistrations[] = \App\Models\CustomerSite::whereYear('created_at', $filterYear)
-                ->whereMonth('created_at', $month)
-                ->count();
+            $dealerCustomerEmails = User::whereIn('id', $dealerCustomerIds)->pluck('email')->filter()->toArray();
+            $recentInquiries = \App\Models\Inquiry::where(function($q) use ($dealerCustomerEmails) {
+                $q->where('type', 'Dealer');
+                if (!empty($dealerCustomerEmails)) {
+                    $q->orWhereIn('email', $dealerCustomerEmails);
+                }
+            })->orderBy('created_at', 'desc')->take(5)->get();
+
+            $recentCustomers = User::whereIn('id', $dealerCustomerIds)
+                ->withCount(['sites', 'referrals'])
+                ->orderBy('created_at', 'desc')->take(5)->get();
+
+            // Environmental & Energy Analytics for Dealer's Installed Base
+            $monthlyGenUnits = round($totalCapacity * 4.2 * 30);
+            $annualGenUnits = round($totalCapacity * 4.2 * 365);
+            $co2SavedTons = round(($annualGenUnits * 0.82) / 1000, 1);
+            $treesPlantedEquiv = round($co2SavedTons * 45);
+            $estimatedMonthlySavings = round($monthlyGenUnits * 8.5);
+
+            // Year options for the filter dropdown
+            $dbYears = \App\Models\CustomerSite::whereIn('user_id', $dealerCustomerIds)->selectRaw('YEAR(created_at) as yr')->distinct()->pluck('yr')->toArray();
+            $currentYear = (int)date('Y');
+            $years = array_unique(array_merge([$currentYear, $currentYear - 1], $dbYears));
+            sort($years);
+            $years = array_reverse($years);
+
+            $filterYear = (int)$request->input('year', $currentYear);
+
+            // Generate monthly Customer Plants/Sites registrations for Dealer's customers
+            $monthlyRegistrations = [];
+            $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            for ($month = 1; $month <= 12; $month++) {
+                $monthlyRegistrations[] = \App\Models\CustomerSite::whereIn('user_id', $dealerCustomerIds)
+                    ->whereYear('created_at', $filterYear)
+                    ->whereMonth('created_at', $month)
+                    ->count();
+            }
+
+            // Referral Pipeline Counts for Dealer's customers
+            $referralStages = [
+                'Lead' => \App\Models\Referral::whereIn('referrer_id', $dealerCustomerIds)->where('stage', 'Lead')->count(),
+                'Survey Scheduled' => \App\Models\Referral::whereIn('referrer_id', $dealerCustomerIds)->where('stage', 'Survey Scheduled')->count(),
+                'Installation' => \App\Models\Referral::whereIn('referrer_id', $dealerCustomerIds)->where('stage', 'Installation')->count(),
+                'Commissioned' => \App\Models\Referral::whereIn('referrer_id', $dealerCustomerIds)->where('stage', 'Commissioned')->count(),
+            ];
+        } else {
+            $totalCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->count();
+            $totalSites = \App\Models\CustomerSite::count();
+            $totalCapacity = (float)\App\Models\CustomerSite::sum('capacity_kw');
+            $totalReferrals = \App\Models\Referral::count();
+            $totalRewards = (float)\App\Models\WalletTransaction::where('type', 'Credit')->sum('amount');
+            $openServiceRequests = \App\Models\ServiceRequest::whereIn('status', ['Pending', 'Scheduled', 'In Progress'])->count();
+            $recentInquiries = \App\Models\Inquiry::orderBy('created_at', 'desc')->take(5)->get();
+            $recentCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->withCount(['sites', 'referrals'])->orderBy('created_at', 'desc')->take(5)->get();
+
+            // Environmental & Energy Analytics
+            $monthlyGenUnits = round($totalCapacity * 4.2 * 30);
+            $annualGenUnits = round($totalCapacity * 4.2 * 365);
+            $co2SavedTons = round(($annualGenUnits * 0.82) / 1000, 1);
+            $treesPlantedEquiv = round($co2SavedTons * 45);
+            $estimatedMonthlySavings = round($monthlyGenUnits * 8.5);
+
+            // Year options for the filter dropdown
+            $dbYears = \App\Models\CustomerSite::selectRaw('YEAR(created_at) as yr')->distinct()->pluck('yr')->toArray();
+            $currentYear = (int)date('Y');
+            $years = array_unique(array_merge([$currentYear, $currentYear - 1], $dbYears));
+            sort($years);
+            $years = array_reverse($years);
+
+            $filterYear = (int)$request->input('year', $currentYear);
+
+            // Generate monthly Customer Plants/Sites registrations
+            $monthlyRegistrations = [];
+            $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            for ($month = 1; $month <= 12; $month++) {
+                $monthlyRegistrations[] = \App\Models\CustomerSite::whereYear('created_at', $filterYear)
+                    ->whereMonth('created_at', $month)
+                    ->count();
+            }
+
+            // Referral Pipeline Counts
+            $referralStages = [
+                'Lead' => \App\Models\Referral::where('stage', 'Lead')->count() ?: 1,
+                'Survey Scheduled' => \App\Models\Referral::where('stage', 'Survey Scheduled')->count() ?: 1,
+                'Installation' => \App\Models\Referral::where('stage', 'Installation')->count() ?: 1,
+                'Commissioned' => \App\Models\Referral::where('stage', 'Commissioned')->count() ?: 1,
+            ];
         }
 
-        // Referral Pipeline Counts
-        $referralStages = [
-            'Lead' => \App\Models\Referral::where('stage', 'Lead')->count() ?: 1,
-            'Survey Scheduled' => \App\Models\Referral::where('stage', 'Survey Scheduled')->count() ?: 1,
-            'Installation' => \App\Models\Referral::where('stage', 'Installation')->count() ?: 1,
-            'Commissioned' => \App\Models\Referral::where('stage', 'Commissioned')->count() ?: 1,
-        ];
-
         return view('admin.dashboard.index', compact(
+            'dashboardTitle',
+            'dashboardSubtitle',
+            'isDealer',
             'totalCustomers',
             'totalSites',
             'totalCapacity',

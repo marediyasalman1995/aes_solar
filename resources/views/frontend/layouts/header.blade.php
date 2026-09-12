@@ -1,4 +1,7 @@
-<div class="topbar-strip">☀️ Subsidy up to ₹78,000 under PM Surya Ghar Yojana — Free Site Survey This Week</div>
+<div class="topbar-strip" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+  <img src="{{ asset('images/pm-surya-ghar-emblem.png') }}" alt="PM Surya Ghar: Muft Bijli Yojana" style="height: 22px; width: 22px; object-fit: contain; background: #ffffff; border-radius: 50%; padding: 2px; flex-shrink: 0;">
+  <span>Subsidy up to ₹78,000 under PM Surya Ghar Yojana — Free Site Survey This Week</span>
+</div>
 <nav class="navbar" id="navbar">
   <a href="{{ route('home') }}" class="brand" style="padding: 5px 0; display: flex; align-items: center;">
     <img src="{{ \App\MyClasses\GeneralHelperFunctions::getSetting('header_logo') }}" alt="AES Energy" style="height: 63px; width: auto; object-fit: contain; display: block;">

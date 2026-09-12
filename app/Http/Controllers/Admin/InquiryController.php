@@ -114,4 +114,24 @@ class InquiryController extends AppBaseController
 
         return Response::json(['message' => 'Inquiry deleted successfully']);
     }
+
+    /**
+     * Update status of Inquiry
+     *
+     * @param Inquiry $inquiry
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateStatus(Inquiry $inquiry, \Illuminate\Http\Request $request) {
+        $request->validate([
+            'status' => 'required|in:Pending,In Progress,Completed'
+        ]);
+
+        $inquiry->update(['status' => $request->status]);
+
+        return Response::json([
+            'success' => true,
+            'message' => 'Inquiry status updated to ' . $request->status
+        ]);
+    }
 }

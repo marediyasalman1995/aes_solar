@@ -47,14 +47,14 @@ class WebsiteContentSeeder extends Seeder
             [
                 'type' => 'About_Us',
                 'heading' => 'Engineers first, energy company second.',
-                'sub_heading' => 'Since 2015, AES Energy has been building rooftop solar systems engineered for Indian roofs, Indian weather, and Indian electricity bills.',
-                'description' => 'From one rooftop in Pune to a nationwide network of 4,200+ residential and commercial power plants. We operate our own in-house installation crews and dedicated subsidy desk.',
+                'sub_heading' => 'Since 2015, AES Energy has been building rooftop solar systems engineered for Gujarat roofs, Indian weather, and household electricity bills.',
+                'description' => 'From our roots to a Gujarat-wide network of 4,200+ residential and commercial power plants. We operate our own in-house installation crews and dedicated subsidy desk.',
             ],
             [
                 'type' => 'Our_Vision',
-                'heading' => 'A solar panel on every rooftop across India.',
+                'heading' => 'A solar panel on every rooftop across Gujarat.',
                 'sub_heading' => 'Decentralized, green, clean energy for every household.',
-                'description' => 'Making clean solar power accessible, affordable, and hassle-free for every Indian homeowner, contributing to India’s Net Zero 2070 carbon goals.',
+                'description' => 'Making clean solar power accessible, affordable, and hassle-free for every Gujarat homeowner, contributing to India’s Net Zero 2070 carbon goals.',
             ],
             [
                 'type' => 'Our_Mission',
@@ -64,13 +64,13 @@ class WebsiteContentSeeder extends Seeder
             ],
             [
                 'type' => 'Why_Choose_Us',
-                'heading' => 'Why Indian Homeowners Trust AES Energy',
+                'heading' => 'Why Gujarat Homeowners Trust AES Energy',
                 'sub_heading' => 'End-to-End Engineering, Procurement & Commissioning',
                 'description' => 'Tier-1 DCR Bifacial Panels, Hot-Dip Galvanized structures tested up to 160 km/h wind loads, 100% subsidy paperwork handling, and 24x7 AES One digital monitoring.',
             ],
             [
                 'type' => 'Stats',
-                'heading' => 'Proven Track Record Across India',
+                'heading' => 'Proven Track Record Across Gujarat',
                 'sub_heading' => 'Key Milestones & Achievements',
                 'description' => '4,200+ Rooftops Powered | 18.5 MW+ Capacity Installed | ₹18 Cr+ Subsidies Processed | 22,000+ Tons CO₂ Offset Annually.',
             ],
@@ -84,18 +84,21 @@ class WebsiteContentSeeder extends Seeder
             // Products (Hardware)
             [
                 'type' => 'Products',
+                'slug' => 'solar-products',
                 'heading' => 'Mono PERC Panels',
                 'sub_heading' => '21.8% Module Efficiency · 25-Year Warranty',
                 'description' => 'Up to 21.8% module efficiency with 25-year linear output warranty. Built for Indian heat and dust conditions.',
             ],
             [
                 'type' => 'Products',
+                'slug' => 'power-control-products',
                 'heading' => 'Smart Hybrid Inverters',
                 'sub_heading' => '97.5% Efficiency · 10-Year Warranty',
                 'description' => 'App-based monitoring with automatic grid/battery switching and remote diagnostics.',
             ],
             [
                 'type' => 'Products',
+                'slug' => 'bos-products',
                 'heading' => 'Lithium Battery Banks',
                 'sub_heading' => '6000+ Cycles · 10-Year Warranty',
                 'description' => 'Modular storage that scales as your household load grows, with 10-year performance warranty.',

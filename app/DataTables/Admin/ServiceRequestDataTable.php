@@ -29,6 +29,18 @@ class ServiceRequestDataTable extends DataTable
             ->editColumn('preferred_date', function (ServiceRequest $srv) {
                 return $srv->preferred_date ? GeneralHelperFunctions::prepareHtmlDate($srv->preferred_date) : '—';
             })
+            ->addColumn('attachments', function (ServiceRequest $srv) {
+                $photos = $srv->getMedia('service_images');
+                if ($photos->count() > 0) {
+                    $html = '<div class="d-flex gap-1 flex-wrap align-items-center">';
+                    foreach ($photos as $photo) {
+                        $html .= '<a href="' . $photo->getUrl() . '" target="_blank" data-bs-toggle="tooltip" title="View Full Image"><img src="' . $photo->getUrl() . '" class="rounded border shadow-sm" style="width:34px; height:34px; object-fit:cover;"></a>';
+                    }
+                    $html .= '</div>';
+                    return $html;
+                }
+                return '<span class="text-muted fs-12">—</span>';
+            })
             ->editColumn('status', function (ServiceRequest $srv) {
                 $cls = $srv->status == 'Resolved' ? 'bg-success-transparent text-success' : ($srv->status == 'In Progress' ? 'bg-primary-transparent text-primary' : ($srv->status == 'Scheduled' ? 'bg-warning-transparent text-warning' : 'bg-secondary-transparent text-secondary'));
                 return '<span class="badge ' . $cls . '">' . $srv->status . '</span>';
@@ -37,12 +49,12 @@ class ServiceRequestDataTable extends DataTable
                 return GeneralHelperFunctions::prepareHtmlDate($srv->created_at);
             })
             ->addColumn('action', 'admin.service_requests.datatables_actions')
-            ->rawColumns(['customer', 'issue_type', 'status', 'preferred_date', 'created_at', 'action']);
+            ->rawColumns(['customer', 'issue_type', 'attachments', 'status', 'preferred_date', 'created_at', 'action']);
     }
 
     public function query(ServiceRequest $model)
     {
-        $query = $model->newQuery()->with(['user', 'site']);
+        $query = $model->newQuery()->with(['user', 'site', 'media']);
         if (auth()->check() && auth()->user()->hasRole('Dealer')) {
             $query->whereHas('user', function ($q) {
                 $q->where('dealer_id', auth()->id());
@@ -60,7 +72,7 @@ class ServiceRequestDataTable extends DataTable
             ->parameters([
                 'dom'       => 'B<\'row p-t-15\' <\'col-sm-6\'l><\'col-sm-6\'f>>rt<\'row\'<\'col-sm-12 col-md-5\'i><\'col-sm-12 col-md-7\'p>>',
                 'stateSave' => true,
-                'order'     => [[5, 'desc']],
+                'order'     => [[6, 'desc']],
                 'buttons'   => [],
             ]);
     }
@@ -72,6 +84,7 @@ class ServiceRequestDataTable extends DataTable
             'customer'      => ['title' => 'Customer', 'orderable' => false, 'searchable' => false],
             'site_name'     => ['title' => 'Plant / Site', 'orderable' => false, 'searchable' => false],
             'issue_type'    => ['title' => 'Issue Type'],
+            'attachments'   => ['title' => 'Photos', 'orderable' => false, 'searchable' => false],
             'preferred_date'=> ['title' => 'Preferred Date'],
             'created_at'    => ['title' => 'Raised on'],
             'status'        => ['title' => 'Status'],

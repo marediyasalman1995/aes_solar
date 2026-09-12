@@ -128,14 +128,14 @@
           </div>
           
           <!-- Image Container -->
-          <a href="{{ route('products.single', ['slug' => $prod->slug]) }}" class="ref-product-img-container">
+          <a href="{{ route('products.single', ['slug' => $prod->slug ?: \Illuminate\Support\Str::slug($prod->heading)]) }}" class="ref-product-img-container">
             <img src="{{ $imgSrc }}" alt="{{ $prod->heading }}">
           </a>
           
           <!-- Description -->
           <div class="ref-product-desc">
             <h4 style="margin: 16px 0 8px; font-size: 1.05rem; line-height: 1.4;">
-              <a href="{{ route('products.single', ['slug' => $prod->slug]) }}" style="color: var(--blue-900); font-weight: 700; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--blue-900)'">
+              <a href="{{ route('products.single', ['slug' => $prod->slug ?: \Illuminate\Support\Str::slug($prod->heading)]) }}" style="color: var(--blue-900); font-weight: 700; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--blue-900)'">
                 {{ $prod->sub_heading }}
               </a>
             </h4>
@@ -144,7 +144,7 @@
         
         <!-- Inquiry Button -->
         <div class="ref-product-btn-container">
-          <a href="{{ route('contact', ['type' => 'Customer', 'message' => 'I am interested in inquiring about ' . $prod->heading]) }}" class="ref-inquiry-btn">
+          <a href="{{ route('contact', ['type' => 'Product', 'message' => 'I am interested in inquiring about ' . $prod->heading]) }}" class="ref-inquiry-btn">
             Inquiry Now
           </a>
         </div>

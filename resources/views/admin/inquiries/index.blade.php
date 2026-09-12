@@ -32,3 +32,38 @@
         </div>
     </div>
 @endsection
+
+@section('scripts')
+<script>
+    $(document).on('change', '.inquiry-status-select', function() {
+        let uuid = $(this).data('uuid');
+        let status = $(this).val();
+        
+        $.ajax({
+            url: "{{ url('admin/inquiries') }}/" + uuid + "/update-status",
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                status: status
+            },
+            success: function(res) {
+                if (typeof toastr !== 'undefined') {
+                    toastr.success(res.message);
+                }
+                if (typeof window.LaravelDataTables !== 'undefined' && window.LaravelDataTables["dataTableBuilder"]) {
+                    window.LaravelDataTables["dataTableBuilder"].ajax.reload(null, false);
+                } else {
+                    location.reload();
+                }
+            },
+            error: function(err) {
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('Error updating inquiry status');
+                } else {
+                    alert('Error updating status');
+                }
+            }
+        });
+    });
+</script>
+@endsection

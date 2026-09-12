@@ -103,8 +103,9 @@
         <div class="form-row mb-3" style="grid-template-columns: 1fr;">
           <div class="field col-12">
             <label class="fw-bold">I am a...</label>
-            <select name="type" id="inquiryType" class="form-control" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; width: 100%; box-sizing: border-box;" required>
-              <option value="Customer" {{ request('type') == 'Customer' ? 'selected' : '' }}>Customer (Interested in Solar Rooftop)</option>
+            <select name="type" id="inquiryType" class="form-control" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; width: 100%; box-sizing: border-box;" required onchange="toggleMonthlyBill(this.value)">
+              <option value="Customer" {{ request('type') == 'Customer' || !request('type') ? 'selected' : '' }}>Customer (Interested in Solar Rooftop)</option>
+              <option value="Product" {{ request('type') == 'Product' ? 'selected' : '' }}>Product Inquiry</option>
               <option value="Dealer" {{ request('type') == 'Dealer' ? 'selected' : '' }}>Dealer (Interested in Partnership)</option>
             </select>
           </div>
@@ -127,8 +128,8 @@
           </div>
         </div>
 
-        <!-- Monthly Electricity Bill Selection Chips -->
-        <div class="mb-4">
+        <!-- Monthly Electricity Bill Selection Chips (Only visible for Customer) -->
+        <div id="monthlyBillSection" class="mb-4" style="{{ (request('type') && request('type') !== 'Customer') ? 'display: none;' : '' }}">
           <label class="form-label fw-bold d-block mb-2">Monthly Electricity Bill Range</label>
           <input type="hidden" name="monthly_bill" id="monthlyBillInput" value="1500 - 2500">
           <div class="d-flex flex-wrap gap-2" style="gap: 8px;">
@@ -140,7 +141,7 @@
           </div>
         </div>
 
-        <div class="field" style="margin-bottom:16px;"><label class="fw-bold">Message</label><textarea name="message" rows="3" placeholder="Tell us about your requirement"></textarea></div>
+        <div class="field" style="margin-bottom:16px;"><label class="fw-bold">Message</label><textarea name="message" rows="3" placeholder="Tell us about your requirement">{{ request('message') }}</textarea></div>
         <button class="btn btn-primary" style="width:100%;justify-content:center;" type="submit">Submit Request</button>
       </form>
     </div>
@@ -228,6 +229,24 @@
         el.classList.add('active');
         document.getElementById('monthlyBillInput').value = val;
     }
+
+    function toggleMonthlyBill(typeVal) {
+        const billSec = document.getElementById('monthlyBillSection');
+        if (billSec) {
+            if (typeVal === 'Customer') {
+                billSec.style.display = 'block';
+            } else {
+                billSec.style.display = 'none';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const inquiryType = document.getElementById('inquiryType');
+        if (inquiryType) {
+            toggleMonthlyBill(inquiryType.value);
+        }
+    });
   </script>
 </section>
 

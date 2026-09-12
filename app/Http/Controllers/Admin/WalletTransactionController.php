@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\DataTables\Admin\WalletTransactionDataTable;
+use App\DataTables\Admin\WithdrawRequestDataTable;
 use App\Http\Controllers\AppBaseController;
 use App\Models\CustomerNotification;
 use App\Models\User;
@@ -15,7 +16,7 @@ class WalletTransactionController extends AppBaseController
 {
     public function __construct()
     {
-        $this->middleware('permission:wallet-transactions.index')->only(['index']);
+        $this->middleware('permission:wallet-transactions.index')->only(['index', 'withdrawRequests']);
         $this->middleware('permission:wallet-transactions.create')->only(['create', 'store']);
         $this->middleware('permission:wallet-transactions.edit')->only(['edit', 'update', 'updateStatus']);
         $this->middleware('permission:wallet-transactions.view')->only(['show']);
@@ -25,6 +26,11 @@ class WalletTransactionController extends AppBaseController
     public function index(WalletTransactionDataTable $walletTransactionDataTable)
     {
         return $walletTransactionDataTable->render('admin.wallet_transactions.index');
+    }
+
+    public function withdrawRequests(WithdrawRequestDataTable $withdrawRequestDataTable)
+    {
+        return $withdrawRequestDataTable->render('admin.wallet_transactions.withdraw_requests');
     }
 
     public function create()

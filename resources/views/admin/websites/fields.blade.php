@@ -2,14 +2,14 @@
 <div class="col-sm-9">
     <div class="row" style="padding: 0 7px">
         <div class="form-group col-sm-4">
-            {!! Form::label('heading', 'Heading:') !!}
-            {!! Form::text('heading', null, ['class' => 'form-control', 'required']) !!}
+            {!! Form::label('heading', 'Heading / Customer Name:') !!}
+            {!! Form::text('heading', null, ['class' => 'form-control', 'placeholder' => 'e.g. Priya Nair', 'required']) !!}
         </div>
 
         <!-- Sub Heading Field -->
         <div class="form-group col-sm-4">
-            {!! Form::label('sub_heading', 'Sub Heading:') !!}
-            {!! Form::text('sub_heading', null, ['class' => 'form-control']) !!}
+            {!! Form::label('sub_heading', 'Sub Heading / Location & System:') !!}
+            {!! Form::text('sub_heading', null, ['class' => 'form-control', 'placeholder' => 'e.g. Pune • 5kW Rooftop System']) !!}
         </div>
 
         <!-- Type Field -->
@@ -32,6 +32,18 @@
                 'Subsidy_Slabs' => 'Subsidy Slab Tier',
                 'Reviews' => 'Customer Review / Testimonial',
             ], request('type') ?? null, ['class' => 'form-control custom-select', 'required']) !!}
+        </div>
+
+        <!-- Rating Stars Field -->
+        <div class="form-group col-sm-4">
+            {!! Form::label('specifications', 'Rating Stars (For Reviews):') !!}
+            {!! Form::select('specifications', [
+                '5' => '5 Stars (⭐⭐⭐⭐⭐)',
+                '4' => '4 Stars (⭐⭐⭐⭐)',
+                '3' => '3 Stars (⭐⭐⭐)',
+                '2' => '2 Stars (⭐⭐)',
+                '1' => '1 Star (⭐)',
+            ], null, ['class' => 'form-control custom-select', 'placeholder' => 'Select Rating (Default: 5 Stars)']) !!}
         </div>
     </div>
 

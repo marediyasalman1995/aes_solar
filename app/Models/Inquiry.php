@@ -16,6 +16,7 @@ class Inquiry extends Model
         'phone',
         'subject',
         'message',
+        'status',
         'uuid',
         'created_at',
         'updated_at'
@@ -26,6 +27,7 @@ class Inquiry extends Model
         'email' => 'string',
         'phone' => 'string',
         'subject' => 'string',
+        'status' => 'string',
         'uuid' => 'string'
     ];
 

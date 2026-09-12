@@ -7,12 +7,12 @@
 @section('page_headers')
     <h4 class="mb-1 text-dark fw-bold" style="font-size:1.35rem;">
         <i class="ri-dashboard-line text-primary me-1"></i>
-        Executive Solar Dashboard
+        {{ $dashboardTitle ?? 'Executive Solar Dashboard' }}
     </h4>
 @endsection
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Executive Overview</li>
+    <li class="breadcrumb-item active">{{ $dashboardSubtitle ?? 'Executive Overview' }}</li>
 @endsection
 
 @section('page_buttons')

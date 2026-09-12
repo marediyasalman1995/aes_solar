@@ -413,14 +413,58 @@
           <div>
             <div class="lbl"><i class="ri-wallet-3-fill text-warning" style="margin-right:6px;"></i> AES Reward Wallet Balance</div>
             <div class="amount">₹<span class="counter" data-target="{{ round($user->wallet_balance) }}">{{ number_format($user->wallet_balance, 0) }}</span></div>
+            <div style="font-size: 0.82rem; color: rgba(255,255,255,0.88); margin-top: 4px;">
+              Max Withdrawable: <b>₹{{ number_format(max(0, round($user->wallet_balance - 5000)), 0) }}</b> (₹5,000 min balance retained)
+            </div>
           </div>
-          <button class="btn btn-ghost" style="background:rgba(255,255,255,.2);color:#fff;" onclick="openPayoutModal()">
-            Request Payout
+          <button class="btn btn-amber" style="padding: 12px 26px; font-weight: 700; font-size: 0.95rem; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.18);" onclick="openPayoutModal()">
+            <i class="ri-hand-coin-line" style="font-size:1.1rem; margin-right:4px;"></i> Request Withdrawal →
           </button>
         </div>
 
+        <!-- MY WITHDRAWAL REQUESTS & STATUS TABLE -->
+        <div class="panel" style="margin-bottom: 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3><i class="ri-hand-coin-line text-warning" style="margin-right:6px;"></i> My Withdrawal Requests &amp; Status</h3>
+            <button class="btn btn-primary" style="padding: 6px 14px; font-size: 0.82rem;" onclick="openPayoutModal()">+ New Request</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Request Date</th>
+                  <th>Requested Amount</th>
+                  <th>Payout / Bank Details</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($payoutRequests as $payout)
+                  <tr>
+                    <td><b>{{ $payout->created_at->format('d M Y, h:i A') }}</b></td>
+                    <td style="font-weight:700; color:#0284c7;">₹{{ number_format($payout->amount, 0) }}</td>
+                    <td>{{ $payout->description }}</td>
+                    <td>
+                      <span class="badge {{ $payout->status == 'Approved' || $payout->status == 'Credited' ? 'success' : ($payout->status == 'Pending' ? 'pending' : 'failed') }}">
+                        {{ $payout->status }}
+                      </span>
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="4" style="text-align:center; color:var(--muted); padding: 18px 10px;">
+                      No withdrawal requests submitted yet. Click <b>Request Withdrawal</b> to submit your request.
+                    </td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- WALLET CREDIT & DEBIT HISTORY TABLE -->
         <div class="panel">
-          <h3>Wallet Credit &amp; Debit History</h3>
+          <h3><i class="ri-history-line text-primary" style="margin-right:6px;"></i> Wallet Credit &amp; Debit History</h3>
           <div class="table-responsive">
             <table>
               <thead>
@@ -494,7 +538,7 @@
 
         <div class="panel">
           <h3>Submit a Referral Manually</h3>
-          <form class="manual-form" id="manualReferralForm" onsubmit="submitManualReferral(event)">
+          <form id="manualReferralForm" onsubmit="submitManualReferral(event)" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: end;">
             <div class="field">
               <label>Friend's Full Name</label>
               <input type="text" name="referee_name" placeholder="e.g. Ramesh Patel" required>
@@ -507,7 +551,7 @@
               <label>City</label>
               <input type="text" name="referee_city" placeholder="e.g. Pune, Mumbai, Nashik">
             </div>
-            <div class="field">
+            <div class="field" style="grid-column: span 2;">
               <label>Referral Promotion Rule</label>
               <select name="referral_point_setting_id" required>
                 <option value="">-- Select Referral Program --</option>
@@ -518,7 +562,11 @@
                 @endforeach
               </select>
             </div>
-            <button class="btn btn-primary" type="submit" id="refSubmitBtn">Submit Referral</button>
+            <div style="grid-column: span 1;">
+              <button class="btn btn-primary" type="submit" id="refSubmitBtn" style="width: 100%; height: 46px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; display: flex; align-items: center; justify-content: center;">
+                Submit Referral
+              </button>
+            </div>
           </form>
         </div>
 
@@ -533,6 +581,7 @@
                   <th>Date Referred</th>
                   <th>Stage</th>
                   <th>Reward</th>
+                  <th>Reward Status</th>
                 </tr>
               </thead>
               <tbody id="referralTableBody">
@@ -542,17 +591,22 @@
                     <td>{{ substr($ref->referee_mobile, 0, 3) . '****' . substr($ref->referee_mobile, -3) }}</td>
                     <td>{{ $ref->created_at->format('d M Y') }}</td>
                     <td>
-                      <span class="badge {{ $ref->stage == 'Installed' ? 'success' : ($ref->stage == 'Rejected' ? 'failed' : 'processing') }}">
+                      <span class="badge {{ $ref->stage == 'Installed' || $ref->stage == 'Commissioned' ? 'success' : ($ref->stage == 'Rejected' ? 'failed' : 'pending') }}">
                         {{ $ref->stage }}
                       </span>
                     </td>
                     <td style="font-weight:600; color: {{ $ref->reward_status == 'Credited' ? '#16a34a' : '#0284c7' }};">
-                      {{ $ref->reward_status == 'Credited' ? '+₹' . number_format($ref->reward_amount, 0) : '₹' . number_format($ref->reward_amount, 0) . ' (' . $ref->reward_status . ')' }}
+                      ₹{{ number_format($ref->reward_amount, 0) }}
+                    </td>
+                    <td>
+                      <span class="badge {{ $ref->reward_status == 'Credited' ? 'success' : ($ref->reward_status == 'Rejected' ? 'failed' : 'pending') }}">
+                        {{ $ref->reward_status }}
+                      </span>
                     </td>
                   </tr>
                 @empty
                   <tr>
-                    <td colspan="5" style="text-align:center;color:var(--muted);">No referrals submitted yet. Use the form above or share your code to start earning!</td>
+                    <td colspan="6" style="text-align:center;color:var(--muted);">No referrals submitted yet. Use the form above or share your code to start earning!</td>
                   </tr>
                 @endforelse
               </tbody>
@@ -565,7 +619,7 @@
       <div id="tab-service" class="dash-tab-content">
         <div class="panel">
           <h3>Raise a Service Request</h3>
-          <form class="manual-form" style="grid-template-columns:1fr 1fr;" id="serviceRequestForm" onsubmit="submitServiceReq(event)">
+          <form id="serviceRequestForm" onsubmit="submitServiceReq(event)" enctype="multipart/form-data" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: end;">
             <div class="field">
               <label>Select Plant / Site</label>
               <select name="customer_site_id" required>
@@ -580,23 +634,29 @@
               <label>Issue Type</label>
               <select name="issue_type" required>
                 <option value="">Select issue</option>
-                <option value="Panel cleaning">Panel cleaning</option>
-                <option value="Inverter fault">Inverter fault</option>
-                <option value="Low generation">Low generation</option>
-                <option value="Net-metering query">Net-metering query</option>
-                <option value="Annual Maintenance Visit">Annual Maintenance Visit</option>
-                <option value="Other">Other</option>
+                @foreach($issueTypes as $it)
+                  <option value="{{ $it->title }}">{{ $it->title }}</option>
+                @endforeach
               </select>
             </div>
             <div class="field">
               <label>Preferred Visit Date</label>
               <input type="date" name="preferred_date" value="{{ date('Y-m-d', strtotime('+2 days')) }}">
             </div>
-            <div class="field" style="grid-column:1/-1;">
+            <div class="field" style="grid-column: 1 / -1;">
               <label>Describe the issue</label>
               <textarea name="description" rows="3" placeholder="Tell us what's happening or any error code on inverter"></textarea>
             </div>
-            <button class="btn btn-primary" type="submit" id="srvSubmitBtn" style="grid-column:1/-1;">Submit Service Request</button>
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>Attach Photos / Images (Multiple Allowed)</label>
+              <input type="file" name="images[]" multiple accept="image/*" style="background:#fff; padding: 8px 12px; border: 1px dashed #b7dcf7; border-radius: 10px; cursor: pointer;">
+              <span style="font-size:0.76rem; color:var(--muted); margin-top:2px;">Select multiple site or inverter photos (JPG, PNG, WEBP max 10MB each).</span>
+            </div>
+            <div style="grid-column: 1 / -1; display: flex; justify-content: flex-start;">
+              <button class="btn btn-primary" type="submit" id="srvSubmitBtn" style="padding: 12px 32px; border-radius: 10px; font-weight: 600; font-size: 0.92rem;">
+                Submit Service Request
+              </button>
+            </div>
           </form>
         </div>
 
@@ -609,6 +669,7 @@
                   <th>Ticket</th>
                   <th>Site</th>
                   <th>Issue</th>
+                  <th>Attached Photos</th>
                   <th>Raised On</th>
                   <th>Status</th>
                 </tr>
@@ -619,6 +680,20 @@
                     <td><b>{{ $srv->ticket_no }}</b></td>
                     <td>{{ optional($srv->site)->site_name ?? 'Primary Plant' }}</td>
                     <td>{{ $srv->issue_type }}</td>
+                    <td>
+                      @php $photos = $srv->getMedia('service_images'); @endphp
+                      @if($photos->count() > 0)
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                          @foreach($photos as $photo)
+                            <a href="{{ $photo->getUrl() }}" target="_blank" title="View Full Image">
+                              <img src="{{ $photo->getUrl() }}" alt="Photo" style="width:38px; height:38px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1; box-shadow:0 2px 4px rgba(0,0,0,0.08);">
+                            </a>
+                          @endforeach
+                        </div>
+                      @else
+                        <span style="color:var(--muted); font-size:0.8rem;">No Photos</span>
+                      @endif
+                    </td>
                     <td>{{ $srv->created_at->format('d M Y') }}</td>
                     <td>
                       <span class="badge {{ $srv->status == 'Resolved' ? 'success' : ($srv->status == 'In Progress' ? 'processing' : 'pending') }}">
@@ -628,7 +703,7 @@
                   </tr>
                 @empty
                   <tr>
-                    <td colspan="5" style="text-align:center;color:var(--muted);">No service requests logged. Everything is running smoothly!</td>
+                    <td colspan="6" style="text-align:center;color:var(--muted);">No service requests logged. Everything is running smoothly!</td>
                   </tr>
                 @endforelse
               </tbody>
@@ -849,22 +924,46 @@
 <!-- PAYOUT MODAL -->
 <div class="modal-overlay" id="payoutModal">
   <div class="modal-card">
-    <h3 style="margin-bottom:8px;">Request Reward Payout</h3>
-    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:18px;">
-      Available Reward Balance: <b>₹{{ number_format($user->wallet_balance, 2) }}</b>
-    </p>
+    <h3 style="margin-bottom:8px;">Request Reward Withdrawal</h3>
+    @php
+      $maxWithdrawable = max(0, round($user->wallet_balance - 5000));
+    @endphp
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 0.86rem; line-height: 1.6;">
+      <div>Total Wallet Balance: <b style="color:var(--blue-900);">₹{{ number_format($user->wallet_balance, 0) }}</b></div>
+      <div>Retained Minimum Balance: <b style="color:#d97706;">₹5,000</b></div>
+      <div style="border-top: 1px dashed #cbd5e1; margin-top: 6px; padding-top: 6px; font-weight: 600; color: #16a34a;">
+        Max Withdrawable Amount: <b>₹{{ number_format($maxWithdrawable, 0) }}</b>
+      </div>
+    </div>
+
+    @if($user->wallet_balance < 5000)
+      <div style="background:#fff3d6; border:1px solid #f59e0b; color:#92400e; padding:12px 14px; border-radius:12px; font-size:0.82rem; margin-bottom:16px; line-height:1.5;">
+        <i class="ri-error-warning-line" style="font-size:1.1rem; vertical-align:-2px; margin-right:4px;"></i>
+        <b>Withdrawal Locked:</b> Minimum ₹5,000 wallet balance required to request payout. Keep referring friends to earn more!
+      </div>
+    @elseif($maxWithdrawable < 1000)
+      <div style="background:#fff3d6; border:1px solid #f59e0b; color:#92400e; padding:12px 14px; border-radius:12px; font-size:0.82rem; margin-bottom:16px; line-height:1.5;">
+        <i class="ri-error-warning-line" style="font-size:1.1rem; vertical-align:-2px; margin-right:4px;"></i>
+        <b>Insufficient Balance:</b> Minimum withdrawal request is ₹1,000 while retaining ₹5,000 in your wallet. You have ₹{{ number_format($maxWithdrawable) }} withdrawable right now.
+      </div>
+    @else
+      <div style="background:#e0f2fe; border:1px solid #38bdf8; color:#0369a1; padding:10px 14px; border-radius:12px; font-size:0.8rem; margin-bottom:16px;">
+        <i class="ri-information-line" style="vertical-align:-1px; margin-right:4px;"></i>
+        Minimum withdrawal is <b>₹1,000</b>. Default status is <b>Pending</b> until Admin approval.
+      </div>
+    @endif
 
     <form id="payoutForm" onsubmit="submitPayoutReq(event)">
       <div class="field">
-        <label>Payout Amount (₹)</label>
-        <input type="number" name="amount" id="payoutAmount" value="{{ round($user->wallet_balance) }}" min="100" max="{{ round($user->wallet_balance) }}" required>
+        <label>Withdrawal Amount (₹)</label>
+        <input type="number" name="amount" id="payoutAmount" value="{{ $maxWithdrawable >= 1000 ? $maxWithdrawable : 1000 }}" min="1000" max="{{ $maxWithdrawable }}" required {{ ($user->wallet_balance < 5000 || $maxWithdrawable < 1000) ? 'disabled' : '' }}>
       </div>
       <div class="field">
         <label>UPI ID or Bank Account Details</label>
-        <input type="text" name="payout_details" placeholder="e.g. yourname@okaxis or Bank A/c No" required>
+        <input type="text" name="payout_details" placeholder="e.g. yourname@upi or HDFC Bank A/c 98213..." required {{ ($user->wallet_balance < 5000 || $maxWithdrawable < 1000) ? 'disabled' : '' }}>
       </div>
       <div style="display:flex; gap:10px; margin-top:20px;">
-        <button class="btn btn-primary" type="submit" id="payoutBtn" style="flex:1; justify-content:center;">Submit Request</button>
+        <button class="btn btn-primary" type="submit" id="payoutBtn" style="flex:1; justify-content:center;" {{ ($user->wallet_balance < 5000 || $maxWithdrawable < 1000) ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}>Submit Request</button>
         <button class="btn btn-ghost" type="button" onclick="closePayoutModal()">Cancel</button>
       </div>
     </form>
@@ -877,6 +976,8 @@
 <script src="{{ asset('js/frontend.js') }}"></script>
 <script>
   function switchDashboardTab(tabId, el) {
+    if (!tabId) return;
+
     document.querySelectorAll('.dash-tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.dash-nav-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -884,17 +985,25 @@
     if (targetTab) {
       targetTab.classList.add('active');
     }
-    if (el) {
-      el.classList.add('active');
+
+    const targetBtn = el || document.querySelector(`.dash-nav-btn[data-tab="${tabId}"]`);
+    if (targetBtn) {
+      targetBtn.classList.add('active');
     }
+
+    // Save active tab state to URL hash and localStorage
+    if (history.replaceState) {
+      history.replaceState(null, null, '#' + tabId);
+    } else {
+      location.hash = '#' + tabId;
+    }
+    localStorage.setItem('active_customer_tab', tabId);
 
     // Auto-close sidebar on mobile/responsive view
     const sb = document.getElementById('sidebar');
     if (sb && sb.classList.contains('open')) {
       sb.classList.remove('open');
     }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function copyReferralCode() {
@@ -1112,6 +1221,13 @@
   // Run on load
   document.addEventListener('DOMContentLoaded', () => {
     updateSolarGenerationCurve();
+
+    // Auto-restore active tab from URL hash or localStorage upon refresh/submission
+    let savedTab = window.location.hash ? window.location.hash.replace('#', '') : localStorage.getItem('active_customer_tab');
+    if (savedTab && document.getElementById(savedTab)) {
+      const savedBtn = document.querySelector(`.dash-nav-btn[data-tab="${savedTab}"]`);
+      switchDashboardTab(savedTab, savedBtn);
+    }
 
     const tooltip = document.getElementById('chartTooltip');
 

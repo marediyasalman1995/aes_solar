@@ -37,7 +37,7 @@ class ReferralController extends AppBaseController
     public function update(Request $request, Referral $referral)
     {
         $request->validate([
-            'stage' => 'required|in:Contacted,Site Survey Done,Quotation Shared,Installed,Rejected',
+            'stage' => 'required|in:Pending,Contacted,Site Survey Done,Quotation Shared,Installed,Rejected',
             'reward_amount' => 'nullable|numeric|min:0',
             'reward_status' => 'required|in:Pending,Credited,None',
             'notes' => 'nullable|string',

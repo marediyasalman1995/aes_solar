@@ -45,7 +45,8 @@ class Website extends Authenticatable implements HasMedia
         'heading' => 'required|string',
         'sub_heading' => 'nullable',
         'type' => 'required|string',
-        'description' => 'nullable|string'
+        'description' => 'nullable|string',
+        'specifications' => 'nullable'
     ];
 
 
@@ -64,9 +65,17 @@ class Website extends Authenticatable implements HasMedia
     protected static function boot() {
         parent::boot();
 
-        //Auto-adding uuid to newly created instances
+        //Auto-adding uuid and slug to newly created instances
         self::creating(function (Website $website) {
             $website->uuid = Str::uuid()->toString();
+            if (empty($website->slug) && !empty($website->heading)) {
+                $website->slug = Str::slug($website->heading);
+            }
+        });
+        self::updating(function (Website $website) {
+            if (empty($website->slug) && !empty($website->heading)) {
+                $website->slug = Str::slug($website->heading);
+            }
         });
     }
 
