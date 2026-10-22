@@ -205,7 +205,7 @@
       </button>
       <button class="dash-nav-btn" data-tab="tab-notifications" onclick="switchDashboardTab('tab-notifications', this)">
         <i class="ri-notification-3-line" style="font-size:1.1rem; width: 20px; text-align: center;"></i> Notifications
-        @php $unreadCount = $notifications->where('is_read', false)->count(); @endphp
+        @php $unreadCount = isset($notifications) && $notifications ? $notifications->where('is_read', false)->count() : 0; @endphp
         @if($unreadCount > 0)
           <span class="badge" style="background:#ef4444;color:#fff;margin-left:auto;font-size:0.75rem;padding:2px 8px;border-radius:10px;">{{ $unreadCount }}</span>
         @endif
@@ -392,7 +392,7 @@
           <!-- Recent Activity Panel -->
           <div class="panel">
             <h3><i class="ri-notification-3-line text-primary" style="margin-right:6px;"></i> Recent activity</h3>
-            @forelse($notifications->take(4) as $notif)
+            @forelse(($notifications ?? collect())->take(4) as $notif)
               <div class="notif-item {{ !$notif->is_read ? 'unread' : '' }}">
                 <span class="dot"></span>
                 <div>
@@ -439,7 +439,7 @@
                 </tr>
               </thead>
               <tbody>
-                @forelse($payoutRequests as $payout)
+                @forelse(($payoutRequests ?? []) as $payout)
                   <tr>
                     <td><b>{{ $payout->created_at->format('d M Y, h:i A') }}</b></td>
                     <td style="font-weight:700; color:#0284c7;">₹{{ number_format($payout->amount, 0) }}</td>
@@ -477,7 +477,7 @@
                 </tr>
               </thead>
               <tbody>
-                @forelse($walletTransactions as $tx)
+                @forelse(($walletTransactions ?? []) as $tx)
                   <tr>
                     <td>{{ $tx->created_at->format('d M Y') }}</td>
                     <td>{{ $tx->title }} <br><span style="color:var(--muted);font-size:0.8rem;">{{ $tx->description }}</span></td>
@@ -555,7 +555,7 @@
               <label>Referral Promotion Rule</label>
               <select name="referral_point_setting_id" required>
                 <option value="">-- Select Referral Program --</option>
-                @foreach($referralPointSettings as $setting)
+                @foreach(($referralPointSettings ?? []) as $setting)
                   <option value="{{ $setting->id }}">
                     {{ $setting->title }} ({{ $setting->type == 'Credit' ? '+' : '-' }}₹{{ number_format($setting->amount, 0) }})
                   </option>
@@ -585,7 +585,7 @@
                 </tr>
               </thead>
               <tbody id="referralTableBody">
-                @forelse($referrals as $ref)
+                @forelse(($referrals ?? []) as $ref)
                   <tr>
                     <td><b>{{ $ref->referee_name }}</b></td>
                     <td>{{ substr($ref->referee_mobile, 0, 3) . '****' . substr($ref->referee_mobile, -3) }}</td>
@@ -634,7 +634,7 @@
               <label>Issue Type</label>
               <select name="issue_type" required>
                 <option value="">Select issue</option>
-                @foreach($issueTypes as $it)
+                @foreach(($issueTypes ?? []) as $it)
                   <option value="{{ $it->title }}">{{ $it->title }}</option>
                 @endforeach
               </select>
@@ -675,7 +675,7 @@
                 </tr>
               </thead>
               <tbody id="serviceTableBody">
-                @forelse($serviceRequests as $srv)
+                @forelse(($serviceRequests ?? []) as $srv)
                   <tr>
                     <td><b>{{ $srv->ticket_no }}</b></td>
                     <td>{{ optional($srv->site)->site_name ?? 'Primary Plant' }}</td>
@@ -720,7 +720,7 @@
             <span style="font-size:0.85rem; color:var(--muted);">Plant: <b>{{ $activeSite->site_name }}</b></span>
           </div>
 
-          @forelse($documents as $doc)
+          @forelse(($documents ?? []) as $doc)
             <div class="doc-row">
               <div class="left">
                 <div class="ic"><i class="ri-file-pdf-line text-danger"></i></div>
@@ -902,7 +902,7 @@
       <div id="tab-notifications" class="dash-tab-content">
         <div class="panel">
           <h3>Customer Notifications Feed</h3>
-          @forelse($notifications as $notif)
+          @forelse(($notifications ?? []) as $notif)
             <div class="notif-item {{ !$notif->is_read ? 'unread' : '' }}" onclick="markNotifRead({{ $notif->id }}, this)">
               <span class="dot"></span>
               <div>

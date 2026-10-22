@@ -119,11 +119,29 @@
             <div class="header">
                 @php
                     $headerLogo = \App\MyClasses\GeneralHelperFunctions::getSetting('header_logo');
+                    if (empty($headerLogo)) {
+                        $headerLogo = asset('images/logo.png');
+                    }
+                    if (!empty($headerLogo) && !preg_match('/^https?:\/\//i', $headerLogo)) {
+                        $headerLogo = url($headerLogo);
+                    }
+                    if (str_contains($headerLogo, 'localhost') || str_contains($headerLogo, '127.0.0.1')) {
+                        $appUrl = config('app.url') && config('app.url') !== 'http://localhost' ? config('app.url') : 'https://aesenergy.in';
+                        $headerLogo = preg_replace('/^https?:\/\/[^\/]+/', $appUrl, $headerLogo);
+                    }
+
+                    $contactEmail = \App\MyClasses\GeneralHelperFunctions::getSetting('email');
+                    if (empty($contactEmail)) {
+                        $contactEmail = \App\MyClasses\GeneralHelperFunctions::getSetting('mail_from_address');
+                    }
+                    if (empty($contactEmail)) {
+                        $contactEmail = 'info@aesenergy.in';
+                    }
                 @endphp
                 @if(!empty($headerLogo))
-                    <img src="{{ $headerLogo }}" alt="AES Solar">
+                    <img src="{{ $headerLogo }}" alt="AES Energy" style="max-height: 55px; width: auto; display: block; margin: 0 auto; object-fit: contain;">
                 @else
-                    <div class="header-title">AES SOLAR ENERGY</div>
+                    <div class="header-title">AES ENERGY</div>
                 @endif
             </div>
 
@@ -134,8 +152,8 @@
 
             <!-- Footer Block -->
             <div class="footer">
-                <p>&copy; {{ date('Y') }} AES Solar Energy. All rights reserved.</p>
-                <p>Need support? Contact us at <a href="mailto:{{ \App\MyClasses\GeneralHelperFunctions::getSetting('email') ?? 'info@aesenergy.in' }}">{{ \App\MyClasses\GeneralHelperFunctions::getSetting('email') ?? 'info@aesenergy.in' }}</a></p>
+                <p>&copy; {{ date('Y') }} AES Energy. All rights reserved.</p>
+                <p>Need support? Contact us at <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a></p>
             </div>
         </div>
     </div>

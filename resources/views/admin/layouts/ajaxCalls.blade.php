@@ -67,7 +67,10 @@
             let result;
             $.ajax({
                 url: url,
-                type: 'DELETE',
+                 type: 'POST',
+                data: {
+                    _method: 'DELETE'
+                },
                 beforeSend: function () {
                     $('.loading').show();
                 },

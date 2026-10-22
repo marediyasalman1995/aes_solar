@@ -519,10 +519,6 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="form-label mb-0">Enter OTP</label>
-                            <span style="font-size:0.75rem; color:#64748b;" id="otpHint">
-                                Code: <b id="testOtpVal">xxxx</b>
-                                <button type="button" class="otp-badge-btn ms-1" onclick="fillTestOtp()">Auto-Fill</button>
-                            </span>
                         </div>
                         <div class="input-group">
                             <span class="input-group-text"><i class="ri-key-2-line"></i></span>
@@ -624,7 +620,6 @@
             btn.innerHTML = '<span>Send Verification Code</span> <i class="ri-arrow-right-line"></i>';
             if (data.success) {
                 showToast(data.message, 'success');
-                document.getElementById('testOtpVal').innerText = data.otp;
                 document.getElementById('emailSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
                 document.getElementById('authSubtitle').innerText = 'Verification code has been sent to ' + email;
@@ -638,12 +633,6 @@
             btn.innerHTML = '<span>Send Verification Code</span> <i class="ri-arrow-right-line"></i>';
             showToast(err.message || 'Error occurred while sending code.', 'error');
         });
-    }
-
-    function fillTestOtp() {
-        const code = document.getElementById('testOtpVal').innerText;
-        document.getElementById('otpInput').value = code;
-        showToast('Test OTP ' + code + ' applied!', 'info');
     }
 
     document.getElementById('customerLoginForm').addEventListener('submit', function(e) {

@@ -66,8 +66,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Verification code sent successfully to ' . $request->email,
-            'otp' => $otp // Share OTP in response metadata for easy testing/demo
+            'message' => 'Verification code sent successfully to ' . $request->email
         ]);
     }
 
