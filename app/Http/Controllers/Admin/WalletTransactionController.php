@@ -117,11 +117,30 @@ class WalletTransactionController extends AppBaseController
         }
 
         $walletTransaction->save();
+        if ($walletTransaction->user) {
+            $walletTransaction->user->recalculateWalletBalance();
+        }
         DB::commit();
 
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Transaction status updated successfully!');
 
         return redirect()->back();
+    }
+
+    public function destroy(WalletTransaction $walletTransaction)
+    {
+        DB::beginTransaction();
+        $user = $walletTransaction->user;
+        $walletTransaction->delete();
+        if ($user) {
+            $user->recalculateWalletBalance();
+        }
+        DB::commit();
+
+        session()->flash('alert-type', 'success');
+        session()->flash('message', 'Transaction deleted successfully!');
+
+        return Response::json(['message' => 'Transaction deleted successfully.']);
     }
 }

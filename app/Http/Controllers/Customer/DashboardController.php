@@ -32,6 +32,37 @@ class DashboardController extends Controller
     {
         $user = $this->getCustomer();
 
+        // Link legacy referral transactions where reference_id is empty to their referral if matches referee_name
+        $emptyRefTxs = WalletTransaction::where('user_id', $user->id)
+            ->where('reference_type', 'Referral')
+            ->where(function($q) {
+                $q->whereNull('reference_id')->orWhere('reference_id', '');
+            })->get();
+        foreach ($emptyRefTxs as $etx) {
+            foreach ($user->referrals as $ref) {
+                if (stripos($etx->title . ' ' . $etx->description, $ref->referee_name) !== false) {
+                    $etx->reference_id = $ref->id;
+                    $etx->saveQuietly();
+                    break;
+                }
+            }
+        }
+
+        // Clean up any referral transactions whose referrals were deleted from the database or are not Credited
+        $validCreditedRefIds = $user->referrals()->where('reward_status', 'Credited')->pluck('id')->toArray();
+        WalletTransaction::where('user_id', $user->id)
+            ->where('reference_type', 'Referral')
+            ->where(function($q) use ($validCreditedRefIds) {
+                $q->whereNull('reference_id')
+                  ->orWhere('reference_id', '')
+                  ->orWhereNotIn('reference_id', $validCreditedRefIds);
+            })
+            ->forceDelete();
+
+        // Recalculate accurate wallet balance
+        $user->recalculateWalletBalance();
+        $user->refresh();
+
         // Ensure user has at least one site
         $sites = $user->sites()->where('status', 1)->get();
         if ($sites->isEmpty()) {
@@ -99,7 +130,16 @@ class DashboardController extends Controller
         $estimatedSavings = round(($activeSite->monthly_avg_kwh ?? 600) * 7.5);
 
         $referralPointSettings = \App\Models\ReferralPointSetting::all();
-        $issueTypes = \App\Models\IssueType::where('status', 1)->orderBy('sort_order', 'asc')->get();
+        $issueTypes = \App\Models\IssueType::where(function($q) {
+            $q->where('status', 1)
+              ->orWhere('status', '1')
+              ->orWhere('status', 'Active')
+              ->orWhere('status', 'active');
+        })->orderBy('sort_order', 'asc')->get();
+
+        if ($issueTypes->isEmpty()) {
+            $issueTypes = \App\Models\IssueType::orderBy('sort_order', 'asc')->get();
+        }
 
         return view('frontend.dashboard.index', compact(
             'user',
@@ -200,10 +240,18 @@ class DashboardController extends Controller
             'type' => 'referral',
         ]);
 
-        // Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
+        // 1. Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
         $adminEmail = \App\MyClasses\GeneralHelperFunctions::getSetting('email');
         if (!empty($adminEmail)) {
             \App\MyClasses\MailHelper::sendMail($adminEmail, 'New Referral Submitted: ' . $request->referee_name, 'emails.admin_new_referral', [
+                'referral' => $referral,
+                'user' => $user
+            ]);
+        }
+
+        // 2. Send Confirmation Email to Referring Customer
+        if (!empty($user->email)) {
+            \App\MyClasses\MailHelper::sendMail($user->email, 'Referral Submitted: ' . $request->referee_name . ' — AES Energy', 'emails.customer_new_referral', [
                 'referral' => $referral,
                 'user' => $user
             ]);

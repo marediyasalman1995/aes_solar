@@ -41,10 +41,11 @@
                         <div class="mb-3">
                             <label class="form-label">Stage</label>
                             <select name="stage" id="modalStage" class="form-control" required>
+                                <option value="Pending">Pending</option>
                                 <option value="Contacted">Contacted</option>
                                 <option value="Site Survey Done">Site Survey Done</option>
                                 <option value="Quotation Shared">Quotation Shared</option>
-                                <option value="Installed">Installed (Auto-Credits Reward to Wallet!)</option>
+                                <option value="Installed">Installed</option>
                                 <option value="Rejected">Rejected</option>
                             </select>
                         </div>

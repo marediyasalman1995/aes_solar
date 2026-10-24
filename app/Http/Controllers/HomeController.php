@@ -148,10 +148,17 @@ class HomeController extends AppBaseController
         $save->status = 'Pending';
         $save->save();
 
-        // Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
+        // 1. Send Email to Admin (using GeneralHelperFunctions::getSetting('email'))
         $adminEmail = GeneralHelperFunctions::getSetting('email');
         if (!empty($adminEmail)) {
             \App\MyClasses\MailHelper::sendMail($adminEmail, 'New Website Inquiry: ' . $request->name, 'emails.admin_new_inquiry', [
+                'inquiry' => $save
+            ]);
+        }
+
+        // 2. Send Confirmation Email to Customer
+        if (!empty($save->email)) {
+            \App\MyClasses\MailHelper::sendMail($save->email, 'Thank You for Your Solar Inquiry — AES Energy', 'emails.customer_new_inquiry', [
                 'inquiry' => $save
             ]);
         }

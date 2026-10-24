@@ -182,7 +182,7 @@ class UserController extends AppBaseController
             $totalSites = \App\Models\CustomerSite::whereIn('user_id', $dealerCustomerIds)->count();
             $totalCapacity = (float)\App\Models\CustomerSite::whereIn('user_id', $dealerCustomerIds)->sum('capacity_kw');
             $totalReferrals = \App\Models\Referral::whereIn('referrer_id', $dealerCustomerIds)->count();
-            $totalRewards = (float)\App\Models\WalletTransaction::whereIn('user_id', $dealerCustomerIds)->where('type', 'Credit')->sum('amount');
+            $totalRewards = (float)\App\Models\WalletTransaction::whereIn('user_id', $dealerCustomerIds)->where('type', 'Credit')->whereIn('status', ['Credited', 'Approved'])->sum('amount');
             $openServiceRequests = \App\Models\ServiceRequest::whereIn('user_id', $dealerCustomerIds)->whereIn('status', ['Pending', 'Scheduled', 'In Progress'])->count();
 
             $dealerCustomerEmails = User::whereIn('id', $dealerCustomerIds)->pluck('email')->filter()->toArray();
@@ -235,7 +235,7 @@ class UserController extends AppBaseController
             $totalSites = \App\Models\CustomerSite::count();
             $totalCapacity = (float)\App\Models\CustomerSite::sum('capacity_kw');
             $totalReferrals = \App\Models\Referral::count();
-            $totalRewards = (float)\App\Models\WalletTransaction::where('type', 'Credit')->sum('amount');
+            $totalRewards = (float)\App\Models\WalletTransaction::where('type', 'Credit')->whereIn('status', ['Credited', 'Approved'])->sum('amount');
             $openServiceRequests = \App\Models\ServiceRequest::whereIn('status', ['Pending', 'Scheduled', 'In Progress'])->count();
             $recentInquiries = \App\Models\Inquiry::orderBy('created_at', 'desc')->take(5)->get();
             $recentCustomers = User::where('user_type', 'customer')->orWhereNull('user_type')->withCount(['sites', 'referrals'])->orderBy('created_at', 'desc')->take(5)->get();

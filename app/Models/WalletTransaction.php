@@ -50,6 +50,18 @@ class WalletTransaction extends Model
                 $model->uuid = Str::uuid()->toString();
             }
         });
+
+        self::saved(function ($model) {
+            if ($model->user) {
+                $model->user->recalculateWalletBalance();
+            }
+        });
+
+        self::deleted(function ($model) {
+            if ($model->user) {
+                $model->user->recalculateWalletBalance();
+            }
+        });
     }
 
     public function scopeFindWithUuid($query, $uuid, $with = [])

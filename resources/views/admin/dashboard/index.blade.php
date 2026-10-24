@@ -133,7 +133,7 @@
         </div>
 
         <!-- ENVIRONMENTAL & CLEAN ENERGY IMPACT STRIP (HIGH CONTRAST TEXT) -->
-        <div class="card custom-card border-0 mb-4 shadow-sm" style="background: linear-gradient(120deg, #093753 0%, #0d5f96 60%, #15803d 100%); border-radius: 16px;">
+        <div class="card custom-card border-0 mb-4 shadow-sm" style="background: linear-gradient(120deg, #093753 0%, #0d5f96 60%, #15803d 100%); border-radius: 16px; display: none !important;">
             <div class="card-body py-3 px-4">
                 <div class="row align-items-center text-center text-md-start">
                     <div class="col-md-3 mb-3 mb-md-0">

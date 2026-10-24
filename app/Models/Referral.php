@@ -49,6 +49,18 @@ class Referral extends Model
                 $model->uuid = Str::uuid()->toString();
             }
         });
+
+        self::deleting(function ($referral) {
+            \App\Models\WalletTransaction::where('reference_type', 'Referral')
+                ->where('reference_id', $referral->id)
+                ->forceDelete();
+        });
+
+        self::deleted(function ($referral) {
+            if ($referral->referrer) {
+                $referral->referrer->recalculateWalletBalance();
+            }
+        });
     }
 
     public function scopeFindWithUuid($query, $uuid, $with = [])

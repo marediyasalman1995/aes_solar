@@ -400,7 +400,7 @@
                                             </span>
                                         </td>
                                         <td style="padding-right:18px; text-align:right;">
-                                            <a href="javascript:void(0);" title="Update Stage & Reward" data-bs-toggle="tooltip" class="btn btn-sm btn-icon btn-light text-primary" onclick="openReferralStageModal('{{ $ref->id }}', '{{ $ref->stage }}', '{{ $ref->reward_amount }}')">
+                                            <a href="javascript:void(0);" title="Update Stage & Reward" data-bs-toggle="tooltip" class="btn btn-sm btn-icon btn-light text-primary" onclick="openReferralStageModal('{{ $ref->id }}', '{{ $ref->stage }}', '{{ $ref->reward_amount }}', '{{ $ref->reward_status }}')">
                                                 <i class="ri-edit-line"></i>
                                             </a>
                                         </td>
@@ -672,17 +672,26 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">Referral Stage</label>
                         <select name="stage" id="refStageSelect" class="form-control" required>
+                            <option value="Pending">Pending</option>
                             <option value="Contacted">Contacted</option>
                             <option value="Site Survey Done">Site Survey Done</option>
                             <option value="Quotation Shared">Quotation Shared</option>
-                            <option value="Installed">Installed (Auto-Credits Reward to Wallet!)</option>
+                            <option value="Installed">Installed</option>
                             <option value="Rejected">Rejected</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Reward Amount (₹)</label>
                         <input type="number" name="reward_amount" id="refRewardInput" class="form-control" value="500">
-                        <small class="text-muted">Will be credited automatically when stage is set to "Installed".</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Reward Status</label>
+                        <select name="reward_status" id="refRewardStatusSelect" class="form-control" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Credited">Credited (Adds to Customer Wallet)</option>
+                            <option value="None">None</option>
+                        </select>
+                        <small class="text-muted">Setting to "Credited" adds points to customer wallet. Setting to Pending/None removes them.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Notes</label>
@@ -789,10 +798,11 @@
 
 @push('stackedScripts')
 <script>
-    function openReferralStageModal(id, stage, reward) {
+    function openReferralStageModal(id, stage, reward, status) {
         document.getElementById('referralStageForm').action = "{{ url('admin/customers/referrals') }}/" + id + "/update-stage";
         document.getElementById('refStageSelect').value = stage;
         document.getElementById('refRewardInput').value = reward;
+        document.getElementById('refRewardStatusSelect').value = status || 'Pending';
         new bootstrap.Modal(document.getElementById('referralStageModal')).show();
     }
 

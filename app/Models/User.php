@@ -255,16 +255,68 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
-     * Dynamically calculate accurate wallet balance from transactions
+     * Recalculate and persist user wallet balance in the database
+     */
+    public function recalculateWalletBalance()
+    {
+        // 1. Credits from valid referrals: only where referral exists, not deleted, and reward_status is Credited
+        $referralCredits = $this->referrals()
+            ->where('reward_status', 'Credited')
+            ->sum('reward_amount');
+
+        // 2. Credits from manual/other transactions (non-referral) with status Credited or Approved
+        $otherCredits = $this->walletTransactions()
+            ->where('type', 'Credit')
+            ->where(function($q) {
+                $q->whereNull('reference_type')
+                  ->orWhere('reference_type', '!=', 'Referral');
+            })
+            ->whereIn('status', ['Credited', 'Approved'])
+            ->sum('amount');
+
+        // 3. Debits & Approved Payouts
+        $debits = $this->walletTransactions()
+            ->whereIn('type', ['Debit', 'Payout'])
+            ->whereIn('status', ['Credited', 'Approved'])
+            ->sum('amount');
+
+        $calculatedBalance = max(0.0, floatval(($referralCredits + $otherCredits) - $debits));
+
+        // Update column in users table
+        $this->newQuery()->where('id', $this->id)->update([
+            'wallet_balance' => $calculatedBalance
+        ]);
+
+        return $calculatedBalance;
+    }
+
+    /**
+     * Dynamically calculate accurate wallet balance from valid credited referrals and transactions
      */
     public function getWalletBalanceAttribute($value)
     {
-        $credits = $this->walletTransactions()->where('type', 'Credit')->whereIn('status', ['Credited', 'Approved'])->sum('amount');
-        $debits = $this->walletTransactions()->whereIn('type', ['Debit', 'Payout'])->whereIn('status', ['Credited', 'Approved'])->sum('amount');
-        if ($credits > 0 || $debits > 0) {
-            return max(0.0, floatval($credits - $debits));
-        }
-        return floatval($value ?? 0);
+        // 1. Credits from valid referrals that are Credited
+        $referralCredits = $this->referrals()
+            ->where('reward_status', 'Credited')
+            ->sum('reward_amount');
+
+        // 2. Credits from non-referral wallet transactions
+        $otherCredits = $this->walletTransactions()
+            ->where('type', 'Credit')
+            ->where(function($q) {
+                $q->whereNull('reference_type')
+                  ->orWhere('reference_type', '!=', 'Referral');
+            })
+            ->whereIn('status', ['Credited', 'Approved'])
+            ->sum('amount');
+
+        // 3. Approved debits & payouts
+        $debits = $this->walletTransactions()
+            ->whereIn('type', ['Debit', 'Payout'])
+            ->whereIn('status', ['Credited', 'Approved'])
+            ->sum('amount');
+
+        return max(0.0, floatval(($referralCredits + $otherCredits) - $debits));
     }
 
     /**

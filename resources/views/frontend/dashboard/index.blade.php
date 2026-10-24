@@ -266,15 +266,31 @@
 
       <!-- 1. DASHBOARD HOME -->
       <div id="tab-home" class="dash-tab-content active">
-        <!-- TOP CARD: Available Reward Balance -->
+        <!-- TOP CARD: Reward Wallet Balance -->
         <div class="wallet-hero">
           <div>
-            <div class="lbl"><i class="ri-wallet-3-fill text-warning" style="margin-right:6px;"></i> Available Reward Balance</div>
+            <div class="lbl"><i class="ri-wallet-3-fill text-warning" style="margin-right:6px;"></i> Reward Wallet Balance</div>
             <div class="amount">₹<span class="counter" data-target="{{ round($user->wallet_balance) }}">{{ number_format($user->wallet_balance, 0) }}</span></div>
+            @if($user->wallet_balance >= 5000)
+              <div style="font-size: 0.82rem; color: rgba(255,255,255,0.88); margin-top: 4px;">
+                Withdrawable: <b>₹{{ number_format(max(0, round($user->wallet_balance - 5000)), 0) }}</b> (₹5,000 min retained)
+              </div>
+            @else
+              <div style="font-size: 0.82rem; color: rgba(255,255,255,0.88); margin-top: 4px;">
+                Earn up to ₹5,000+ via referrals to unlock bank withdrawals
+              </div>
+            @endif
           </div>
-          <button class="btn btn-amber" onclick="switchDashboardTab('tab-refer', document.querySelector('[data-tab=\'tab-refer\']'))">
-            Refer More Friends →
-          </button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            @if($user->wallet_balance >= 5000 && max(0, round($user->wallet_balance - 5000)) >= 1000)
+              <button class="btn btn-amber" onclick="openPayoutModal()">
+                <i class="ri-hand-coin-line" style="margin-right:4px;"></i> Request Withdrawal →
+              </button>
+            @endif
+            <button class="btn" style="background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4);" onclick="switchDashboardTab('tab-refer', document.querySelector('[data-tab=\'tab-refer\']'))">
+              Refer More Friends →
+            </button>
+          </div>
         </div>
 
         <!-- STATS GRID -->
@@ -301,109 +317,107 @@
           </div>
         </div>
 
-        <div class="two-col">
-          <!-- Daily Solar Generation Curve Panel -->
-          <div class="panel">
-            <h3><i class="ri-sun-line text-amber" style="margin-right:6px;"></i> Daily Solar Generation Curve</h3>
-            
-            <!-- Quick metrics row -->
-            <div style="display: flex; gap: 20px; margin-bottom: 20px; background: #f8fafc; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
-              <div style="flex: 1;">
-                <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">
-                  <span class="pulse-dot" style="background:#22c55e; width: 8px; height: 8px; display: inline-block; border-radius: 50%; margin-right: 4px; vertical-align: middle;"></span>Current Output
-                </span>
-                <b id="liveCurrentOutput" style="font-size: 1.3rem; color: var(--blue-900);">0.0 kW</b>
-              </div>
-              <div style="flex: 1; border-left: 1px solid #e2e8f0; padding-left: 20px;">
-                <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">Peak Today</span>
-                <b id="livePeakOutput" style="font-size: 1.3rem; color: var(--blue-900);">0.0 kW</b>
-              </div>
-              <div style="flex: 1; border-left: 1px solid #e2e8f0; padding-left: 20px;">
-                <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">Total Today</span>
-                <b id="liveTotalToday" style="font-size: 1.3rem; color: #16a34a;">0.0 kWh</b>
-              </div>
+        <!-- Daily Solar Generation Curve Panel (Hidden) -->
+        <div class="panel" style="display: none !important;">
+          <h3><i class="ri-sun-line text-amber" style="margin-right:6px;"></i> Daily Solar Generation Curve</h3>
+          
+          <!-- Quick metrics row -->
+          <div style="display: flex; gap: 20px; margin-bottom: 20px; background: #f8fafc; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="flex: 1;">
+              <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">
+                <span class="pulse-dot" style="background:#22c55e; width: 8px; height: 8px; display: inline-block; border-radius: 50%; margin-right: 4px; vertical-align: middle;"></span>Current Output
+              </span>
+              <b id="liveCurrentOutput" style="font-size: 1.3rem; color: var(--blue-900);">0.0 kW</b>
             </div>
-
-            @php
-              $dailyPoints = [];
-              $peakKw = ($activeSite->capacity_kw ?? 6.4) * 0.8;
-              for ($i = 0; $i <= 12; $i++) {
-                  $pct = $i / 12;
-                  $x = 50 + $pct * 400;
-                  $y = 130 - 110 * sin($pct * M_PI);
-                  $kw = $peakKw * sin($pct * M_PI);
-                  $hourNum = 6 + $i;
-                  $ampm = $hourNum >= 12 ? ($hourNum > 12 ? ($hourNum - 12) . ' PM' : '12 PM') : $hourNum . ' AM';
-                  $dailyPoints[] = [
-                      'x' => round($x, 1),
-                      'y' => round($y, 1),
-                      'kw' => round($kw, 2),
-                      'time' => $ampm
-                  ];
-              }
-            @endphp
-
-            <!-- SVG Sun Curve Chart -->
-            <div style="position: relative; background: #f8fafc; border-radius: 14px; border: 1px solid #e2e8f0; padding: 10px 10px 5px; overflow: hidden;">
-              <svg width="100%" height="150" viewBox="0 0 500 150" style="display: block;">
-                <defs>
-                  <linearGradient id="solarGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--amber)" stop-opacity="0.45"/>
-                    <stop offset="100%" stop-color="var(--amber)" stop-opacity="0.0"/>
-                  </linearGradient>
-                  <linearGradient id="curveStroke" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stop-color="var(--blue-400)"/>
-                    <stop offset="50%" stop-color="var(--amber)"/>
-                    <stop offset="100%" stop-color="var(--blue-600)"/>
-                  </linearGradient>
-                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-
-                <!-- Grid helper lines -->
-                <line x1="50" y1="130" x2="450" y2="130" stroke="#cbd5e1" stroke-width="1" />
-                <line x1="250" y1="20" x2="250" y2="130" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4" />
-
-                <!-- Filled solar curve -->
-                <path d="M 50 130 C 150 130, 190 20, 250 20 C 310 20, 350 130, 450 130 Z" fill="url(#solarGradient)" />
-
-                <!-- Stroke line curve -->
-                <path id="solarCurvePath" d="M 50 130 C 150 130, 190 20, 250 20 C 310 20, 350 130, 450 130" fill="none" stroke="url(#curveStroke)" stroke-width="4.5" stroke-linecap="round" />
-
-                <!-- Hourly vertex dots -->
-                @foreach($dailyPoints as $dp)
-                  <circle cx="{{ $dp['x'] }}" cy="{{ $dp['y'] }}" r="4" fill="#fff" stroke="var(--amber)" stroke-width="2" class="daily-point" data-label="{{ $dp['time'] }}" data-value="{{ $dp['kw'] }} kW" style="cursor: pointer;" />
-                @endforeach
-
-                <!-- Text labels -->
-                <text x="50" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">6:00 AM</text>
-                <text x="250" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">12:00 PM</text>
-                <text x="450" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">6:00 PM</text>
-
-                <!-- Current time tracker dot -->
-                <circle id="solarTrackerDot" cx="50" cy="130" r="7" fill="var(--amber)" stroke="#fff" stroke-width="2" filter="url(#glow)" style="display: none;" />
-              </svg>
+            <div style="flex: 1; border-left: 1px solid #e2e8f0; padding-left: 20px;">
+              <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">Peak Today</span>
+              <b id="livePeakOutput" style="font-size: 1.3rem; color: var(--blue-900);">0.0 kW</b>
             </div>
-            <span style="color:var(--muted);font-size:.78rem;margin-top:10px;display:block;text-align:center;">Solar curve simulates current time-of-day output based on plant capacity ({{ $activeSite->capacity_kw }} kW).</span>
+            <div style="flex: 1; border-left: 1px solid #e2e8f0; padding-left: 20px;">
+              <span style="font-size: 0.76rem; color: var(--muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px;">Total Today</span>
+              <b id="liveTotalToday" style="font-size: 1.3rem; color: #16a34a;">0.0 kWh</b>
+            </div>
           </div>
 
-          <!-- Recent Activity Panel -->
-          <div class="panel">
-            <h3><i class="ri-notification-3-line text-primary" style="margin-right:6px;"></i> Recent activity</h3>
-            @forelse(($notifications ?? collect())->take(4) as $notif)
-              <div class="notif-item {{ !$notif->is_read ? 'unread' : '' }}">
-                <span class="dot"></span>
-                <div>
-                  <b>{{ $notif->title }}</b>
-                  <span>{{ $notif->message }}</span>
-                </div>
-              </div>
-            @empty
-              <p style="color:var(--muted);font-size:0.88rem;margin:10px 0;">No new notifications right now.</p>
-            @endforelse
+          @php
+            $dailyPoints = [];
+            $peakKw = ($activeSite->capacity_kw ?? 6.4) * 0.8;
+            for ($i = 0; $i <= 12; $i++) {
+                $pct = $i / 12;
+                $x = 50 + $pct * 400;
+                $y = 130 - 110 * sin($pct * M_PI);
+                $kw = $peakKw * sin($pct * M_PI);
+                $hourNum = 6 + $i;
+                $ampm = $hourNum >= 12 ? ($hourNum > 12 ? ($hourNum - 12) . ' PM' : '12 PM') : $hourNum . ' AM';
+                $dailyPoints[] = [
+                    'x' => round($x, 1),
+                    'y' => round($y, 1),
+                    'kw' => round($kw, 2),
+                    'time' => $ampm
+                ];
+            }
+          @endphp
+
+          <!-- SVG Sun Curve Chart -->
+          <div style="position: relative; background: #f8fafc; border-radius: 14px; border: 1px solid #e2e8f0; padding: 10px 10px 5px; overflow: hidden;">
+            <svg width="100%" height="150" viewBox="0 0 500 150" style="display: block;">
+              <defs>
+                <linearGradient id="solarGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--amber)" stop-opacity="0.45"/>
+                  <stop offset="100%" stop-color="var(--amber)" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="curveStroke" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="var(--blue-400)"/>
+                  <stop offset="50%" stop-color="var(--amber)"/>
+                  <stop offset="100%" stop-color="var(--blue-600)"/>
+                </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <!-- Grid helper lines -->
+              <line x1="50" y1="130" x2="450" y2="130" stroke="#cbd5e1" stroke-width="1" />
+              <line x1="250" y1="20" x2="250" y2="130" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4" />
+
+              <!-- Filled solar curve -->
+              <path d="M 50 130 C 150 130, 190 20, 250 20 C 310 20, 350 130, 450 130 Z" fill="url(#solarGradient)" />
+
+              <!-- Stroke line curve -->
+              <path id="solarCurvePath" d="M 50 130 C 150 130, 190 20, 250 20 C 310 20, 350 130, 450 130" fill="none" stroke="url(#curveStroke)" stroke-width="4.5" stroke-linecap="round" />
+
+              <!-- Hourly vertex dots -->
+              @foreach($dailyPoints as $dp)
+                <circle cx="{{ $dp['x'] }}" cy="{{ $dp['y'] }}" r="4" fill="#fff" stroke="var(--amber)" stroke-width="2" class="daily-point" data-label="{{ $dp['time'] }}" data-value="{{ $dp['kw'] }} kW" style="cursor: pointer;" />
+              @endforeach
+
+              <!-- Text labels -->
+              <text x="50" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">6:00 AM</text>
+              <text x="250" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">12:00 PM</text>
+              <text x="450" y="145" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="middle">6:00 PM</text>
+
+              <!-- Current time tracker dot -->
+              <circle id="solarTrackerDot" cx="50" cy="130" r="7" fill="var(--amber)" stroke="#fff" stroke-width="2" filter="url(#glow)" style="display: none;" />
+            </svg>
           </div>
+          <span style="color:var(--muted);font-size:.78rem;margin-top:10px;display:block;text-align:center;">Solar curve simulates current time-of-day output based on plant capacity ({{ $activeSite->capacity_kw }} kW).</span>
+        </div>
+
+        <!-- Recent Activity Panel (Full Width) -->
+        <div class="panel" style="width: 100%; margin-top: 10px;">
+          <h3><i class="ri-notification-3-line text-primary" style="margin-right:6px;"></i> Recent activity</h3>
+          @forelse(($notifications ?? collect())->take(6) as $notif)
+            <div class="notif-item {{ !$notif->is_read ? 'unread' : '' }}">
+              <span class="dot"></span>
+              <div>
+                <b>{{ $notif->title }}</b>
+                <span>{{ $notif->message }}</span>
+              </div>
+            </div>
+          @empty
+            <p style="color:var(--muted);font-size:0.88rem;margin:10px 0;">No new notifications right now.</p>
+          @endforelse
         </div>
       </div>
 
@@ -634,7 +648,29 @@
               <label>Issue Type</label>
               <select name="issue_type" required>
                 <option value="">Select issue</option>
-                @foreach(($issueTypes ?? []) as $it)
+                @php
+                  $dynamicIssueTypes = (isset($issueTypes) && count($issueTypes) > 0)
+                    ? $issueTypes
+                    : \App\Models\IssueType::where(function($q) {
+                        $q->where('status', 1)->orWhere('status', '1')->orWhere('status', 'Active')->orWhere('status', 'active');
+                      })->orderBy('sort_order', 'asc')->get();
+
+                  if ($dynamicIssueTypes->isEmpty()) {
+                    $dynamicIssueTypes = \App\Models\IssueType::orderBy('sort_order', 'asc')->get();
+                  }
+
+                  if ($dynamicIssueTypes->isEmpty()) {
+                    $dynamicIssueTypes = collect([
+                      (object)['title' => 'Panel cleaning'],
+                      (object)['title' => 'Inverter fault'],
+                      (object)['title' => 'Low generation'],
+                      (object)['title' => 'Net-metering query'],
+                      (object)['title' => 'Annual Maintenance Visit'],
+                      (object)['title' => 'Other'],
+                    ]);
+                  }
+                @endphp
+                @foreach($dynamicIssueTypes as $it)
                   <option value="{{ $it->title }}">{{ $it->title }}</option>
                 @endforeach
               </select>
@@ -1202,9 +1238,12 @@
       showDot = true;
     }
 
-    document.getElementById('liveCurrentOutput').innerText = currentKw + ' kW';
-    document.getElementById('livePeakOutput').innerText = peak + ' kW';
-    document.getElementById('liveTotalToday').innerText = total + ' kWh';
+    const liveCurrent = document.getElementById('liveCurrentOutput');
+    if (liveCurrent) liveCurrent.innerText = currentKw + ' kW';
+    const livePeak = document.getElementById('livePeakOutput');
+    if (livePeak) livePeak.innerText = peak + ' kW';
+    const liveTotal = document.getElementById('liveTotalToday');
+    if (liveTotal) liveTotal.innerText = total + ' kWh';
 
     let trackerDot = document.getElementById('solarTrackerDot');
     if (trackerDot) {

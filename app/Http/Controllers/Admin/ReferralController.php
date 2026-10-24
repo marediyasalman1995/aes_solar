@@ -45,43 +45,59 @@ class ReferralController extends AppBaseController
 
         DB::beginTransaction();
 
-        $oldStage = $referral->stage;
+        $oldRewardStatus = $referral->reward_status;
         $referral->stage = $request->stage;
-        $referral->reward_amount = $request->reward_amount ?? $referral->reward_amount;
+        if ($request->has('reward_amount') && $request->reward_amount !== null) {
+            $referral->reward_amount = $request->reward_amount;
+        }
+        $referral->reward_status = $request->reward_status;
         $referral->notes = $request->notes;
+        $referral->save();
 
-        // Auto credit on install
-        if (($request->stage == 'Installed' || $request->reward_status == 'Credited') && $referral->reward_status != 'Credited' && $referral->reward_amount > 0) {
-            $referral->reward_status = 'Credited';
-            $referrer = $referral->referrer;
+        $referrer = $referral->referrer;
 
-            if ($referrer) {
-                $referrer->wallet_balance += $referral->reward_amount;
-                $referrer->save();
-
-                WalletTransaction::create([
-                    'user_id' => $referrer->id,
-                    'type' => 'Credit',
-                    'amount' => $referral->reward_amount,
-                    'title' => 'Referral Reward — ' . $referral->referee_name,
-                    'description' => 'Reward for solar installation by ' . $referral->referee_name,
+        if ($referrer) {
+            if ($request->reward_status === 'Credited' && $referral->reward_amount > 0) {
+                $tx = WalletTransaction::firstOrNew([
                     'reference_type' => 'Referral',
                     'reference_id' => $referral->id,
-                    'status' => 'Credited',
                 ]);
 
-                CustomerNotification::create([
-                    'user_id' => $referrer->id,
-                    'title' => 'Referral Reward Credited: ₹' . number_format($referral->reward_amount, 2),
-                    'message' => '₹' . number_format($referral->reward_amount, 2) . ' credited to your wallet for ' . $referral->referee_name . '\'s solar installation.',
-                    'type' => 'referral',
-                ]);
+                $tx->user_id = $referrer->id;
+                $tx->type = 'Credit';
+                $tx->amount = $referral->reward_amount;
+                $tx->title = 'Referral Reward — ' . $referral->referee_name;
+                $tx->description = 'Reward for referral ' . $referral->referee_name . ($referral->stage == 'Installed' ? ' (Solar Installed)' : '');
+                $tx->status = 'Credited';
+                $tx->save();
+
+                if ($oldRewardStatus !== 'Credited') {
+                    CustomerNotification::create([
+                        'user_id' => $referrer->id,
+                        'title' => 'Referral Reward Credited: ₹' . number_format($referral->reward_amount, 2),
+                        'message' => '₹' . number_format($referral->reward_amount, 2) . ' credited to your wallet for referral ' . $referral->referee_name . '.',
+                        'type' => 'referral',
+                    ]);
+
+                    if ($referrer->email) {
+                        \App\MyClasses\MailHelper::sendMail($referrer->email, 'Referral Bonus Credited: ₹' . number_format($referral->reward_amount, 2), 'emails.wallet_credited', [
+                            'user' => $referrer,
+                            'amount' => $referral->reward_amount,
+                            'title' => 'Referral Reward — ' . $referral->referee_name,
+                            'description' => 'Reward for referral ' . $referral->referee_name
+                        ]);
+                    }
+                }
+            } else {
+                // If not credited, remove any wallet transaction for this referral
+                WalletTransaction::where('reference_type', 'Referral')
+                    ->where('reference_id', $referral->id)
+                    ->forceDelete();
             }
-        } else {
-            $referral->reward_status = $request->reward_status;
+
+            $referrer->recalculateWalletBalance();
         }
 
-        $referral->save();
         DB::commit();
 
         session()->flash('alert-type', 'success');
@@ -96,7 +112,21 @@ class ReferralController extends AppBaseController
 
     public function destroy(Referral $referral)
     {
+        DB::beginTransaction();
+        $referrer = $referral->referrer;
+
+        // Remove associated wallet transaction
+        WalletTransaction::where('reference_type', 'Referral')
+            ->where('reference_id', $referral->id)
+            ->forceDelete();
+
         $referral->delete();
+
+        if ($referrer) {
+            $referrer->recalculateWalletBalance();
+        }
+        DB::commit();
+
         session()->flash('alert-type', 'success');
         session()->flash('message', 'Referral deleted successfully!');
 
